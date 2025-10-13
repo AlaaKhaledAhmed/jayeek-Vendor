@@ -1,0 +1,98 @@
+# Dart Analyzer + Linter configuration to improve performance, code quality, and maintainability
+
+include: package:flutter_lints/flutter.yaml  # Import default Flutter lint rules
+
+analyzer:
+  language:
+  #  strict-casts: true        # Prevents unsafe type casts → reduces runtime errors
+  #  strict-inference: true    # Forces the compiler to infer types precisely → avoids unnecessary dynamic
+  #  strict-raw-types: true    # Disallows using collections without specifying the type → increases safety
+
+  exclude:
+    - "**/*.g.dart"           # Exclude generated files to speed up analysis
+    - "**/*.freezed.dart"     # Exclude Freezed-generated files from manual analysis
+    - "**/generated/**"       # Exclude generated code directories
+    - "**/build/**"           # Exclude build output from build_runner
+
+  errors:
+    use_super_parameters: ignore            # Ignore warning if super parameters are not used
+    prefer_initializing_formals: ignore     # Ignore warning if initializing formals are not used
+
+linter:
+  rules:
+    # ---------------------------
+    # Const-related (Performance)
+    # ---------------------------
+    prefer_const_constructors: true            # Use const constructors to reduce rebuilds
+    prefer_const_literals_to_create_immutables: true  # Make lists/maps immutable using const
+    prefer_const_declarations: true            # Use const instead of final when possible for constants
+
+    # ---------------------------
+    # Immutability (Safety & Stability)
+    # ---------------------------
+    prefer_final_locals: true                   # Use final for local variables that never change
+    prefer_final_fields: true                   # Make fields final if they never change after initialization
+
+    # ---------------------------
+    # String handling (String optimization)
+    # ---------------------------
+    use_string_buffers: true                    # Use StringBuffer for large concatenations → better performance
+    use_raw_strings: true                       # Use raw strings r"..." when no escape is needed
+    prefer_interpolation_to_compose_strings: true  # Use ${} instead of +
+
+    # ---------------------------
+    # Avoid redundant code (Code cleanup)
+    # ---------------------------
+    avoid_redundant_argument_values: true       # Do not pass default parameter values
+    avoid_unnecessary_containers: true          # Avoid using Container if not needed
+    unnecessary_lambdas: true                   # Remove lambda if the function can be passed directly
+    avoid_function_literals_in_foreach_calls: true  # Use forEach directly
+    avoid_slow_async_io: true                    # Avoid slow IO operations in async
+    avoid_types_on_closure_parameters: true      # Don't specify type if it can be inferred
+    await_only_futures: true                     # Ensure await is used only with Future
+
+    # ---------------------------
+    # Debug output
+    # ---------------------------
+    avoid_print: true                            # Avoid print in production → use Logger instead
+
+    # ---------------------------
+    # Flutter/widget performance
+    # ---------------------------
+    use_key_in_widget_constructors: true         # Add Keys to widgets to reduce rebuilds
+    sized_box_for_whitespace: true               # Use SizedBox for spacing instead of Container
+    use_decorated_box: true                      # Use DecoratedBox instead of Container for decoration only
+    use_colored_box: true                        # Use ColoredBox instead of Container for color only
+    prefer_const_constructors_in_immutables: true # Use const constructors for immutable widgets
+
+    # ---------------------------
+    # Collection & memory efficiency
+    # ---------------------------
+    prefer_spread_collections: true              # Use ... and ...? instead of adding items manually
+    prefer_inlined_adds: true                    # Add list/map items inline instead of using addAll
+
+    # ---------------------------
+    # Resource safety
+    # ---------------------------
+    cancel_subscriptions: true                   # Cancel subscriptions to avoid memory leaks
+    close_sinks: true                            # Close sinks to avoid resource leaks
+
+    # ---------------------------
+    # Loop safety
+    # ---------------------------
+    prefer_final_in_for_each: true                # Make variables inside forEach final
+
+# ---------------------------
+# Dart Code Metrics (Complexity analysis)
+# ---------------------------
+dart_code_metrics:
+  metrics:
+    cyclomatic-complexity: 20                    # Maximum allowed function complexity
+    maximum-nesting-level: 5                     # Maximum allowed nesting level
+    number-of-parameters: 6                      # Maximum number of parameters per function
+    source-lines-of-code: 120                    # Maximum number of lines per file/function
+  rules:
+    - no-equal-arguments                          # Avoid passing the same argument twice
+    - no-boolean-literal-compare                  # Avoid comparing with true/false directly
+    - avoid-nested-conditional-expressions        # Avoid overly nested conditional expressions
+    - prefer-trailing-comma                        # Use trailing commas for better formatting

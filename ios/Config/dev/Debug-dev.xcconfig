@@ -1,0 +1,3 @@
+#include "../../Flutter/Debug.xcconfig"
+PRODUCT_BUNDLE_IDENTIFIER = com.example.jayeekVendor.dev
+APP_DISPLAY_NAME = jayeek Dev
