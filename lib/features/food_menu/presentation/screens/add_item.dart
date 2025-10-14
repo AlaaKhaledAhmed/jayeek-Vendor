@@ -30,7 +30,7 @@ class AddItemPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: const AppBarWidget(
-        text: AppMessage.addNewMeal,
+        text: AppMessage.addMeal,
         hideBackButton: false,
       ),
       body: state.isLoading
@@ -39,7 +39,10 @@ class AddItemPage extends ConsumerWidget {
               child: Form(
                 key: notifier.formKey,
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w,vertical: 10.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10.w,
+                    vertical: 10.h,
+                  ),
                   child: ScrollList(
                     children: [
                       // صورة الوجبة

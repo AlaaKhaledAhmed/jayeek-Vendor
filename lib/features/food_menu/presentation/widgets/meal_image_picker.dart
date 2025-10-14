@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:jayeek_vendor/core/constants/app_color.dart';
+import 'package:jayeek_vendor/core/constants/app_string.dart';
 import 'package:jayeek_vendor/core/extensions/color_extensions.dart';
 import 'package:jayeek_vendor/core/widgets/app_decoration.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
@@ -31,7 +32,7 @@ class MealImagePicker extends StatelessWidget {
         child: path == null
             ? const Center(
                 child: AppText(
-                  text: 'اضغط لاختيار صورة الوجبة',
+                  text: AppMessage.mealPhoto,
                   color: AppColor.subtextColor,
                 ),
               )

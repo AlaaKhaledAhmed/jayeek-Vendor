@@ -95,13 +95,13 @@ class AppMessage {
   static const String notAvailableTemp = "غير متاح مؤقتًا";
   static const String edit = "تعديل";
   static const String delete = "حذف";
-  static const String deleteMeal = "حذف الوجبة؟";
+  static const String deleteMeal = "حذف الطبق؟";
   static const String deleteMealConfirm =
-      "هل أنت متأكد أنك تريد حذف هذه الوجبة؟ لا يمكن التراجع.";
+      "هل أنت متأكد أنك تريد حذف هذه الطبق؟ لا يمكن التراجع.";
   static const String noDishesYet = "لا توجد أطباق بعد";
   static const String addFirstDish = "أضف أول طبق لبدء عرض قائمتك هنا.";
-  static const String addMeal = "إضافة وجبة";
-  static const String searchForMeal = "ابحث عن وجبة…";
+  static const String addMeal = "إضافة طبق جديد";
+  static const String searchForMeal = "ابحث عن طبق معين...";
   static const String all = "الكل";
   static const String sar = "د.ا";
   static const String addNewCategory = "إضافة فئة جديدة";
@@ -115,9 +115,8 @@ class AppMessage {
   static const String addItemToList = "إضافة عنصر إلى القائمة";
   static const String itemName = "اسم العنصر";
   static const String enterPrice = "أدخل السعر";
-  static const String addNewMeal = "إضافة وجبة جديدة";
-  static const String editMeal = "تعديل الوجبة";
-  static const String mealName = "اسم الوجبة";
+  static const String editMeal = "تعديل معلومات الطبق";
+  static const String mealName = "اسم الطبق";
   static const String description = "الوصف";
   static const String category = "الفئة";
   static const String chooseCategory = "اختر الفئة";
@@ -130,4 +129,5 @@ class AppMessage {
   static const String enterMealName = "يرجى إدخال الاسم";
   static const String enterDescription = "يرجى إدخال الوصف";
   static const String enterMealPrice = "يرجى إدخال السعر";
+  static const String mealPhoto = 'اضغط لاختيار صورة الطبق';
 }
