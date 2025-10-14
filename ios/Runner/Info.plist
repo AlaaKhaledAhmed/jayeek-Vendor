@@ -49,5 +49,7 @@
     <string>We need access to the images to select a product image.</string>
     <key>NSPhotoLibraryAddUsageDescription</key>
     <string>We need to save the images to an album.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>We need to use the camera to take product photos.</string>
 </dict>
 </plist>

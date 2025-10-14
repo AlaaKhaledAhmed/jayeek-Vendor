@@ -1,128 +1,191 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-
-// Widgets الخاصة بك:
-import '../widgets/app_text.dart';
-import '../widgets/app_buttons.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:jayeek_vendor/core/util/print_info.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'dart:async';
 import '../constants/app_color.dart';
-import '../theme/app_them.dart';
-import '../widgets/bottom_sheet.dart';
+import '../constants/app_constants.dart';
+import '../constants/app_string.dart';
+import '../widgets/app_dialog.dart';
+import '../widgets/app_snack_bar.dart';
 
-class PhotoPermissionService {
-  PhotoPermissionService._();
+class AppPermissions {
+  //=====================================================================================
+  static Future getFile(
+      {required BuildContext context, List<String>? allowedExtensions}) async {
+    final bool result = await storagePermission(context: context);
 
-  /// يتأكد من صلاحية الوصول للصور ويطلبها إن لزم.
-  /// يعرض BottomSheet في حالة الرفض النهائي لفتح الإعدادات.
-  /// يعيد true إذا أصبح الوصول متاحًا، false خلاف ذلك.
-  static Future<bool> ensurePhotosPermission(BuildContext context) async {
-    final Permission permission = await _platformPhotoPermission();
-
-    // 1) الحالة الحالية
-    PermissionStatus status = await permission.status;
-    if (_isUsable(status)) return true;
-
-    // 2) اطلب إذن
-    status = await permission.request();
-    if (_isUsable(status)) return true;
-
-    // 3) الرفض النهائي -> اسأل المستخدم فتح الإعدادات
-    if (status.isPermanentlyDenied) {
-      final wants = await _askOpenSettings(context);
-      if (wants == true) {
-        final opened = await openSettings();
-        if (!opened) return false; // ما قدر نفتح الإعدادات
-
-        // بعد العودة، أعد الفحص بهدوء
-        final PermissionStatus recheck = await permission.status;
-        return _isUsable(recheck);
+    ///if permission done
+    if (result) {
+      final FilePickerResult? file = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: allowedExtensions ?? ['pdf'],
+      );
+      if (file != null) {
+        return File(file.files.single.path!);
+      } else {
+        return null;
       }
+    } else {
+      return;
+    }
+  }
+
+//=========================================================
+  static Future getPhoto({required BuildContext context}) async {
+    final bool? result = await photoPermission(context: context);
+    final ImagePicker picker = ImagePicker();
+
+    ///catch error when pick images
+    if (result == null) {
+      return AppSnackBar.show(
+        message: AppMessage.formatText,
+        type: ToastType.error,
+      );
     }
 
+    ///if permission is denial
+    if (result == false) {
+      return permissionDenied(context);
+    }
+
+    ///if permission is isGranted
+    final XFile? file = await picker.pickImage(source: ImageSource.gallery);
+    if (file != null) {
+      return File(file.path);
+
+      ///if no file selected
+    } else {
+      return;
+    }
+  }
+
+//============================================================================================
+  static permissionDenied(context, {String? title, String? subTitle}) {
+    return AppDialog.noPermissionDialog(
+        context: context,
+        message: subTitle ?? AppMessage.accessImage,
+        title: title ?? 'تنبيه');
+  }
+
+//pick image========================================================================================
+  static Future<bool > photoPermission({required BuildContext context}) async {
+    try {
+      if (Platform.isIOS) {
+
+        final permissionStatus = await Permission.photos.status;
+        printInfo('value');
+        if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
+          final res = await Permission.photos.request();
+          if (res.isDenied || res.isPermanentlyDenied) {
+            printInfo('isPermanentlyDenied');
+            return false;
+          }
+        }
+        return true;
+      } else if (Platform.isAndroid) {
+        final device = await DeviceInfoPlugin().androidInfo;
+        if (device.version.sdkInt < 33) {
+          final permissionStatus = await Permission.storage.status;
+          if (permissionStatus.isDenied ||
+              permissionStatus.isPermanentlyDenied) {
+            final res = await Permission.storage.request();
+            if (res.isDenied || res.isPermanentlyDenied) {
+              return false;
+            }
+          }
+        }
+        return true;
+      }
+    } catch (e) {
+      printInfo('Error picking image: $e');
+      return false;
+     // return null;
+    }
+    return false;
+    //return null;
+  }
+
+//pick image========================================================================================
+  static Future recordPermission({required BuildContext context}) async {
+    final PermissionStatus recordPermission =
+        await Permission.microphone.request();
+    if (recordPermission.isGranted) {
+      return AppConstants.isGranted;
+    } else if (recordPermission.isPermanentlyDenied) {
+      AppDialog.noPermissionDialog(
+          context: context,
+          message: AppMessage.micPermissionMessage,
+          title: AppMessage.micPermission);
+    }
+  }
+
+//pick File form device===================================================================================================
+  static Future<bool> storagePermission({required BuildContext context}) async {
+    if (Platform.isIOS) {
+      final permissionStatus = await Permission.storage.status;
+      if (permissionStatus.isDenied) {
+        print('isDenied');
+        final res = await Permission.storage.request();
+        if (res.isDenied || res.isPermanentlyDenied) {
+          print('isDenied || isPermanentlyDenied');
+          return false;
+        }
+      } else if (permissionStatus.isPermanentlyDenied) {
+        print('isPermanentlyDenied');
+        return false;
+      } else {
+        return true;
+      }
+    }
+//==============================================================
+    else if (Platform.isAndroid) {
+      final device = await DeviceInfoPlugin().androidInfo;
+      printInfo('DeviceInfoPlugin: ${device.version.sdkInt}');
+      if (device.version.sdkInt < 33) {
+        final permissionStatus = await Permission.storage.status;
+        if (permissionStatus.isDenied) {
+          print('isDenied');
+          final res = await Permission.storage.request();
+          if (res.isDenied || res.isPermanentlyDenied) {
+            print('isDenied || isPermanentlyDenied');
+            return false;
+          }
+        } else if (permissionStatus.isPermanentlyDenied) {
+          print('isPermanentlyDenied');
+          return false;
+        } else {
+          return true;
+        }
+      } else {
+        return true;
+      }
+    }
     return false;
   }
 
-  /// فتح إعدادات التطبيق. يعيد true إذا تم فتح الإعدادات بنجاح.
-  static Future<bool> openSettings() async => await openAppSettings();
-
-  // ----------------- Helpers -----------------
-
-  /// إذن الصور المناسب حسب النظام/النسخة:
-  /// - iOS: Permission.photos
-  /// - Android 13+: Permission.photos (READ_MEDIA_IMAGES)
-  /// - Android <=12: Permission.storage (READ_EXTERNAL_STORAGE)
-  static Future<Permission> _platformPhotoPermission() async {
-    if (Platform.isIOS) return Permission.photos;
-
-    if (Platform.isAndroid) {
-      final info = await DeviceInfoPlugin().androidInfo;
-      final sdk = info.version.sdkInt;
-      if (sdk >= 33) {
-        // Android 13+
-        return Permission
-            .photos; // يدعمها permission_handler كـ READ_MEDIA_IMAGES
-      } else {
-        // Android 12 وأقل
-        return Permission.storage;
-      }
-    }
-
-    // منصات أخرى: اعتبرها غير مدعومة -> اختر photos كافتراضي.
-    return Permission.photos;
-  }
-
-  /// نعتبر الإذن usable لو Granted (وعلى iOS: Limited تُترجم إلى granted من النظام).
-  static bool _isUsable(PermissionStatus s) => s.isGranted;
-
-  /// BottomSheet يسأل فتح الإعدادات
-  static Future<bool?> _askOpenSettings(BuildContext context) {
-    return CustomBottomSheet.show<bool>(
-      context: context,
-
-      child: const _SettingsPrompt(),
-    );
-  }
-}
-
-/// محتوى رسالة التأكيد قبل فتح الإعدادات
-class _SettingsPrompt extends StatelessWidget {
-  const _SettingsPrompt();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        AppText(text: 'لا يمكن الوصول إلى الصور', fontWeight: AppThem().bold),
-        const SizedBox(height: 8),
-        const AppText(
-          text:
-              'لتتمكّن من اختيار صورة للمنتج، يرجى منح الإذن للوصول إلى الصور.\n'
-              'هل ترغب في فتح الإعدادات الآن وتمكين الإذن؟',
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: AppButtons(
-                text: 'فتح الإعدادات',
-                onPressed: () => Navigator.of(context).pop(true),
-                backgroundColor: AppColor.mainColor,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: AppButtons(
-                text: 'لاحقًا',
-                onPressed: () => Navigator.of(context).pop(false),
-                backgroundColor: AppColor.subtextColor,
-              ),
-            ),
-          ],
+//=====================================================================================
+  static Future cropImage(File image) async {
+    final CroppedFile? croppedFile = await ImageCropper().cropImage(
+      sourcePath: image.path,
+      compressQuality: 100,
+      uiSettings: [
+        AndroidUiSettings(
+            toolbarTitle: 'Cropper',
+            toolbarColor: AppColor.mainColor,
+            toolbarWidgetColor: AppColor.white,
+            activeControlsWidgetColor: AppColor.mainColor,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false),
+        IOSUiSettings(
+          title: 'Cropper',
         ),
       ],
     );
+    return croppedFile == null ? null : File(croppedFile.path);
   }
 }

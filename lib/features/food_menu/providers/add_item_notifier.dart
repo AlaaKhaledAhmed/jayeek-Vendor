@@ -97,9 +97,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   }
 
   Future<void> pickMealImage(BuildContext context) async {
-    final granted = await PhotoPermissionService.ensurePhotosPermission(
-      context,
-    );
+    final granted = await AppPermissions.photoPermission(context: context);
     if (!granted) return;
 
     final path = await AppImagePicker.pickFromGallery();

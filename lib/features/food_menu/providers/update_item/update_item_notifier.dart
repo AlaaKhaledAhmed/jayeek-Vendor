@@ -22,7 +22,7 @@ class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
   String? selectedBranch;
 
   UpdateItemNotifier(this.repository, this.item)
-    : super(const UpdateItemState()) {
+      : super(const UpdateItemState()) {
     _init();
   }
 
@@ -119,14 +119,23 @@ class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
   }
 
   Future<void> pickMealImage(BuildContext context) async {
-    final granted = await PhotoPermissionService.ensurePhotosPermission(
-      context,
+    final bool granted = await AppPermissions.photoPermission(
+      context: context,
     );
-    if (!granted) return;
+
+    if (!granted) {
+      debugPrint('❌ Permission not granted, returning');
+      return;
+    }
 
     final path = await AppImagePicker.pickFromGallery(imageQuality: 85);
+    debugPrint('📷 Selected image path: $path');
+
     if (path != null) {
       setMealImagePath(path);
+      debugPrint('✅ Image path set successfully');
+    } else {
+      debugPrint('ℹ️ No image selected (user cancelled)');
     }
   }
 

@@ -16,4 +16,6 @@ class AppIcons {
   static IconData salads = Icons.eco_rounded;
   static IconData desserts = Icons.cake_rounded;
   static IconData drinks = Icons.local_cafe_rounded;
+
+  static IconData warning = Icons.warning_amber_rounded;
 }

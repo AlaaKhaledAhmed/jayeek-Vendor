@@ -123,6 +123,7 @@ class AppMessage {
   static const String branch = "الفرع";
   static const String chooseBranch = "اختر الفرع";
   static const String available = "متاح";
+  static String goToSettings = 'الذهاب للاعدادات';
   static const String canCustomize = "قابل للتخصيص";
   static const String saveChanges = "حفظ التعديلات";
   static const String save = "حفظ";
@@ -130,4 +131,16 @@ class AppMessage {
   static const String enterDescription = "يرجى إدخال الوصف";
   static const String enterMealPrice = "يرجى إدخال السعر";
   static const String mealPhoto = 'اضغط لاختيار صورة الطبق';
+  static const String enablePermission = 'تفعيل الاذن';
+  static String permissionRequest({required String permissionType}) {
+    return 'الرجاء تفعيل اذن $permissionType لتتمكن من اكمال العملية ';
+  }
+
+  static const String imageReachedLimit =
+      'حجم الصورة يجب أن لا يزيد عن 1 ميجابايت';
+  static const String accessImage =
+      "التطبيق يحتاج إلى إذن لعرض الصور، فعل الإذن من الإعدادات.";
+  static const String micPermissionMessage =
+      'يجب تفعيل إذن الميكروفون لاستخدام هذه الميزة. الرجاء تفعيل الإذن من الإعدادات.';
+  static const String micPermission = 'تفعيل اذن المايكروفون';
 }

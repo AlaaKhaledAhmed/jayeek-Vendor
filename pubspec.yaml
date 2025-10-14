@@ -7,7 +7,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.8.1
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -17,7 +17,9 @@ dependencies:
   dropdown_button2: ^2.3.9
   flutter_riverpod: ^2.6.1
   image_picker: ^1.1.2
-  permission_handler: ^12.0.1
+  permission_handler: ^11.4.0
+  file_picker: 8.1.2
+  image_cropper: 8.0.2
   dio: ^5.8.0+1
   pinput: ^5.0.1
   equatable: ^2.0.7
