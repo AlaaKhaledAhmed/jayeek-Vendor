@@ -7,8 +7,9 @@ import 'package:jayeek_vendor/core/constants/app_string.dart';
 import 'package:jayeek_vendor/core/routing/app_routes_methods.dart';
 import 'package:jayeek_vendor/core/util/print_info.dart';
 import 'package:jayeek_vendor/core/widgets/app_bar.dart';
+import 'package:jayeek_vendor/core/widgets/app_refresh_indicator.dart';
 import '../../providers/menu/menu_provider.dart';
-import '../widgets/empty_state.dart';
+import '../widgets/empty_data.dart';
 import '../widgets/grid_list.dart';
 import '../widgets/loading_placeholder.dart';
 import '../widgets/search_and_chips.dart';
@@ -73,7 +74,12 @@ class FoodMenuScreen extends ConsumerWidget {
                       ),
                       child: state.gridMode
                           ? GridList(items: filtered)
-                          : VerticalList(items: filtered),
+                          : AppRefreshIndicator(
+                              onRefresh: ref
+                                  .read(menuProvider.notifier)
+                                  .refreshMenu,
+                              child: VerticalList(items: filtered),
+                            ),
                     ),
             ),
           ],

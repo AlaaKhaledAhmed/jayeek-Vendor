@@ -12,6 +12,7 @@ class VerticalList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ListView.separated(
+      physics: const AlwaysScrollableScrollPhysics(),
       itemBuilder: (_, i) => MenuItemCard(item: items[i]),
       separatorBuilder: (_, __) => SizedBox(height: 10.h),
       itemCount: items.length,

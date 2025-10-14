@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jayeek_vendor/core/constants/app_size.dart';
 import 'package:jayeek_vendor/core/constants/app_string.dart';
+import 'package:jayeek_vendor/core/routing/app_routes_methods.dart';
 import 'package:jayeek_vendor/core/widgets/app_buttons.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
+import 'package:jayeek_vendor/features/food_menu/presentation/screens/add_item.dart';
 
 class EmptyState extends StatelessWidget {
   const EmptyState({super.key});
@@ -30,7 +32,12 @@ class EmptyState extends StatelessWidget {
               fontSize: AppSize.captionText,
             ),
             SizedBox(height: 16.h),
-            AppButtons(text: AppMessage.addMeal, onPressed: () {}),
+            AppButtons(
+              text: AppMessage.addMeal,
+              onPressed: () {
+                AppRoutes.pushTo(context, const AddItemPage());
+              },
+            ),
           ],
         ),
       ),
