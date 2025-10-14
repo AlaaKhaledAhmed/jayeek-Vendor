@@ -6,4 +6,5 @@ class AppIcons {
   static IconData food = Icons.fastfood_rounded;
   static IconData orders = Icons.task;
   static IconData profile = Icons.account_circle;
+  static IconData delete = Icons.delete_rounded;
 }

@@ -102,7 +102,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     );
     if (!granted) return;
 
-    final path = await AppImagePicker.pickFromGallery(imageQuality: 85);
+    final path = await AppImagePicker.pickFromGallery();
     if (path != null) {
       setMealImagePath(path);
     }

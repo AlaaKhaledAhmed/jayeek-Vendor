@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:jayeek_vendor/core/constants/app_size.dart';
+import 'package:jayeek_vendor/core/constants/app_string.dart';
 import 'package:jayeek_vendor/core/widgets/app_buttons.dart';
+import 'package:jayeek_vendor/core/widgets/app_text.dart';
 
 class EmptyState extends StatelessWidget {
   const EmptyState({super.key});
@@ -13,19 +16,21 @@ class EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.restaurant_menu, size: 72),
+            Icon(Icons.restaurant_menu, size: AppSize.veryLargeIconSize),
             SizedBox(height: 12.h),
-            const Text(
-              'لا توجد أطباق بعد',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            AppText(
+              text: AppMessage.noDishesYet,
+              fontWeight: FontWeight.bold,
+              fontSize: AppSize.heading2,
             ),
             SizedBox(height: 6.h),
-            const Text(
-              'أضف أول طبق لبدء عرض قائمتك هنا.',
-              textAlign: TextAlign.center,
+            AppText(
+              text: AppMessage.addFirstDish,
+              align: TextAlign.center,
+              fontSize: AppSize.captionText,
             ),
             SizedBox(height: 16.h),
-            AppButtons(text: 'إضافة وجبة', onPressed: () {}),
+            AppButtons(text: AppMessage.addMeal, onPressed: () {}),
           ],
         ),
       ),

@@ -89,4 +89,45 @@ class AppMessage {
   static const String foodMenu = "قائمة الطعام";
   static const String orders = "الطلبات";
   static const String profile = "الحساب";
+
+  // Food Menu Strings
+  static const String customizable = "قابل للتخصيص";
+  static const String notAvailableTemp = "غير متاح مؤقتًا";
+  static const String edit = "تعديل";
+  static const String delete = "حذف";
+  static const String deleteMeal = "حذف الوجبة؟";
+  static const String deleteMealConfirm =
+      "هل أنت متأكد أنك تريد حذف هذه الوجبة؟ لا يمكن التراجع.";
+  static const String noDishesYet = "لا توجد أطباق بعد";
+  static const String addFirstDish = "أضف أول طبق لبدء عرض قائمتك هنا.";
+  static const String addMeal = "إضافة وجبة";
+  static const String searchForMeal = "ابحث عن وجبة…";
+  static const String all = "الكل";
+  static const String sar = "د.ا";
+  static const String addNewCategory = "إضافة فئة جديدة";
+  static const String categoryName = "اسم الفئة";
+  static const String enterName = "أدخل الاسم";
+  static const String add = "إضافة";
+  static const String createAddonGroup = "إنشاء مجموعة إضافات";
+  static const String groupName = "اسم المجموعة";
+  static const String required = "إلزامي";
+  static const String maxSelections = "الحد الأقصى للاختيارات";
+  static const String addItemToList = "إضافة عنصر إلى القائمة";
+  static const String itemName = "اسم العنصر";
+  static const String enterPrice = "أدخل السعر";
+  static const String addNewMeal = "إضافة وجبة جديدة";
+  static const String editMeal = "تعديل الوجبة";
+  static const String mealName = "اسم الوجبة";
+  static const String description = "الوصف";
+  static const String category = "الفئة";
+  static const String chooseCategory = "اختر الفئة";
+  static const String branch = "الفرع";
+  static const String chooseBranch = "اختر الفرع";
+  static const String available = "متاح";
+  static const String canCustomize = "قابل للتخصيص";
+  static const String saveChanges = "حفظ التعديلات";
+  static const String save = "حفظ";
+  static const String enterMealName = "يرجى إدخال الاسم";
+  static const String enterDescription = "يرجى إدخال الوصف";
+  static const String enterMealPrice = "يرجى إدخال السعر";
 }

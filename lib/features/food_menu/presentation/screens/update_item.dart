@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jayeek_vendor/core/constants/app_color.dart';
+import 'package:jayeek_vendor/core/constants/app_string.dart';
 import 'package:jayeek_vendor/core/theme/app_them.dart';
 import 'package:jayeek_vendor/core/widgets/app_bar.dart';
 import 'package:jayeek_vendor/core/widgets/app_buttons.dart';
@@ -30,7 +31,10 @@ class UpdateItemPage extends ConsumerWidget {
     final state = ref.watch(provider);
 
     return Scaffold(
-      appBar: const AppBarWidget(text: 'تعديل الوجبة', hideBackButton: false),
+      appBar: const AppBarWidget(
+        text: AppMessage.editMeal,
+        hideBackButton: false,
+      ),
       body: state.isLoading
           ? CustomLoad().loadVerticalList(context: context)
           : SafeArea(
@@ -48,46 +52,58 @@ class UpdateItemPage extends ConsumerWidget {
                       SizedBox(height: 12.h),
 
                       // اسم الوجبة
-                      AppText(text: 'اسم الوجبة', fontWeight: AppThem().bold),
+                      AppText(
+                        text: AppMessage.mealName,
+                        fontWeight: AppThem().bold,
+                      ),
                       SizedBox(height: 5.h),
                       AppTextFields(
-                        hintText: 'اسم الوجبة',
+                        hintText: AppMessage.mealName,
                         controller: notifier.nameController,
                         validator: (v) =>
-                            v!.isEmpty ? 'يرجى إدخال الاسم' : null,
+                            v!.isEmpty ? AppMessage.enterMealName : null,
                       ),
                       SizedBox(height: 10.h),
 
                       // الوصف
-                      AppText(text: 'الوصف', fontWeight: AppThem().bold),
+                      AppText(
+                        text: AppMessage.description,
+                        fontWeight: AppThem().bold,
+                      ),
                       SizedBox(height: 5.h),
                       AppTextFields(
-                        hintText: 'الوصف',
+                        hintText: AppMessage.description,
                         controller: notifier.descriptionController,
                         minLines: 3,
                         maxLines: 4,
                         validator: (v) =>
-                            v!.isEmpty ? 'يرجى إدخال الوصف' : null,
+                            v!.isEmpty ? AppMessage.enterDescription : null,
                       ),
                       SizedBox(height: 10.h),
 
                       // السعر
-                      AppText(text: 'السعر', fontWeight: AppThem().bold),
+                      AppText(
+                        text: AppMessage.price,
+                        fontWeight: AppThem().bold,
+                      ),
                       SizedBox(height: 5.h),
                       AppTextFields(
-                        hintText: 'السعر',
+                        hintText: AppMessage.price,
                         keyboardType: TextInputType.number,
                         controller: notifier.priceController,
                         validator: (v) =>
-                            v!.isEmpty ? 'يرجى إدخال السعر' : null,
+                            v!.isEmpty ? AppMessage.enterMealPrice : null,
                       ),
                       SizedBox(height: 10.h),
 
                       // الفئة
-                      AppText(text: 'الفئة', fontWeight: AppThem().bold),
+                      AppText(
+                        text: AppMessage.category,
+                        fontWeight: AppThem().bold,
+                      ),
                       SizedBox(height: 5.h),
                       AppDropList(
-                        hintText: 'اختر الفئة',
+                        hintText: AppMessage.chooseCategory,
                         items: state.categories,
                         value: notifier.selectedCategory,
                         onChanged: notifier.selectCategory,
@@ -101,7 +117,7 @@ class UpdateItemPage extends ConsumerWidget {
                               onAdd: notifier.addNewCategory,
                             ),
                             child: AppText(
-                              text: 'إضافة فئة جديدة',
+                              text: AppMessage.addNewCategory,
                               color: AppColor.accentColor,
                               fontWeight: AppThem().bold,
                             ),
@@ -110,10 +126,13 @@ class UpdateItemPage extends ConsumerWidget {
                       SizedBox(height: 10.h),
 
                       // الفرع
-                      AppText(text: 'الفرع', fontWeight: AppThem().bold),
+                      AppText(
+                        text: AppMessage.branch,
+                        fontWeight: AppThem().bold,
+                      ),
                       SizedBox(height: 5.h),
                       AppDropList(
-                        hintText: 'اختر الفرع',
+                        hintText: AppMessage.chooseBranch,
                         items: state.branches,
                         value: notifier.selectedBranch,
                         onChanged: notifier.selectBranch,
@@ -122,12 +141,12 @@ class UpdateItemPage extends ConsumerWidget {
 
                       // السويتشات
                       SwitchRow(
-                        label: 'قابل للتخصيص',
+                        label: AppMessage.canCustomize,
                         value: state.isCustomizable,
                         onChanged: notifier.toggleCustomizable,
                       ),
                       SwitchRow(
-                        label: 'متاح الآن',
+                        label: AppMessage.available,
                         value: state.isAvailable,
                         onChanged: notifier.toggleAvailable,
                       ),
@@ -157,7 +176,7 @@ class UpdateItemPage extends ConsumerWidget {
 
                       // زر الحفظ
                       AppButtons(
-                        text: 'حفظ التعديلات',
+                        text: AppMessage.saveChanges,
                         onPressed: () async {
                           final updatedItem = await notifier.update();
                           if (updatedItem != null && context.mounted) {

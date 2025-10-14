@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jayeek_vendor/core/constants/app_color.dart';
+import 'package:jayeek_vendor/core/constants/app_size.dart';
+import 'package:jayeek_vendor/core/constants/app_string.dart';
+import 'package:jayeek_vendor/core/widgets/app_decoration.dart';
+import 'package:jayeek_vendor/core/widgets/app_text.dart';
 
 class PriceChip extends StatelessWidget {
   final double price;
@@ -11,17 +15,16 @@ class PriceChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-      decoration: BoxDecoration(
+      decoration: AppDecoration.decoration(
         color: AppColor.white,
-        borderRadius: BorderRadius.circular(24.r),
+        radius: 24,
+        shadow: false,
       ),
-      child: Text(
-        '${price.toStringAsFixed(2)} ر.س',
-        style: TextStyle(
-          color: AppColor.mainColor,
-          fontSize: 12.sp,
-          fontWeight: FontWeight.bold,
-        ),
+      child: AppText(
+        text: '${price.toStringAsFixed(2)} ${AppMessage.sar}',
+        color: AppColor.mainColor,
+        fontSize: AppSize.smallText,
+        fontWeight: FontWeight.bold,
       ),
     );
   }

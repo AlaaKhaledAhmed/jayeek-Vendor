@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jayeek_vendor/core/constants/app_color.dart';
+import 'package:jayeek_vendor/core/constants/app_icons.dart';
+import 'package:jayeek_vendor/core/constants/app_size.dart';
+import 'package:jayeek_vendor/core/constants/app_string.dart';
 import 'package:jayeek_vendor/core/routing/app_routes_methods.dart';
 import 'package:jayeek_vendor/core/widgets/app_buttons.dart';
 import 'package:jayeek_vendor/core/widgets/app_decoration.dart';
+import 'package:jayeek_vendor/core/widgets/app_text.dart';
 import '../../domain/models/menu_item_model.dart';
 import '../../providers/menu/menu_provider.dart';
 import '../screens/update_item.dart';
+import 'customizable_badge.dart';
 import 'price_chip.dart';
 
 class MenuItemCard extends ConsumerWidget {
@@ -67,25 +72,27 @@ class MenuItemCard extends ConsumerWidget {
                   child: PriceChip(price: item.price),
                 ),
 
+                // Customizable banner
+                if (item.isCustomizable) const CustomizableBadge(),
+
                 // Out of stock overlay
                 if (!item.isAvailable)
                   Positioned.fill(
                     child: Container(
-                      decoration: BoxDecoration(
+                      decoration: AppDecoration.decoration(
                         color: Colors.black.withOpacity(0.35),
+                        shadow: false,
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(16.r),
                           topRight: Radius.circular(16.r),
                         ),
                       ),
                       alignment: Alignment.center,
-                      child: const Text(
-                        'غير متاح مؤقتًا',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+                      child: AppText(
+                        text: AppMessage.notAvailableTemp,
+                        color: AppColor.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: AppSize.bodyText,
                       ),
                     ),
                   ),
@@ -101,14 +108,12 @@ class MenuItemCard extends ConsumerWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(
-                          item.name,
-                          maxLines: 1,
+                        child: AppText(
+                          text: item.name,
+                          maxLine: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w700,
-                          ),
+                          fontSize: AppSize.bodyText,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                       SizedBox(width: 6.w),
@@ -118,32 +123,29 @@ class MenuItemCard extends ConsumerWidget {
                           horizontal: 8.w,
                           vertical: 4.h,
                         ),
-                        decoration: BoxDecoration(
+                        decoration: AppDecoration.decoration(
                           color: AppColor.subtextColor,
-                          borderRadius: BorderRadius.circular(24.r),
+                          radius: 24,
+                          shadow: false,
                         ),
-                        child: Text(
-                          item.category,
-                          style: TextStyle(
-                            fontSize: 10.sp,
-                            color: AppColor.white,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        child: AppText(
+                          text: item.category,
+                          fontSize: AppSize.smallText,
+                          color: AppColor.white,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
                   ),
                   SizedBox(height: 4.h),
-                  Text(
-                    item.description,
-                    maxLines: 2,
+                  AppText(
+                    text: item.description,
+                    maxLine: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: Theme.of(
-                        context,
-                      ).textTheme.bodySmall?.color?.withOpacity(0.8),
-                    ),
+                    fontSize: AppSize.smallText,
+                    color: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.color?.withOpacity(0.8),
                   ),
                 ],
               ),
@@ -155,30 +157,19 @@ class MenuItemCard extends ConsumerWidget {
               child: Row(
                 children: [
                   // Availability toggle
-                  Row(
-                    children: [
-                      const Icon(Icons.visibility),
-                      Switch(
-                        activeColor: AppColor.subtextColor,
-                        value: item.isAvailable,
-                        onChanged: (_) => notifier.toggleAvailability(item.id),
-                      ),
-                    ],
+                  Switch(
+                    activeColor: AppColor.subtextColor,
+                    value: item.isAvailable,
+                    onChanged: (_) => notifier.toggleAvailability(item.id),
                   ),
                   const Spacer(),
+
                   IconButton(
-                    tooltip: 'تعديل',
-                    onPressed: () {
-                      AppRoutes.pushTo(context, UpdateItemPage(item: item));
-                    },
-                    icon: const Icon(Icons.edit),
-                  ),
-                  IconButton(
-                    tooltip: 'حذف',
+                    tooltip: AppMessage.delete,
                     onPressed: () => _confirmDelete(context, () {
                       notifier.deleteItem(item.id);
                     }),
-                    icon: const Icon(Icons.delete_outline),
+                    icon: Icon(AppIcons.delete, color: AppColor.mediumGray),
                   ),
                 ],
               ),
@@ -193,17 +184,18 @@ class MenuItemCard extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('حذف الوجبة؟'),
-        content: const Text(
-          'هل أنت متأكد أنك تريد حذف هذه الوجبة؟ لا يمكن التراجع.',
+        title: const AppText(
+          text: AppMessage.deleteMeal,
+          fontWeight: FontWeight.bold,
         ),
+        content: const AppText(text: AppMessage.deleteMealConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('إلغاء'),
+            child: const AppText(text: AppMessage.cancel),
           ),
           AppButtons(
-            text: 'حذف',
+            text: AppMessage.delete,
             onPressed: () {
               Navigator.pop(context);
               onConfirm();

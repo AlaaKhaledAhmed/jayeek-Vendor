@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jayeek_vendor/core/constants/app_color.dart';
+import 'package:jayeek_vendor/core/constants/app_string.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
 import 'package:jayeek_vendor/core/widgets/app_text_fields.dart';
 import '../../providers/menu/menu_provider.dart';
@@ -36,7 +37,7 @@ class _SearchAndChipsState extends ConsumerState<SearchAndChips> {
               return null;
             },
             controller: _controller,
-            hintText: 'ابحث عن وجبة…',
+            hintText: AppMessage.searchForMeal,
             suffixIcon: const Icon(Icons.search),
             onChanged: notifier.setQuery,
           ),
@@ -50,7 +51,7 @@ class _SearchAndChipsState extends ConsumerState<SearchAndChips> {
                 final selected = (state.category ?? 'All') == cat;
                 return ChoiceChip(
                   label: AppText(
-                    text: cat == 'All' ? 'الكل' : cat,
+                    text: cat == 'All' ? AppMessage.all : cat,
                     color: AppColor.textColor,
                   ),
                   selected: selected,

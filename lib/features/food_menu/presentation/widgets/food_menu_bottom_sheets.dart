@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jayeek_vendor/core/constants/app_color.dart';
+import 'package:jayeek_vendor/core/constants/app_string.dart';
 import 'package:jayeek_vendor/core/widgets/app_buttons.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
 import 'package:jayeek_vendor/core/widgets/app_text_fields.dart';
@@ -21,16 +22,16 @@ class FoodMenuBottomSheets {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const AppText(text: 'إضافة فئة جديدة'),
+          const AppText(text: AppMessage.addNewCategory),
           SizedBox(height: 10.h),
           AppTextFields(
-            hintText: 'اسم الفئة',
+            hintText: AppMessage.categoryName,
             controller: ctrl,
-            validator: (v) => v!.isEmpty ? 'أدخل الاسم' : null,
+            validator: (v) => v!.isEmpty ? AppMessage.enterName : null,
           ),
           SizedBox(height: 12.h),
           AppButtons(
-            text: 'إضافة',
+            text: AppMessage.add,
             onPressed: () {
               if (ctrl.text.trim().isNotEmpty) {
                 onAdd(ctrl.text.trim());
@@ -59,23 +60,23 @@ class FoodMenuBottomSheets {
         builder: (context, setState) => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const AppText(text: 'إنشاء قائمة إضافات'),
+            const AppText(text: AppMessage.createAddonGroup),
             SizedBox(height: 8.h),
             AppTextFields(
-              hintText: 'اسم القائمة (مثال: الإضافات أو الصوصات)',
+              hintText: AppMessage.groupName,
               controller: nameCtrl,
-              validator: (v) => v!.isEmpty ? 'أدخل اسم القائمة' : null,
+              validator: (v) => v!.isEmpty ? AppMessage.enterName : null,
             ),
             SizedBox(height: 10.h),
             SwitchRow(
-              label: 'إجبارية',
+              label: AppMessage.required,
               value: required,
               onChanged: (v) => setState(() => required = v),
             ),
             if (!required) ...[
               SizedBox(height: 6.h),
               AppTextFields(
-                hintText: 'الحد الأقصى للاختيار (رقم)',
+                hintText: AppMessage.maxSelections,
                 controller: maxCtrl,
                 keyboardType: TextInputType.number,
                 validator: (_) => null,
@@ -83,7 +84,7 @@ class FoodMenuBottomSheets {
             ],
             SizedBox(height: 14.h),
             AppButtons(
-              text: 'إنشاء',
+              text: AppMessage.add,
               onPressed: () {
                 if (nameCtrl.text.trim().isEmpty) return;
                 final group = AddonGroup(
@@ -123,25 +124,25 @@ class FoodMenuBottomSheets {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const AppText(
-            text: 'إضافة عنصر إلى القائمة',
+            text: AppMessage.addItemToList,
             fontWeight: FontWeight.bold,
           ),
           SizedBox(height: 8.h),
           AppTextFields(
-            hintText: 'اسم العنصر',
+            hintText: AppMessage.itemName,
             controller: nameCtrl,
-            validator: (v) => v!.isEmpty ? 'أدخل الاسم' : null,
+            validator: (v) => v!.isEmpty ? AppMessage.enterName : null,
           ),
           SizedBox(height: 8.h),
           AppTextFields(
-            hintText: 'السعر',
+            hintText: AppMessage.price,
             keyboardType: TextInputType.number,
             controller: priceCtrl,
-            validator: (v) => v!.isEmpty ? 'أدخل السعر' : null,
+            validator: (v) => v!.isEmpty ? AppMessage.enterPrice : null,
           ),
           SizedBox(height: 12.h),
           AppButtons(
-            text: 'إضافة',
+            text: AppMessage.add,
             onPressed: () {
               if (nameCtrl.text.trim().isEmpty ||
                   priceCtrl.text.trim().isEmpty ||
