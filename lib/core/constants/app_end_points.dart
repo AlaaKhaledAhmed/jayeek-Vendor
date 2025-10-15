@@ -5,4 +5,7 @@ class ApiEndPoints {
 
   static const String loginUrl = '$_baseUrl/Login';
   static const String singUpUrl = '$_baseUrl/Signup';
+
+  // Orders endpoints
+  static const String ordersUrl = '$_baseUrl/Orders';
 }

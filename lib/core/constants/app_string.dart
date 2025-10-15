@@ -131,6 +131,7 @@ class AppMessage {
   static const String enterDescription = "يرجى إدخال الوصف";
   static const String enterMealPrice = "يرجى إدخال السعر";
   static const String mealPhoto = 'اضغط لاختيار صورة الطبق';
+  static const String imageRequired = 'يجب اختيار صورة للطبق';
   static const String enablePermission = 'تفعيل الاذن';
   static String permissionRequest({required String permissionType}) {
     return 'الرجاء تفعيل اذن $permissionType لتتمكن من اكمال العملية ';
@@ -143,4 +144,61 @@ class AppMessage {
   static const String micPermissionMessage =
       'يجب تفعيل إذن الميكروفون لاستخدام هذه الميزة. الرجاء تفعيل الإذن من الإعدادات.';
   static const String micPermission = 'تفعيل اذن المايكروفون';
+
+  // Orders Strings
+  static const String newOrders = 'طلبات جديدة';
+  static const String allOrders = 'كل الطلبات';
+  static const String orderDetails = 'تفاصيل الطلب';
+  static const String orderNumber = 'رقم الطلب';
+  static const String customer = 'العميل';
+  static const String customerName = 'اسم العميل';
+  static const String customerPhone = 'رقم العميل';
+  static const String customerAddress = 'عنوان التوصيل';
+  static const String orderItems = 'المنتجات';
+  static const String orderNotes = 'ملاحظات الطلب';
+  static const String orderTime = 'وقت الطلب';
+  static const String estimatedTime = 'وقت التوصيل المتوقع';
+  static const String orderTotal = 'المجموع الكلي';
+  static const String subtotal = 'المجموع الفرعي';
+  static const String deliveryFee = 'رسوم التوصيل';
+  static const String paymentMethod = 'طريقة الدفع';
+  static const String paid = 'مدفوع';
+  static const String notPaid = 'غير مدفوع';
+
+  // Order Status
+  static const String statusPending = 'طلب جديد';
+  static const String statusConfirmed = 'مؤكد';
+  static const String statusPreparing = 'قيد التحضير';
+  static const String statusReady = 'جاهز';
+  static const String statusOnTheWay = 'في الطريق';
+  static const String statusDelivered = 'تم التوصيل';
+  static const String statusCancelled = 'ملغي';
+
+  // Order Actions
+  static const String acceptOrder = 'قبول الطلب';
+  static const String rejectOrder = 'رفض الطلب';
+  static const String markAsPreparing = 'بدء التحضير';
+  static const String markAsReady = 'جاهز للتوصيل';
+  static const String markAsOnTheWay = 'تم الشحن';
+  static const String markAsDelivered = 'تم التوصيل';
+  static const String estimatedPrepTime = 'وقت التحضير المتوقع (بالدقائق)';
+  static const String enterEstimatedTime = 'أدخل الوقت المتوقع';
+  static const String rejectionReason = 'سبب الرفض (اختياري)';
+  static const String enterRejectionReason = 'أدخل سبب رفض الطلب';
+  static const String confirmAccept = 'تأكيد القبول';
+  static const String confirmReject = 'تأكيد الرفض';
+  static const String acceptOrderMessage = 'هل أنت متأكد من قبول هذا الطلب؟';
+  static const String rejectOrderMessage = 'هل أنت متأكد من رفض هذا الطلب؟';
+  static const String updateStatusMessage = 'هل تريد تحديث حالة الطلب؟';
+  static const String orderAccepted = 'تم قبول الطلب بنجاح';
+  static const String orderRejected = 'تم رفض الطلب';
+  static const String orderUpdated = 'تم تحديث حالة الطلب';
+  static const String noOrdersYet = 'لا توجد طلبات بعد';
+  static const String noOrdersMessage = 'عندما تتلقى طلبات جديدة، ستظهر هنا';
+  static const String refreshOrders = 'تحديث الطلبات';
+  static const String items = 'عناصر';
+  static const String item = 'عنصر';
+  static const String addons = 'إضافات';
+  static const String quantity = 'الكمية';
+  static const String minutes = 'دقيقة';
 }

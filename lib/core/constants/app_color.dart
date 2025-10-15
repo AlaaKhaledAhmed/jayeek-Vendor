@@ -21,4 +21,7 @@ class AppColor {
   static const Color green = Color(0xFF2FD506);
   static const Color darkGreen = Color(0xFF002C01);
   static Color lightGreen = const Color(0xFFAFE1AF).resolveOpacity(0.5);
+  static const Color backgroundColor = Color(0xFFF9FAFB);
+  static const Color borderColor = Color(0xFFE5E7EB);
+  static const Color subGrayText = Color(0xFF6B7280);
 }

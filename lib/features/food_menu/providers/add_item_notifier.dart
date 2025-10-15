@@ -109,6 +109,11 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   Future<MenuItemModel?> submit() async {
     if (!formKey.currentState!.validate()) return null;
 
+    // Check if image is selected (required)
+    if (state.mealImagePath == null || state.mealImagePath!.isEmpty) {
+      return null;
+    }
+
     // Create MenuItemModel
     final newItem = MenuItemModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),

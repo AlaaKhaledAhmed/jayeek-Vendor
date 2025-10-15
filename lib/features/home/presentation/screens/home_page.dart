@@ -7,7 +7,7 @@ import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_size.dart';
 import '../../../../core/constants/app_string.dart';
 import '../../../food_menu/presentation/screens/food_menu.dart';
-import '../../../orders/presentation/screens/order_screen.dart';
+import '../../../orders/presentation/screens/orders_list_screen.dart';
 import '../../../profile/presentation/screens/profile.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -29,7 +29,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   List<Widget> page = [
     const FoodMenuScreen(),
-    const OrderScreen(),
+    const OrdersListScreen(),
     const ProfileScreen(),
   ];
   @override
@@ -48,7 +48,6 @@ class _HomePageState extends ConsumerState<HomePage> {
         unselectedItemColor: AppColor.mediumGray,
         unselectedFontSize: AppSize.smallText,
         currentIndex: selectedIndex,
-
         onTap: onTabTapped,
         items: [
           navIcon(icon: AppIcons.food, label: AppMessage.foodMenu),

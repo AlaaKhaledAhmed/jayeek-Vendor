@@ -77,15 +77,15 @@ class AppPermissions {
     try {
       if (Platform.isIOS) {
 
-        final permissionStatus = await Permission.photos.status;
-        printInfo('value');
-        if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
-          final res = await Permission.photos.request();
-          if (res.isDenied || res.isPermanentlyDenied) {
-            printInfo('isPermanentlyDenied');
-            return false;
-          }
-        }
+        // final permissionStatus = await Permission.photos.status;
+        // printInfo('value');
+        // if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
+        //   final res = await Permission.photos.request();
+        //   if (res.isDenied || res.isPermanentlyDenied) {
+        //     printInfo('isPermanentlyDenied');
+        //     return false;
+        //   }
+        // }
         return true;
       } else if (Platform.isAndroid) {
         final device = await DeviceInfoPlugin().androidInfo;

@@ -7,6 +7,7 @@ import 'package:jayeek_vendor/core/theme/app_them.dart';
 import 'package:jayeek_vendor/core/widgets/app_bar.dart';
 import 'package:jayeek_vendor/core/widgets/app_buttons.dart';
 import 'package:jayeek_vendor/core/widgets/app_drop_list.dart';
+import 'package:jayeek_vendor/core/widgets/app_snack_bar.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
 import 'package:jayeek_vendor/core/widgets/app_text_fields.dart';
 import 'package:jayeek_vendor/core/widgets/custom_load.dart';
@@ -45,6 +46,22 @@ class AddItemPage extends ConsumerWidget {
                   ),
                   child: ScrollList(
                     children: [
+                      // عنوان صورة الوجبة (إجبارية)
+                      Row(
+                        children: [
+                          AppText(
+                            text: AppMessage.mealPhoto,
+                            fontWeight: AppThem().bold,
+                          ),
+                          AppText(
+                            text: ' *',
+                            color: Colors.red,
+                            fontWeight: AppThem().bold,
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8.h),
+
                       // صورة الوجبة
                       MealImagePicker(
                         path: state.mealImagePath,
@@ -158,16 +175,15 @@ class AddItemPage extends ConsumerWidget {
                         groups: state.addonGroups,
                         onAddGroup: () =>
                             FoodMenuBottomSheets.showCreateAddonGroup(
-                              context,
-                              onAdd: notifier.addAddonGroup,
-                            ),
+                          context,
+                          onAdd: notifier.addAddonGroup,
+                        ),
                         onDeleteGroup: notifier.deleteAddonGroup,
                         onAddItem: (gIndex) =>
                             FoodMenuBottomSheets.showAddAddonItem(
-                              context,
-                              onAdd: (item) =>
-                                  notifier.addAddonItem(gIndex, item),
-                            ),
+                          context,
+                          onAdd: (item) => notifier.addAddonItem(gIndex, item),
+                        ),
                         onToggleRequired: notifier.setGroupRequired,
                         onMaxChange: notifier.setGroupMaxSelectable,
                         onDeleteItem: notifier.deleteAddonItem,
@@ -179,6 +195,16 @@ class AddItemPage extends ConsumerWidget {
                       AppButtons(
                         text: AppMessage.save,
                         onPressed: () async {
+                          // Check if image is selected
+                          if (state.mealImagePath == null ||
+                              state.mealImagePath!.isEmpty) {
+                            AppSnackBar.show(
+                              message: AppMessage.imageRequired,
+                              type: ToastType.error,
+                            );
+                            return;
+                          }
+
                           final newItem = await notifier.submit();
                           if (newItem != null && context.mounted) {
                             // Add to menu list

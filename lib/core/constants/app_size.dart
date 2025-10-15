@@ -19,6 +19,8 @@ class AppSize {
   static double get heading1 => scale(24.spMin);
   static double get headingBig => scale(30.spMin);
   static double get heading2 => scale(18.spMin);
+  static double get heading3 => scale(20.spMin);
+  static double get normalText => scale(15.spMin);
   static double get bodyText => scale(16.spMin);
   static double get captionText => scale(14.spMin);
   static double get smallText => scale(12.spMin);
