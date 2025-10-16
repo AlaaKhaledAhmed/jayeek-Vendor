@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:jayeek_vendor/core/extensions/color_extensions.dart';
 import '../../../../core/constants/app_color.dart';
 import '../../../../core/constants/app_size.dart';
 import '../../../../core/services/image_picker_service.dart';
@@ -32,172 +33,187 @@ class _ModernProfileHeaderState extends State<ModernProfileHeader> {
 
   @override
   Widget build(BuildContext context) {
-    // استخدام الصور المحلية أو الصور من الشبكة
     final coverImage =
         _coverImagePath ?? widget.vendor.coverImage ?? widget.vendor.logo;
     final logoImage = _logoImagePath ?? widget.vendor.logo;
 
-    return Stack(
-      children: [
-        // خلفية المطعم
-        _buildCoverImage(coverImage),
+    return Container(
+      height: 600.h,
+      child: Stack(
+        children: [
+          // الخلفية مع الصورة
+          _buildCoverImage(coverImage),
 
-        // تدرج لوني في الأسفل
-        _buildGradientOverlay(),
+          // طبقة شفافية على الخلفية
+          Container(
+            height: 600.h,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withOpacity(0.3),
+                  Colors.black.withOpacity(0.5),
+                  Colors.black.withOpacity(0.7),
+                ],
+              ),
+            ),
+          ),
 
-        // المحتوى
-        _buildContent(logoImage),
-      ],
+          // زر تحديث الخلفية
+          Positioned(
+            top: 50.h,
+            right: 16.w,
+            child: _buildEditButton(
+              icon: Icons.photo_camera_rounded,
+              onTap: _updateCoverImage,
+            ),
+          ),
+
+          // الشعار في المنتصف
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildRestaurantLogo(logoImage),
+                SizedBox(height: 16.h),
+                AppText(
+                  text: widget.vendor.restaurantName,
+                  fontSize: 24.sp,
+                  fontWeight: AppThem().bold,
+                  color: Colors.white,
+                ),
+                SizedBox(height: 12.h),
+                _buildRatingBadge(),
+              ],
+            ),
+          ),
+
+          // الإحصائيات في الأسفل
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.8),
+                  ],
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(height: 40.h),
+                  _buildStatsRow(),
+                  SizedBox(height: 24.h),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildCoverImage(String? imageUrl) {
     return Container(
-      height: 300.h,
+      height: 600.h,
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: AppColor.mainColor,
-      ),
       child: imageUrl != null
-          ? Stack(
-              fit: StackFit.expand,
-              children: [
-                // الصورة
-                _isLocalImage(imageUrl)
-                    ? Image.file(
-                        File(imageUrl),
-                        fit: BoxFit.cover,
-                      )
-                    : Image.network(
-                        imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            _buildDefaultCover(),
-                      ),
-
-                // زر تحديث الخلفية
-                Positioned(
-                  top: 50.h,
-                  right: 16.w,
-                  child: _buildEditButton(
-                    icon: Icons.photo_camera_rounded,
-                    onTap: _updateCoverImage,
-                    tooltip: 'تحديث خلفية المطعم',
-                  ),
-                ),
-              ],
-            )
+          ? _isLocalImage(imageUrl)
+              ? Image.file(
+                  File(imageUrl),
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: 600.h,
+                )
+              : Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: 600.h,
+                  errorBuilder: (context, error, stackTrace) =>
+                      _buildDefaultCover(),
+                )
           : _buildDefaultCover(),
     );
   }
 
   Widget _buildDefaultCover() {
     return Container(
+      width: double.infinity,
+      height: 600.h,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
             AppColor.mainColor,
-            AppColor.mainColor.withOpacity(0.7),
+            AppColor.mainColor.resolveOpacity(0.6),
           ],
         ),
-      ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.restaurant_rounded,
-              size: 80.sp,
-              color: Colors.white.withOpacity(0.5),
-            ),
-            SizedBox(height: 16.h),
-            AppText(
-              text: 'اضغط لإضافة خلفية المطعم',
-              color: Colors.white.withOpacity(0.7),
-              fontSize: AppSize.smallText,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGradientOverlay() {
-    return Positioned(
-      bottom: 0,
-      left: 0,
-      right: 0,
-      child: Container(
-        height: 150.h,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.transparent,
-              Colors.black.withOpacity(0.7),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildContent(String? logoImage) {
-    return Positioned(
-      bottom: 20.h,
-      left: 0,
-      right: 0,
-      child: Column(
-        children: [
-          // شعار المطعم
-          _buildRestaurantLogo(logoImage),
-
-          SizedBox(height: 16.h),
-
-          // اسم المطعم
-          AppText(
-            text: widget.vendor.restaurantName,
-            fontSize: AppSize.heading2,
-            fontWeight: AppThem().bold,
-            color: Colors.white,
-          ),
-
-          SizedBox(height: 8.h),
-
-          // التقييم
-          if (widget.vendor.rating != null) _buildRating(),
-
-          SizedBox(height: 24.h),
-
-          // بطاقات الإحصائيات مع Glass Effect
-          _buildStatsCards(),
-        ],
       ),
     );
   }
 
   Widget _buildRestaurantLogo(String? logoImage) {
     return Stack(
+      alignment: Alignment.center,
       children: [
+        // دائرة خارجية كبيرة مع تأثير نيون
         Container(
-          width: 100.w,
-          height: 100.w,
+          width: 150.w,
+          height: 150.w,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(
-              color: Colors.white,
-              width: 3.w,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.amber.withOpacity(0.8),
+                Colors.amber.withOpacity(0.3),
+              ],
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.amber.withOpacity(0.6),
+                blurRadius: 30,
+                spreadRadius: 8,
+              ),
+            ],
+          ),
+        ),
+
+        // دائرة متوسطة بيضاء
+        Container(
+          width: 140.w,
+          height: 140.w,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
                 blurRadius: 15,
                 offset: const Offset(0, 5),
               ),
             ],
+          ),
+        ),
+
+        // الصورة الفعلية
+        Container(
+          width: 126.w,
+          height: 126.w,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: AppColor.mainColor.resolveOpacity(0.1),
           ),
           child: ClipOval(
             child: logoImage != null
@@ -223,19 +239,21 @@ class _ModernProfileHeaderState extends State<ModernProfileHeader> {
           child: GestureDetector(
             onTap: _updateLogo,
             child: Container(
-              padding: EdgeInsets.all(8.w),
+              padding: EdgeInsets.all(10.w),
               decoration: BoxDecoration(
-                color: AppColor.mainColor,
+                gradient: LinearGradient(
+                  colors: [Colors.amber, Colors.amber.shade700],
+                ),
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: Colors.white,
-                  width: 2.w,
+                  width: 3.w,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
+                    color: Colors.amber.withOpacity(0.5),
+                    blurRadius: 12,
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
@@ -253,135 +271,146 @@ class _ModernProfileHeaderState extends State<ModernProfileHeader> {
 
   Widget _buildDefaultLogo() {
     return Container(
-      color: AppColor.mainColor.withOpacity(0.1),
+      color: AppColor.mainColor.resolveOpacity(0.1),
       child: Icon(
         Icons.restaurant_rounded,
-        size: 40.sp,
+        size: 60.sp,
         color: AppColor.mainColor,
       ),
     );
   }
 
-  Widget _buildRating() {
+  Widget _buildRatingBadge() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
       decoration: BoxDecoration(
-        color: Colors.amber,
-        borderRadius: BorderRadius.circular(20.r),
+        gradient: LinearGradient(
+          colors: [Colors.amber, Colors.amber.shade700],
+        ),
+        borderRadius: BorderRadius.circular(25.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.amber.withOpacity(0.4),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.amber.withOpacity(0.5),
+            blurRadius: 15,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AppText(
-            text: widget.vendor.rating.toString(),
-            fontWeight: AppThem().bold,
-            color: Colors.white,
-            fontSize: AppSize.normalText,
-          ),
-          SizedBox(width: 4.w),
           Icon(
             Icons.star,
             color: Colors.white,
-            size: 18.sp,
+            size: 20.sp,
           ),
-          SizedBox(width: 4.w),
+          SizedBox(width: 6.w),
           AppText(
-            text: '(${widget.vendor.totalOrders ?? 0} طلب)',
+            text: widget.vendor.rating?.toString() ?? '0.0',
+            fontWeight: AppThem().bold,
             color: Colors.white,
-            fontSize: AppSize.captionText,
+            fontSize: 16.sp,
+          ),
+          SizedBox(width: 8.w),
+          AppText(
+            text: '(${_formatNumber(widget.vendor.totalOrders ?? 0)} طلب)',
+            color: Colors.white,
+            fontSize: 13.sp,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStatsCards() {
+  Widget _buildStatsRow() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppSize.horizontalPadding),
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Expanded(
-            child: _buildGlassCard(
-              icon: Icons.shopping_bag_rounded,
-              value: _formatNumber(widget.vendor.totalOrders ?? 0),
-              label: 'إجمالي الطلبات',
-            ),
+          _buildStatItem(
+            value: _formatNumber(widget.vendor.totalOrders ?? 0),
+            label: 'إجمالي الطلبات',
+            icon: Icons.shopping_bag_rounded,
           ),
-          SizedBox(width: 16.w),
-          Expanded(
-            child: _buildGlassCard(
-              icon: Icons.payments_rounded,
-              value: '${_formatCurrency(widget.vendor.totalSales ?? 0)}K',
-              label: 'إجمالي المبيعات',
-            ),
+          _buildStatDivider(),
+          _buildStatItem(
+            value: '${_formatCurrency(widget.vendor.totalSales ?? 0)}K',
+            label: 'إجمالي المبيعات',
+            icon: Icons.payments_rounded,
+          ),
+          _buildStatDivider(),
+          _buildStatItem(
+            value: '${widget.vendor.rating?.toStringAsFixed(1) ?? '0.0'}',
+            label: 'التقييم',
+            icon: Icons.star_rounded,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildGlassCard({
-    required IconData icon,
+  Widget _buildStatItem({
     required String value,
     required String label,
+    required IconData icon,
   }) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20.r),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: EdgeInsets.all(20.w),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(20.r),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.2),
-              width: 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              Container(
-                padding: EdgeInsets.all(12.w),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  icon,
-                  color: Colors.white,
-                  size: 24.sp,
+    return Expanded(
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 6.w),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: EdgeInsets.all(10.w),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.15),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.3),
+                  width: 1.5,
                 ),
               ),
-              SizedBox(height: 12.h),
-              AppText(
-                text: value,
-                fontSize: AppSize.heading2,
-                fontWeight: AppThem().bold,
+              child: Icon(
+                icon,
                 color: Colors.white,
+                size: 22.sp,
               ),
-              SizedBox(height: 4.h),
-              AppText(
-                text: label,
-                fontSize: AppSize.captionText,
-                color: Colors.white.withOpacity(0.9),
-              ),
-            ],
-          ),
+            ),
+            SizedBox(height: 10.h),
+            AppText(
+              text: value,
+              fontSize: 18.sp,
+              fontWeight: AppThem().bold,
+              color: Colors.white,
+            ),
+            SizedBox(height: 3.h),
+            AppText(
+              text: label,
+              fontSize: 10.sp,
+              color: Colors.white.withOpacity(0.9),
+              align: TextAlign.center,
+              maxLine: 2,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatDivider() {
+    return Container(
+      width: 1.w,
+      height: 50.h,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.transparent,
+            Colors.white.withOpacity(0.4),
+            Colors.transparent,
+          ],
         ),
       ),
     );
@@ -390,7 +419,6 @@ class _ModernProfileHeaderState extends State<ModernProfileHeader> {
   Widget _buildEditButton({
     required IconData icon,
     required VoidCallback onTap,
-    required String tooltip,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -404,7 +432,7 @@ class _ModernProfileHeaderState extends State<ModernProfileHeader> {
               color: Colors.black.withOpacity(0.3),
               borderRadius: BorderRadius.circular(12.r),
               border: Border.all(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withOpacity(0.3),
                 width: 1,
               ),
             ),
@@ -430,11 +458,7 @@ class _ModernProfileHeaderState extends State<ModernProfileHeader> {
         _coverImagePath = path;
       });
 
-      // تحديث البيانات في MockVendorData
       MockVendorData.updateVendorInfo(coverImage: path);
-
-      // TODO: في التطبيق الحقيقي، رفع الصورة للسيرفر
-      // await repository.uploadCoverImage(path);
 
       AppSnackBar.show(
         message: 'تم تحديث خلفية المطعم بنجاح',
@@ -455,11 +479,7 @@ class _ModernProfileHeaderState extends State<ModernProfileHeader> {
         _logoImagePath = path;
       });
 
-      // تحديث البيانات في MockVendorData
       MockVendorData.updateVendorInfo(logo: path);
-
-      // TODO: في التطبيق الحقيقي، رفع الصورة للسيرفر
-      // await repository.uploadLogo(path);
 
       AppSnackBar.show(
         message: 'تم تحديث شعار المطعم بنجاح',
