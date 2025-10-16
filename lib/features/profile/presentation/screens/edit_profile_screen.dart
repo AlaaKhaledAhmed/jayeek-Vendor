@@ -11,6 +11,7 @@ import '../../../../core/widgets/app_buttons.dart';
 import '../../../../core/widgets/app_snack_bar.dart';
 import '../../../../core/widgets/app_text.dart';
 import '../../../../core/widgets/app_text_fields.dart';
+import '../../data/mock/mock_vendor_data.dart';
 import '../../data/models/vendor_model.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -244,7 +245,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   void _saveChanges() {
     if (_formKey.currentState!.validate()) {
-      // TODO: حفظ التعديلات في الـ API أو الـ Local Storage
+      // تحديث البيانات التجريبية
+      MockVendorData.updateVendorInfo(
+        restaurantName: _restaurantNameController.text,
+        supervisorName: _supervisorNameController.text,
+        email: _emailController.text,
+        phone: _phoneController.text,
+        licenseNumber: _licenseNumberController.text,
+        address: _addressController.text,
+        city: _cityController.text,
+      );
+
+      // TODO: في التطبيق الحقيقي، سيتم إرسال البيانات للـ API
+      // await repository.updateVendorProfile(...)
 
       // عرض رسالة النجاح
       AppSnackBar.show(
