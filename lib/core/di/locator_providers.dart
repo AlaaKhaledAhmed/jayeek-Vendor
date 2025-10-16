@@ -2,10 +2,12 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jayeek_vendor/features/food_menu/data/repositories_impl/food_repository_impl.dart';
 import 'package:jayeek_vendor/features/food_menu/domain/repositories/food_repository.dart';
+import 'package:jayeek_vendor/features/orders/data/repositories_impl/mock_orders_repository_impl.dart';
 import 'package:jayeek_vendor/features/orders/data/repositories_impl/orders_repository_impl.dart';
 import 'package:jayeek_vendor/features/orders/domain/repositories/orders_repository.dart';
 import '../../features/auth/data/repositories_impl/auth_repository_implement.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../constants/app_config.dart';
 import '../services/network/dio_network_service.dart';
 import '../services/network/inetwork_services.dart';
 
@@ -33,6 +35,17 @@ final loginDi = Provider<AuthRepository>(
 final foodDi = Provider<FoodRepository>(
   (ref) => FoodRepositoryImpl(networkService: ref.read(networkServicesDi)),
 );
+
+/// Orders Repository
+/// يتم التبديل بين البيانات الحقيقية والوهمية حسب إعدادات AppConfig
 final ordersDi = Provider<OrdersRepository>(
-  (ref) => OrdersRepositoryImpl(networkService: ref.read(networkServicesDi)),
+  (ref) {
+    if (AppConfig.useMockData) {
+      // استخدام البيانات الوهمية (Mock Data)
+      return MockOrdersRepositoryImpl();
+    } else {
+      // استخدام البيانات الحقيقية من الـ API
+      return OrdersRepositoryImpl(networkService: ref.read(networkServicesDi));
+    }
+  },
 );

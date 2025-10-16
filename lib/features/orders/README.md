@@ -1,168 +1,353 @@
-# نظام إدارة الطلبات - Orders Management System
+# 📦 Orders Feature - ميزة الطلبات
 
-تم بناء نظام إدارة الطلبات بنجاح باستخدام Clean Architecture والهيكلية المتبعة في المشروع.
-
-## الهيكلية 📁
+## 🏗️ بنية المجلد
 
 ```
-lib/features/orders/
-├── data/
-│   ├── models/
-│   │   └── order_model.dart          # Models للطلبات والعناصر
-│   └── repositories_impl/
-│       └── orders_repository_impl.dart # تنفيذ الـ Repository
-├── domain/
-│   └── repositories/
-│       └── orders_repository.dart      # واجهة الـ Repository
-├── providers/
-│   ├── orders_list/
-│   │   ├── orders_list_state.dart     # حالة قائمة الطلبات
-│   │   ├── orders_list_notifier.dart  # منطق قائمة الطلبات
-│   │   └── orders_list_provider.dart  # Provider
+orders/
+├── data/                                  # طبقة البيانات (Data Layer)
+│   ├── mock/                             # البيانات الوهمية
+│   │   ├── mock_orders_data.dart         # 8 طلبات وهمية
+│   │   └── mock_usage_example.dart       # أمثلة الاستخدام
+│   ├── models/                           # نماذج البيانات
+│   │   └── order_model.dart              # OrderModel, OrderItemModel, OrderStatus
+│   └── repositories_impl/                # تطبيق Repositories
+│       ├── orders_repository_impl.dart   # للبيانات الحقيقية (Real API)
+│       └── mock_orders_repository_impl.dart  # للبيانات الوهمية (Mock Data)
+├── domain/                               # طبقة المنطق (Domain Layer)
+│   └── repositories/                     # Interfaces
+│       └── orders_repository.dart        # OrdersRepository interface
+├── providers/                            # Riverpod State Management
 │   └── order_details/
-│       ├── order_details_state.dart    # حالة تفاصيل الطلب
-│       ├── order_details_notifier.dart # منطق تفاصيل الطلب
-│       └── order_details_provider.dart # Provider
-└── presentation/
-    ├── screens/
-    │   ├── orders_list_screen.dart    # شاشة قائمة الطلبات
-    │   └── order_details_screen.dart  # شاشة تفاصيل الطلب
-    └── widgets/
-        ├── order_card.dart             # بطاقة الطلب
-        ├── status_filter_chip.dart     # فلتر الحالة
-        ├── order_item_widget.dart      # عنصر الطلب
-        └── order_status_timeline.dart  # Timeline الحالة
+│       ├── order_details_notifier.dart   # Business Logic
+│       ├── order_details_provider.dart   # Provider
+│       └── order_details_state.dart      # State Model
+├── MOCK_DATA_GUIDE.md                    # 📚 دليل Mock Data
+└── README.md                             # 📖 هذا الملف
 ```
-
-## المميزات ✨
-
-### 1. صفحة قائمة الطلبات (Orders List Screen)
-- عرض جميع الطلبات مع Pagination
-- فلترة الطلبات حسب الحالة:
-  - طلبات جديدة (Pending)
-  - مؤكد (Confirmed)
-  - قيد التحضير (Preparing)
-  - جاهز (Ready)
-  - في الطريق (On The Way)
-  - تم التوصيل (Delivered)
-- Pull to refresh
-- تصميم عصري مع حالات فارغة وخطأ
-
-### 2. صفحة تفاصيل الطلب (Order Details Screen)
-- عرض تفاصيل الطلب الكاملة
-- Timeline لحالة الطلب
-- معلومات العميل
-- قائمة المنتجات مع الإضافات
-- ملاحظات الطلب
-- ملخص الفاتورة
-- أزرار تحديث الحالة حسب الحالة الحالية
-
-### 3. إدارة حالة الطلب (Order Status Management)
-- قبول الطلب مع تحديد وقت التحضير المتوقع
-- رفض الطلب مع سبب اختياري
-- تحديث حالة الطلب:
-  - بدء التحضير
-  - جاهز للتوصيل
-  - تم الشحن
-  - تم التوصيل
-
-### 4. التصميم
-- تصميم Material Design عصري
-- ألوان مميزة لكل حالة
-- Shadows و Borders
-- استجابة سريعة
-- تجربة مستخدم سلسة
-
-## حالات الطلب 🔄
-
-```dart
-enum OrderStatus {
-  pending       // طلب جديد - أصفر
-  confirmed     // مؤكد - أزرق فاتح
-  preparing     // قيد التحضير - بنفسجي
-  ready         // جاهز - أخضر فاتح
-  onTheWay      // في الطريق - أزرق
-  delivered     // تم التوصيل - أخضر
-  cancelled     // ملغي - أحمر
-}
-```
-
-## API Endpoints 🌐
-
-```dart
-// الحصول على قائمة الطلبات
-GET /api/Organization/Orders?status=pending&page=1
-
-// الحصول على تفاصيل طلب
-GET /api/Organization/Orders/{orderId}
-
-// تحديث حالة الطلب
-POST /api/Organization/Orders/{orderId}/status
-Body: { "status": "confirmed" }
-
-// قبول الطلب
-POST /api/Organization/Orders/{orderId}/accept
-Body: { "estimated_time": 30 }
-
-// رفض الطلب
-POST /api/Organization/Orders/{orderId}/reject
-Body: { "reason": "سبب الرفض" }
-```
-
-## الاستخدام 📱
-
-### التنقل للطلبات من الشاشة الرئيسية:
-الطلبات متاحة من خلال Bottom Navigation Bar في الـ HomePage
-
-### الانتقال لتفاصيل الطلب:
-```dart
-AppRoutes.pushTo(
-  context,
-  OrderDetailsScreen(orderId: order.id),
-);
-```
-
-### قبول طلب:
-1. اضغط على "قبول الطلب"
-2. أدخل الوقت المتوقع للتحضير (اختياري)
-3. اضغط تأكيد
-
-### رفض طلب:
-1. اضغط على "رفض الطلب"
-2. أدخل سبب الرفض (اختياري)
-3. اضغط تأكيد
-
-### تحديث حالة الطلب:
-- الطلبات المؤكدة: "بدء التحضير"
-- الطلبات قيد التحضير: "جاهز للتوصيل"
-- الطلبات الجاهزة: "تم الشحن"
-- الطلبات في الطريق: "تم التوصيل"
-
-## الملفات المحدثة 📝
-
-1. **lib/core/constants/app_string.dart** - إضافة نصوص الطلبات
-2. **lib/core/constants/app_end_points.dart** - إضافة endpoints الطلبات
-3. **lib/core/constants/app_size.dart** - إضافة normalText و heading3
-4. **lib/core/constants/app_color.dart** - إضافة ألوان جديدة
-5. **lib/core/di/locator_providers.dart** - إضافة ordersDi
-6. **lib/features/home/presentation/screens/home_page.dart** - ربط شاشة الطلبات
-
-## ملاحظات هامة ⚠️
-
-1. تأكد من وجود حزمة `intl` في pubspec.yaml لتنسيق التواريخ
-2. جميع الـ Endpoints تحتاج authentication token
-3. التطبيق يدعم اللغة العربية بالكامل
-4. التصميم responsive ويعمل على جميع أحجام الشاشات
-
-## الخطوات التالية 🚀
-
-1. ربط الـ API الفعلي
-2. إضافة إشعارات للطلبات الجديدة (Push Notifications)
-3. إضافة طباعة الفواتير
-4. إضافة تقارير الطلبات
-5. إضافة صوت عند استلام طلب جديد
 
 ---
 
-تم بناء النظام باتباع Clean Architecture و SOLID Principles 🎯
+## 🔄 تدفق البيانات (Data Flow)
 
+```
+┌─────────────┐
+│     UI      │ (Widgets)
+└──────┬──────┘
+       │ استخدام Provider
+       ▼
+┌─────────────────┐
+│   Providers     │ (OrderDetailsProvider)
+│   + Notifiers   │ (OrderDetailsNotifier)
+└──────┬──────────┘
+       │ استدعاء Repository
+       ▼
+┌───────────────────────────────────┐
+│      OrdersRepository             │ (Interface)
+│                                   │
+│  ┌─────────────┐  ┌─────────────┐│
+│  │ Real Data   │  │  Mock Data  ││
+│  │ (API)       │  │  (Memory)   ││
+│  └─────────────┘  └─────────────┘│
+└───────────────────────────────────┘
+        │                 │
+        ▼                 ▼
+    🌐 API          💾 Mock Data
+```
+
+---
+
+## ⚙️ التبديل بين Real و Mock
+
+### في `lib/core/di/locator_providers.dart`:
+
+```dart
+final ordersDi = Provider<OrdersRepository>(
+  (ref) {
+    if (AppConfig.useMockData) {
+      return MockOrdersRepositoryImpl();  // 🎭 Mock
+    } else {
+      return OrdersRepositoryImpl(...);   // 🌐 Real
+    }
+  },
+);
+```
+
+### التحكم في `lib/core/constants/app_config.dart`:
+
+```dart
+static const bool useMockData = true;  // للتبديل
+```
+
+---
+
+## 📊 نماذج البيانات (Data Models)
+
+### OrderModel
+```dart
+class OrderModel {
+  final String id;
+  final String orderNumber;      // رقم الطلب
+  final OrderStatus status;       // الحالة
+  final String customerName;      // اسم العميل
+  final String customerPhone;     // رقم الجوال
+  final String? customerAddress;  // العنوان
+  final List<OrderItemModel> items;  // المنتجات
+  final double subtotal;          // المجموع الفرعي
+  final double deliveryFee;       // رسوم التوصيل
+  final double total;             // الإجمالي
+  final DateTime createdAt;       // تاريخ الطلب
+  // ... المزيد
+}
+```
+
+### OrderStatus (Enum)
+```dart
+enum OrderStatus {
+  pending        // 🔵 جديد
+  confirmed      // 🟢 مؤكد
+  preparing      // 🟡 قيد التحضير
+  ready          // 🟠 جاهز
+  onTheWay       // 🟣 في الطريق
+  delivered      // ✅ تم التوصيل
+  cancelled      // ❌ ملغي
+}
+```
+
+---
+
+## 🛠️ العمليات المتاحة
+
+### 1. عرض جميع الطلبات
+```dart
+Future<PostDataHandle<List<OrderModel>>> getOrders({
+  OrderStatus? status,  // اختياري: تصفية حسب الحالة
+  int page = 1,         // رقم الصفحة (10 طلبات/صفحة)
+});
+```
+
+### 2. عرض تفاصيل طلب
+```dart
+Future<PostDataHandle<OrderModel>> getOrderDetails({
+  required String orderId,
+});
+```
+
+### 3. تحديث حالة الطلب
+```dart
+Future<PostDataHandle<bool>> updateOrderStatus({
+  required String orderId,
+  required OrderStatus newStatus,
+});
+```
+
+### 4. قبول الطلب
+```dart
+Future<PostDataHandle<bool>> acceptOrder({
+  required String orderId,
+  int? estimatedTime,  // بالدقائق
+});
+```
+
+### 5. رفض الطلب
+```dart
+Future<PostDataHandle<bool>> rejectOrder({
+  required String orderId,
+  String? reason,
+});
+```
+
+---
+
+## 💡 أمثلة الاستخدام
+
+### في Widget أو Provider:
+
+```dart
+// الحصول على Repository
+final ordersRepo = ref.read(ordersDi);
+
+// جلب الطلبات الجديدة
+final result = await ordersRepo.getOrders(
+  status: OrderStatus.pending,
+);
+
+if (!result.hasError && result.data != null) {
+  // نجح
+  final orders = result.data!;
+  print('عدد الطلبات: ${orders.length}');
+} else {
+  // فشل
+  print('خطأ: ${result.message}');
+}
+```
+
+---
+
+## 🎭 Mock Data
+
+### البيانات المتوفرة
+- ✅ 8 طلبات جاهزة
+- ✅ جميع الحالات (Pending → Delivered)
+- ✅ بيانات واقعية بالعربية
+- ✅ أسماء وعناوين سعودية
+
+### المميزات
+- ⚡ لا حاجة للإنترنت
+- 🔧 سهولة التعديل
+- 🎨 مثالية للتطوير
+- 🧪 رائعة للاختبار
+
+### راجع:
+📄 **MOCK_DATA_GUIDE.md** - دليل كامل
+
+---
+
+## 📱 State Management
+
+### OrderDetailsProvider
+```dart
+final orderDetailsProvider = 
+    StateNotifierProvider.autoDispose<OrderDetailsNotifier, OrderDetailsState>(
+  (ref) {
+    final repo = ref.read(ordersDi);
+    return OrderDetailsNotifier(repo);
+  },
+);
+```
+
+### استخدام في Widget:
+```dart
+class OrderDetailsScreen extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(orderDetailsProvider);
+    
+    if (state.isLoading) {
+      return LoadingWidget();
+    }
+    
+    if (state.hasError) {
+      return ErrorWidget(state.errorMessage);
+    }
+    
+    return OrderDetailsView(order: state.order);
+  }
+}
+```
+
+---
+
+## 🔗 الاعتماديات (Dependencies)
+
+### من خارج Feature:
+```dart
+import 'package:jayeek_vendor/core/model/data_handel.dart';
+import 'package:jayeek_vendor/core/services/network/inetwork_services.dart';
+import 'package:jayeek_vendor/core/di/locator_providers.dart';
+```
+
+### داخل Feature:
+```dart
+// استخدام النماذج
+import 'data/models/order_model.dart';
+
+// استخدام Repository
+import 'domain/repositories/orders_repository.dart';
+
+// استخدام Provider
+import 'providers/order_details/order_details_provider.dart';
+```
+
+---
+
+## 🧪 الاختبار
+
+### اختبار مع Mock Data
+```dart
+// 1. تفعيل Mock
+AppConfig.useMockData = true;
+
+// 2. اختبار جميع الحالات
+// - الطلبات الجديدة
+// - قبول الطلب
+// - رفض الطلب
+// - تحديث الحالة
+// - Pagination
+
+// 3. التحقق من UI
+```
+
+### اختبار مع Real API
+```dart
+// 1. تعطيل Mock
+AppConfig.useMockData = false;
+
+// 2. اختبار Integration
+// 3. اختبار Error Handling
+```
+
+---
+
+## 🎯 Best Practices
+
+### 1. استخدام Repository دائماً
+```dart
+// ✅ صحيح
+final repo = ref.read(ordersDi);
+final result = await repo.getOrders();
+
+// ❌ خطأ - لا تستدعي API مباشرة
+```
+
+### 2. التعامل مع الأخطاء
+```dart
+if (!result.hasError) {
+  // نجح
+} else {
+  // فشل - اعرض رسالة
+  showError(result.message);
+}
+```
+
+### 3. استخدام Provider للـ State
+```dart
+// ✅ صحيح - State Management
+final state = ref.watch(orderDetailsProvider);
+
+// ❌ خطأ - State في Widget
+```
+
+---
+
+## 📚 الملفات المرجعية
+
+### للبدء
+- 📄 **../../../QUICK_START.md** - البدء في 3 خطوات
+
+### للتفاصيل
+- 📄 **MOCK_DATA_GUIDE.md** - دليل Mock Data
+- 📄 **data/mock/mock_usage_example.dart** - أمثلة
+
+### للفهم الكامل
+- 📄 **../../../MOCK_DATA_SETUP.md** - الدليل الشامل
+- 📄 **../../../CHANGES_SUMMARY.md** - ملخص التغييرات
+
+---
+
+## 🚀 الخطوات التالية
+
+### للمطورين الجدد
+1. ✅ اقرأ QUICK_START.md
+2. ✅ فعّل Mock Data
+3. ✅ شغّل التطبيق
+4. ✅ جرب الأمثلة
+
+### للتطوير
+1. ✅ استخدم Mock Data
+2. ✅ طوّر UI
+3. ✅ اختبر جميع الحالات
+4. ✅ انتقل لـ Real Data
+
+---
+
+**🎉 استمتع بالتطوير!**

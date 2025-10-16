@@ -17,5 +17,15 @@ class AppIcons {
   static IconData desserts = Icons.cake_rounded;
   static IconData drinks = Icons.local_cafe_rounded;
 
+  // Order Status Icons
+  static IconData allOrders = Icons.list_alt_rounded;
+  static IconData pendingOrder = Icons.schedule_rounded;
+  static IconData confirmedOrder = Icons.check_circle_outline_rounded;
+  static IconData preparingOrder = Icons.restaurant_rounded;
+  static IconData readyOrder = Icons.done_all_rounded;
+  static IconData onTheWayOrder = Icons.delivery_dining_rounded;
+  static IconData deliveredOrder = Icons.task_alt_rounded;
+  static IconData cancelledOrder = Icons.cancel_rounded;
+
   static IconData warning = Icons.warning_amber_rounded;
 }

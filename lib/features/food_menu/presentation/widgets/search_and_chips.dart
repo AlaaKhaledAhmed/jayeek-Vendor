@@ -5,8 +5,8 @@ import 'package:jayeek_vendor/core/constants/app_color.dart';
 import 'package:jayeek_vendor/core/constants/app_icons.dart';
 import 'package:jayeek_vendor/core/constants/app_string.dart';
 import 'package:jayeek_vendor/core/widgets/app_text_fields.dart';
+import 'package:jayeek_vendor/core/widgets/filter_chip_with_icon.dart';
 import '../../providers/menu/menu_provider.dart';
-import 'category_chip.dart';
 
 class SearchAndChips extends ConsumerStatefulWidget {
   const SearchAndChips({super.key});
@@ -64,17 +64,19 @@ class _SearchAndChipsState extends ConsumerState<SearchAndChips> {
                 scrollDirection: Axis.horizontal,
                 padding: EdgeInsets.symmetric(horizontal: 4.w),
                 itemCount: notifier.categories.length,
-                separatorBuilder: (_, __) => SizedBox(width: 10.w),
+                separatorBuilder: (_, __) => SizedBox(width: 2.w),
                 itemBuilder: (_, i) {
                   final cat = notifier.categories[i];
                   final selected = (state.category ?? 'All') == cat;
                   final icon = _getIcon(cat);
 
-                  return CategoryChip(
+                  return FilterChipWithIcon(
                     label: cat == 'All' ? AppMessage.all : cat,
                     icon: icon,
-                    selected: selected,
+                    isSelected: selected,
                     onTap: () => notifier.setCategory(cat),
+                    selectedColor: AppColor.subtextColor,
+                    borderRadius: 25,
                   );
                 },
               ),

@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:jayeek_vendor/core/widgets/scroll_list.dart';
 import '../../../../../core/constants/app_color.dart';
+import '../../../../../core/constants/app_icons.dart';
 import '../../../../../core/constants/app_size.dart';
 import '../../../../../core/constants/app_string.dart';
 import '../../../../../core/routing/app_routes_methods.dart';
 import '../../../../../core/theme/app_them.dart';
 import '../../../../../core/widgets/app_bar.dart';
 import '../../../../../core/widgets/app_text.dart';
+import '../../../../../core/widgets/filter_chip_with_icon.dart';
 import '../../data/models/order_model.dart';
 import '../../providers/orders_list/orders_list_provider.dart';
 import '../widgets/order_card.dart';
-import '../widgets/status_filter_chip.dart';
+import '../widgets/order_status.dart';
 import 'order_details_screen.dart';
 
 class OrdersListScreen extends ConsumerStatefulWidget {
@@ -66,14 +69,14 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen> {
               color: AppColor.white,
               size: 24.sp,
             ),
-            onPressed: () => notifier.refresh(),
+            onPressed: notifier.refresh,
           ),
         ],
       ),
       body: Column(
         children: [
           // Status Filter Chips
-          _buildFilterChips(state.selectedStatus, notifier),
+          OrderByCategories(state: state, notifier: notifier),
 
           SizedBox(height: 16.h),
 
@@ -86,58 +89,10 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen> {
     );
   }
 
-  Widget _buildFilterChips(OrderStatus? selectedStatus, notifier) {
-    return Container(
-      height: 50.h,
-      padding: EdgeInsets.symmetric(vertical: 8.h),
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: AppSize.horizontalPadding),
-        children: [
-          StatusFilterChip(
-            label: AppMessage.all,
-            isSelected: selectedStatus == null,
-            onTap: () => notifier.filterByStatus(null),
-          ),
-          StatusFilterChip(
-            label: AppMessage.statusPending,
-            isSelected: selectedStatus == OrderStatus.pending,
-            onTap: () => notifier.filterByStatus(OrderStatus.pending),
-          ),
-          StatusFilterChip(
-            label: AppMessage.statusConfirmed,
-            isSelected: selectedStatus == OrderStatus.confirmed,
-            onTap: () => notifier.filterByStatus(OrderStatus.confirmed),
-          ),
-          StatusFilterChip(
-            label: AppMessage.statusPreparing,
-            isSelected: selectedStatus == OrderStatus.preparing,
-            onTap: () => notifier.filterByStatus(OrderStatus.preparing),
-          ),
-          StatusFilterChip(
-            label: AppMessage.statusReady,
-            isSelected: selectedStatus == OrderStatus.ready,
-            onTap: () => notifier.filterByStatus(OrderStatus.ready),
-          ),
-          StatusFilterChip(
-            label: AppMessage.statusOnTheWay,
-            isSelected: selectedStatus == OrderStatus.onTheWay,
-            onTap: () => notifier.filterByStatus(OrderStatus.onTheWay),
-          ),
-          StatusFilterChip(
-            label: AppMessage.statusDelivered,
-            isSelected: selectedStatus == OrderStatus.delivered,
-            onTap: () => notifier.filterByStatus(OrderStatus.delivered),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildOrdersList(state, notifier) {
     // Loading State
     if (state.isLoading && state.orders.isEmpty) {
-      return Center(
+      return const Center(
         child: CircularProgressIndicator(
           color: AppColor.mainColor,
         ),
@@ -230,7 +185,7 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen> {
             return Center(
               child: Padding(
                 padding: EdgeInsets.all(16.h),
-                child: CircularProgressIndicator(
+                child: const CircularProgressIndicator(
                   color: AppColor.mainColor,
                 ),
               ),
