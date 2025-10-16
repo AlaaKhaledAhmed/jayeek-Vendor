@@ -419,90 +419,63 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     required List<Map<String, String>> items,
   }) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: AppDecoration.decoration(
+        radius: 20,
+        shadow: true,
+        shadowOpacity: 0.08,
+        blurRadius: 12,
+        showBorder: true,
+        borderColor: color.withOpacity(0.12),
+        borderWidth: 1,
+        isGradient: true,
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            color.withOpacity(0.03),
+            color.withOpacity(0.04),
+            Colors.white,
             Colors.white,
           ],
+          stops: const [0.0, 0.3, 1.0],
         ),
-        borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(
-          color: color.withOpacity(0.15),
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.08),
-            blurRadius: 20,
-            spreadRadius: 0,
-            offset: const Offset(0, 4),
-          ),
-          BoxShadow(
-            color: Colors.white.withOpacity(0.5),
-            blurRadius: 8,
-            spreadRadius: -2,
-            offset: const Offset(0, -2),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header عصري مع أيقونة
+          // Header
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
-            decoration: BoxDecoration(
+            padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 16.h),
+            decoration: AppDecoration.decoration(
+              radiusOnlyTop: true,
+              radius: 20,
+              shadow: false,
+              isGradient: true,
               gradient: LinearGradient(
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
                 colors: [
                   color.withOpacity(0.08),
-                  color.withOpacity(0.04),
-                  Colors.transparent,
+                  color.withOpacity(0.03),
                 ],
-              ),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(24.r),
-                topRight: Radius.circular(24.r),
               ),
             ),
             child: Row(
               children: [
-                // أيقونة بتصميم عصري
+                // أيقونة
                 Container(
-                  padding: EdgeInsets.all(12.w),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        color.withOpacity(0.2),
-                        color.withOpacity(0.1),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(14.r),
-                    border: Border.all(
-                      color: color.withOpacity(0.3),
-                      width: 1,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: color.withOpacity(0.2),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                  padding: EdgeInsets.all(10.w),
+                  decoration: AppDecoration.decoration(
+                    radius: 12,
+                    color: color.withOpacity(0.12),
+                    shadow: false,
                   ),
                   child: Icon(
                     icon,
                     color: color,
-                    size: 24.sp,
+                    size: 22.sp,
                   ),
                 ),
-                SizedBox(width: 14.w),
+                SizedBox(width: 12.w),
                 // العنوان
                 Expanded(
                   child: AppText(
@@ -512,58 +485,50 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     color: color,
                   ),
                 ),
-                // Badge زخرفي
-                Container(
+                // Badge
+                InfoChip(
+                  text: 'للعرض فقط',
+                  fontSize: AppSize.captionText - 2,
+                  backgroundColor: color.withOpacity(0.1),
+                  textColor: color,
+                  radius: 18,
                   padding:
-                      EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20.r),
-                    border: Border.all(
-                      color: color.withOpacity(0.2),
-                      width: 1,
-                    ),
-                  ),
-                  child: AppText(
-                    text: 'للعرض فقط',
-                    fontSize: AppSize.captionText - 1,
-                    color: color,
-                    fontWeight: FontWeight.w600,
-                  ),
+                      EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                  showBorder: true,
+                  borderColor: color.withOpacity(0.2),
                 ),
               ],
             ),
           ),
 
-          // محتوى القسم بتصميم حديث
+          // محتوى القسم
           Padding(
-            padding: EdgeInsets.all(20.w),
+            padding: EdgeInsets.all(18.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ...items.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final item = entry.value;
-                  return Column(
-                    children: [
-                      _buildModernInfoItem(
-                        label: item['label']!,
-                        value: item['value']!,
-                        color: color,
-                      ),
-                      if (index < items.length - 1)
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12.h),
-                          child: Divider(
-                            color: color.withOpacity(0.1),
-                            height: 1,
-                            thickness: 1,
-                          ),
+              children: items.asMap().entries.map((entry) {
+                final index = entry.key;
+                final item = entry.value;
+                return Column(
+                  children: [
+                    _buildModernInfoItem(
+                      label: item['label']!,
+                      value: item['value']!,
+                      color: color,
+                    ),
+                    if (index < items.length - 1)
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical: 12.h),
+                        height: 1,
+                        decoration: AppDecoration.decoration(
+                          radius: 0,
+                          shadow: false,
+                          color: color.withOpacity(0.08),
                         ),
-                    ],
-                  );
-                }).toList(),
-              ],
+                      ),
+                  ],
+                );
+              }).toList(),
             ),
           ),
         ],
