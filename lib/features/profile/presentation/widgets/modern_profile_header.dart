@@ -341,9 +341,9 @@ class _ModernProfileHeaderState extends State<ModernProfileHeader> {
           ),
           _buildStatDivider(),
           _buildStatItem(
-            value: '${widget.vendor.rating?.toStringAsFixed(1) ?? '0.0'}',
-            label: 'التقييم',
-            icon: Icons.star_rounded,
+            value: _calculateYearsSince(widget.vendor.createdAt),
+            label: 'سنوات الخبرة',
+            icon: Icons.calendar_today_rounded,
           ),
         ],
       ),
@@ -506,5 +506,25 @@ class _ModernProfileHeaderState extends State<ModernProfileHeader> {
       return (amount / 1000).toStringAsFixed(1);
     }
     return amount.toStringAsFixed(0);
+  }
+
+  String _calculateYearsSince(DateTime? date) {
+    if (date == null) return '0';
+    final now = DateTime.now();
+    final difference = now.difference(date);
+    final years = (difference.inDays / 365).floor();
+
+    if (years == 0) {
+      final months = (difference.inDays / 30).floor();
+      return months > 0 ? '${months}شهر' : 'جديد';
+    } else if (years == 1) {
+      return 'سنة';
+    } else if (years == 2) {
+      return 'سنتان';
+    } else if (years >= 3 && years <= 10) {
+      return '$years سنوات';
+    } else {
+      return '$years سنة';
+    }
   }
 }
