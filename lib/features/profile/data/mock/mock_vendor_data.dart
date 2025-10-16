@@ -11,6 +11,8 @@ class MockVendorData {
     phone: '+966501234567',
     logo:
         'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=400&fit=crop',
+    coverImage:
+        'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=600&fit=crop',
     licenseNumber: 'CR-2024-12345',
     address: 'شارع الملك فهد، حي النزهة',
     city: 'جدة',
@@ -54,6 +56,7 @@ class MockVendorData {
     String? address,
     String? city,
     String? logo,
+    String? coverImage,
   }) {
     _mockVendor = _mockVendor.copyWith(
       restaurantName: restaurantName,
@@ -64,6 +67,7 @@ class MockVendorData {
       address: address,
       city: city,
       logo: logo,
+      coverImage: coverImage,
     );
   }
 
@@ -77,6 +81,8 @@ class MockVendorData {
       phone: '+966501234567',
       logo:
           'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=400&fit=crop',
+      coverImage:
+          'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=600&fit=crop',
       licenseNumber: 'CR-2024-12345',
       address: 'شارع الملك فهد، حي النزهة',
       city: 'جدة',

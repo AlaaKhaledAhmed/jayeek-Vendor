@@ -6,8 +6,8 @@ import '../../../../core/constants/app_string.dart';
 import '../../../../core/routing/app_routes_methods.dart';
 import '../../data/mock/mock_vendor_data.dart';
 import '../../data/models/vendor_model.dart';
+import '../widgets/modern_profile_header.dart';
 import '../widgets/profile_action_tile.dart';
-import '../widgets/profile_header.dart';
 import '../widgets/profile_info_tile.dart';
 import '../widgets/profile_section_title.dart';
 import 'edit_profile_screen.dart';
@@ -44,9 +44,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: AppColor.backgroundColor,
       body: CustomScrollView(
         slivers: [
-          // Header مع معلومات المطعم الأساسية
+          // Header عصري مع معلومات المطعم الأساسية
           SliverToBoxAdapter(
-            child: ProfileHeader(vendor: vendor),
+            child: ModernProfileHeader(
+              vendor: vendor,
+              onRefresh: _refreshData,
+            ),
           ),
 
           // المحتوى

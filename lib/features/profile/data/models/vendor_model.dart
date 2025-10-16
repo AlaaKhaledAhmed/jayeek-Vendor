@@ -8,6 +8,7 @@ class VendorModel extends Equatable {
   final String email;
   final String phone;
   final String? logo;
+  final String? coverImage; // خلفية المطعم
   final String? licenseNumber;
   final String? address;
   final String? city;
@@ -25,6 +26,7 @@ class VendorModel extends Equatable {
     required this.email,
     required this.phone,
     this.logo,
+    this.coverImage,
     this.licenseNumber,
     this.address,
     this.city,
@@ -44,6 +46,7 @@ class VendorModel extends Equatable {
       email: json['email'] ?? '',
       phone: json['phone'] ?? '',
       logo: json['logo'],
+      coverImage: json['cover_image'],
       licenseNumber: json['license_number'],
       address: json['address'],
       city: json['city'],
@@ -68,6 +71,7 @@ class VendorModel extends Equatable {
       'email': email,
       'phone': phone,
       'logo': logo,
+      'cover_image': coverImage,
       'license_number': licenseNumber,
       'address': address,
       'city': city,
@@ -87,6 +91,7 @@ class VendorModel extends Equatable {
     String? email,
     String? phone,
     String? logo,
+    String? coverImage,
     String? licenseNumber,
     String? address,
     String? city,
@@ -104,6 +109,7 @@ class VendorModel extends Equatable {
       email: email ?? this.email,
       phone: phone ?? this.phone,
       logo: logo ?? this.logo,
+      coverImage: coverImage ?? this.coverImage,
       licenseNumber: licenseNumber ?? this.licenseNumber,
       address: address ?? this.address,
       city: city ?? this.city,
@@ -124,6 +130,7 @@ class VendorModel extends Equatable {
         email,
         phone,
         logo,
+        coverImage,
         licenseNumber,
         address,
         city,
