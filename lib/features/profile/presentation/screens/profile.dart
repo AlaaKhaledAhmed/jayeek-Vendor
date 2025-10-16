@@ -13,6 +13,7 @@ import '../widgets/profile_section_title.dart';
 import 'edit_profile_screen.dart';
 import 'notifications_settings_screen.dart';
 import 'wallet_screen.dart';
+import 'working_hours_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -51,7 +52,7 @@ class ProfileScreen extends StatelessWidget {
                     title: 'معلومات المطعم',
                     icon: Icons.restaurant_rounded,
                   ),
-                  _buildRestaurantInfo(vendor),
+                  _buildRestaurantInfo(vendor,context),
 
                   SizedBox(height: 24.h),
 
@@ -99,7 +100,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRestaurantInfo(VendorModel vendor) {
+  Widget _buildRestaurantInfo(VendorModel vendor,BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: AppSize.horizontalPadding),
       child: Column(
@@ -114,10 +115,6 @@ class ProfileScreen extends StatelessWidget {
             icon: Icons.location_on_rounded,
             title: 'العنوان',
             value: vendor.address ?? 'غير محدد',
-            onTap: () {
-              // فتح الخريطة أو تعديل العنوان
-            },
-            showArrow: true,
           ),
           SizedBox(height: 12.h),
           ProfileInfoTile(
@@ -133,7 +130,10 @@ class ProfileScreen extends StatelessWidget {
                 ? '${vendor.workingHours!.openTime} - ${vendor.workingHours!.closeTime}'
                 : 'غير محدد',
             onTap: () {
-              // تعديل ساعات العمل
+              AppRoutes.pushTo(
+                context,
+                WorkingHoursScreen(vendor: vendor),
+              );
             },
             showArrow: true,
           ),

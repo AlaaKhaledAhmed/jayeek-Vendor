@@ -31,7 +31,7 @@ class _NotificationsSettingsScreenState
       backgroundColor: AppColor.backgroundColor,
       appBar: const AppBarWidget(
         text: 'إعدادات الإشعارات',
-        centerTitle: true,
+        hideBackButton: false,
       ),
       body: ListView(
         padding: EdgeInsets.all(AppSize.horizontalPadding),

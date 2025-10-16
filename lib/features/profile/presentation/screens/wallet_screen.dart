@@ -44,7 +44,7 @@ class _WalletScreenState extends State<WalletScreen>
       backgroundColor: AppColor.backgroundColor,
       appBar: const AppBarWidget(
         text: AppMessage.wallet,
-        centerTitle: true,
+        hideBackButton: false,
       ),
       body: Column(
         children: [

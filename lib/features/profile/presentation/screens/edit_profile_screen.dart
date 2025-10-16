@@ -67,7 +67,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       backgroundColor: AppColor.backgroundColor,
       appBar: const AppBarWidget(
         text: 'تعديل الملف الشخصي',
-        centerTitle: true,
+        hideBackButton: false,
       ),
       body: Form(
         key: _formKey,
