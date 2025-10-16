@@ -15,14 +15,31 @@ import 'notifications_settings_screen.dart';
 import 'wallet_screen.dart';
 import 'working_hours_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // استخدام البيانات التجريبية
-    final VendorModel vendor = MockVendorData.mockVendor;
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
 
+class _ProfileScreenState extends State<ProfileScreen> {
+  late VendorModel vendor;
+
+  @override
+  void initState() {
+    super.initState();
+    // استخدام البيانات التجريبية
+    vendor = MockVendorData.mockVendor;
+  }
+
+  void _refreshData() {
+    setState(() {
+      vendor = MockVendorData.mockVendor;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.backgroundColor,
       body: CustomScrollView(
@@ -52,7 +69,7 @@ class ProfileScreen extends StatelessWidget {
                     title: 'معلومات المطعم',
                     icon: Icons.restaurant_rounded,
                   ),
-                  _buildRestaurantInfo(vendor,context),
+                  _buildRestaurantInfo(vendor, context),
 
                   SizedBox(height: 24.h),
 
@@ -100,7 +117,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRestaurantInfo(VendorModel vendor,BuildContext context) {
+  Widget _buildRestaurantInfo(VendorModel vendor, BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: AppSize.horizontalPadding),
       child: Column(
@@ -129,11 +146,17 @@ class ProfileScreen extends StatelessWidget {
             value: vendor.workingHours != null
                 ? '${vendor.workingHours!.openTime} - ${vendor.workingHours!.closeTime}'
                 : 'غير محدد',
-            onTap: () {
-              AppRoutes.pushTo(
+            onTap: () async {
+              final result = await Navigator.push(
                 context,
-                WorkingHoursScreen(vendor: vendor),
+                MaterialPageRoute(
+                  builder: (context) => WorkingHoursScreen(vendor: vendor),
+                ),
               );
+              // تحديث البيانات عند العودة
+              if (result == true && mounted) {
+                _refreshData();
+              }
             },
             showArrow: true,
           ),
@@ -240,11 +263,17 @@ class ProfileScreen extends StatelessWidget {
             icon: Icons.edit_rounded,
             title: 'تعديل الملف الشخصي',
             subtitle: 'تعديل معلومات المطعم والمشرف',
-            onTap: () {
-              AppRoutes.pushTo(
+            onTap: () async {
+              final result = await Navigator.push(
                 context,
-                EditProfileScreen(vendor: vendor),
+                MaterialPageRoute(
+                  builder: (context) => EditProfileScreen(vendor: vendor),
+                ),
               );
+              // تحديث البيانات عند العودة
+              if (result == true && mounted) {
+                _refreshData();
+              }
             },
           ),
           SizedBox(height: 12.h),

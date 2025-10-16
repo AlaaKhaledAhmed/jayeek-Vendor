@@ -63,8 +63,9 @@ class MockProfileRepositoryImpl implements ProfileRepository {
 
     try {
       // محاكاة رفع الصورة والحصول على رابط
-      final logoUrl = 'https://via.placeholder.com/200';
-      return PostDataHandle<String>(
+      const logoUrl =
+          'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=400&fit=crop';
+      return const PostDataHandle<String>(
         hasError: false,
         data: logoUrl,
         message: 'تم رفع الصورة بنجاح',

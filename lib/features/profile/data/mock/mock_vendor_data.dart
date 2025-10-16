@@ -8,7 +8,8 @@ class MockVendorData {
         supervisorName: 'أحمد محمد السعيد',
         email: 'info@jayeek-restaurant.com',
         phone: '+966501234567',
-        logo: 'https://via.placeholder.com/200',
+        logo:
+            'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=400&fit=crop',
         licenseNumber: 'CR-2024-12345',
         address: 'شارع الملك فهد، حي النزهة',
         city: 'جدة',

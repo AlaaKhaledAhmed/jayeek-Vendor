@@ -7,6 +7,7 @@ import '../../../../core/theme/app_them.dart';
 import '../../../../core/widgets/app_bar.dart';
 import '../../../../core/widgets/app_buttons.dart';
 import '../../../../core/widgets/app_decoration.dart';
+import '../../../../core/widgets/app_snack_bar.dart';
 import '../../../../core/widgets/app_text.dart';
 import '../../data/models/vendor_model.dart';
 
@@ -70,7 +71,7 @@ class _WorkingHoursScreenState extends State<WorkingHoursScreen> {
       backgroundColor: AppColor.backgroundColor,
       appBar: const AppBarWidget(
         text: 'ساعات العمل',
-        centerTitle: true,
+        hideBackButton: false,
       ),
       body: ListView(
         padding: EdgeInsets.all(AppSize.horizontalPadding),
@@ -240,7 +241,8 @@ class _WorkingHoursScreenState extends State<WorkingHoursScreen> {
         children: List.generate(_daysOfWeek.length, (index) {
           return Column(
             children: [
-              if (index > 0) Divider(height: 1, color: AppColor.borderColor),
+              if (index > 0)
+                const Divider(height: 1, color: AppColor.borderColor),
               InkWell(
                 onTap: () {
                   setState(() {
@@ -311,7 +313,7 @@ class _WorkingHoursScreenState extends State<WorkingHoursScreen> {
         color: AppColor.mainColor.withOpacity(0.05),
         showBorder: true,
         borderColor: AppColor.mainColor.withOpacity(0.2),
-        shadow: true,
+        shadow: false,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -434,24 +436,18 @@ class _WorkingHoursScreenState extends State<WorkingHoursScreen> {
   void _saveWorkingHours() {
     // التحقق من وجود يوم واحد على الأقل
     if (!_selectedDays.any((day) => day)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('يجب اختيار يوم واحد على الأقل'),
-          backgroundColor: AppColor.red,
-          behavior: SnackBarBehavior.floating,
-        ),
+      AppSnackBar.show(
+        message: 'يجب اختيار يوم واحد على الأقل',
+        type: ToastType.error,
       );
       return;
     }
 
     // التحقق من صحة الأوقات
     if (_calculateWorkingHours() <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('يجب أن يكون وقت الإغلاق بعد وقت الفتح'),
-          backgroundColor: AppColor.red,
-          behavior: SnackBarBehavior.floating,
-        ),
+      AppSnackBar.show(
+        message: 'يجب أن يكون وقت الإغلاق بعد وقت الفتح',
+        type: ToastType.error,
       );
       return;
     }
@@ -462,16 +458,22 @@ class _WorkingHoursScreenState extends State<WorkingHoursScreen> {
     //   if (_selectedDays[i]) selectedDayIndices.add(i);
     // }
 
+    // TODO: حفظ ساعات العمل في الـ API أو الـ Local Storage
+    // في التطبيق الحقيقي، سيتم إرسال البيانات للـ API:
+    // await repository.updateWorkingHours(
+    //   openTime: _formatTime(_openTime),
+    //   closeTime: _formatTime(_closeTime),
+    //   workingDays: selectedDayIndices,
+    // );
+
     // عرض رسالة النجاح
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('تم حفظ ساعات العمل بنجاح'),
-        backgroundColor: AppColor.green,
-        behavior: SnackBarBehavior.floating,
-      ),
+    AppSnackBar.show(
+      message: 'تم حفظ ساعات العمل بنجاح',
+      type: ToastType.success,
     );
 
-    // الرجوع للصفحة السابقة
-    Navigator.pop(context);
+    // الرجوع للصفحة السابقة مع إرسال true للإشارة للنجاح
+    if (!mounted) return;
+    Navigator.pop(context, true);
   }
 }

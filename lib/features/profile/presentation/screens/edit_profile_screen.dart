@@ -8,6 +8,7 @@ import '../../../../core/theme/app_them.dart';
 import '../../../../core/util/validator.dart';
 import '../../../../core/widgets/app_bar.dart';
 import '../../../../core/widgets/app_buttons.dart';
+import '../../../../core/widgets/app_snack_bar.dart';
 import '../../../../core/widgets/app_text.dart';
 import '../../../../core/widgets/app_text_fields.dart';
 import '../../data/models/vendor_model.dart';
@@ -193,8 +194,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: InkWell(
               onTap: () {
                 // فتح معرض الصور
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('اختيار صورة جديدة')),
+                AppSnackBar.show(
+                  message: 'اختيار صورة جديدة',
+                  type: ToastType.info,
                 );
               },
               child: Container(
@@ -245,16 +247,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       // TODO: حفظ التعديلات في الـ API أو الـ Local Storage
 
       // عرض رسالة النجاح
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('تم حفظ التعديلات بنجاح'),
-          backgroundColor: AppColor.green,
-          behavior: SnackBarBehavior.floating,
-        ),
+      AppSnackBar.show(
+        message: 'تم حفظ التعديلات بنجاح',
+        type: ToastType.success,
       );
 
-      // الرجوع للصفحة السابقة
-      Navigator.pop(context);
+      // الرجوع للصفحة السابقة مع إرسال true للإشارة للنجاح
+      Navigator.pop(context, true);
     }
   }
 }

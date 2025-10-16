@@ -5,6 +5,7 @@ import '../../../../core/constants/app_size.dart';
 import '../../../../core/constants/app_string.dart';
 import '../../../../core/widgets/app_bar.dart';
 import '../../../../core/widgets/app_buttons.dart';
+import '../../../../core/widgets/app_snack_bar.dart';
 import '../../data/mock/mock_wallet_data.dart';
 import '../../data/models/wallet_model.dart';
 import '../widgets/wallet/transaction_card.dart';
@@ -258,11 +259,9 @@ class _WalletScreenState extends State<WalletScreen>
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('تم إرسال طلب السحب بنجاح'),
-                  backgroundColor: Colors.green,
-                ),
+              AppSnackBar.show(
+                message: 'تم إرسال طلب السحب بنجاح',
+                type: ToastType.success,
               );
             },
             style: ElevatedButton.styleFrom(
