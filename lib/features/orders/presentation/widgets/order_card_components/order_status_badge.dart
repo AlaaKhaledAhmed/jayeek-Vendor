@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../../core/theme/app_them.dart';
-import '../../../../../core/widgets/app_text.dart';
 import '../../../data/models/order_model.dart';
 import '../order_status_helper.dart';
 
-/// Badge الحالة - يعرض حالة الطلب بشكل مرئي
+/// Badge الحالة - يعرض أيقونة حالة الطلب فقط
 class OrderStatusBadge extends StatelessWidget {
   final OrderStatus status;
 
@@ -18,21 +16,23 @@ class OrderStatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = OrderStatusHelper.getStatusColor(status);
     final secondaryColor = OrderStatusHelper.getStatusSecondaryColor(status);
+    final icon = OrderStatusHelper.getStatusIcon(status);
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      width: 38.w,
+      height: 38.w,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            color.withOpacity(0.2),
-            secondaryColor.withOpacity(0.15),
+            color.withOpacity(0.15),
+            secondaryColor.withOpacity(0.1),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(25.r),
+        shape: BoxShape.circle,
         border: Border.all(
-          color: color.withOpacity(0.4),
+          color: color.withOpacity(0.3),
           width: 1.5,
         ),
         boxShadow: [
@@ -43,32 +43,12 @@ class OrderStatusBadge extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 6.w,
-            height: 6.w,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: color.withOpacity(0.5),
-                  blurRadius: 4,
-                  spreadRadius: 1,
-                ),
-              ],
-            ),
-          ),
-          SizedBox(width: 6.w),
-          AppText(
-            text: status.arabicLabel,
-            fontSize: 12.sp,
-            fontWeight: AppThem().bold,
-            color: color,
-          ),
-        ],
+      child: Center(
+        child: Icon(
+          icon,
+          size: 18.sp,
+          color: color,
+        ),
       ),
     );
   }

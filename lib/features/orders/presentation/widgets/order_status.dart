@@ -62,6 +62,7 @@ class OrderByCategories extends StatelessWidget {
         itemBuilder: (_, i) {
           final item = statuses[i];
           final selected = state.selectedStatus == item['status'];
+          final isAll = item['status'] == null;
 
           return FilterChipWithIcon(
             label: item['label'] as String,
@@ -71,6 +72,8 @@ class OrderByCategories extends StatelessWidget {
                 notifier.filterByStatus(item['status'] as OrderStatus?),
             selectedColor: AppColor.subtextColor,
             borderRadius: 25,
+            showIcon: !isAll, // اخفِ الأيقونة في "الكل"
+            showLabel: isAll, // اعرض النص في "الكل" فقط
           );
         },
       ),
