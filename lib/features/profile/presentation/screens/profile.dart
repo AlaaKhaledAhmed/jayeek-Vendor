@@ -76,30 +76,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   SizedBox(height: 24.h),
 
-                  // معلومات الحساب
+                  // 1️⃣ قسم الحساب
                   const ProfileSectionTitle(
                     title: 'الحساب',
                     icon: Icons.account_circle_rounded,
                   ),
-                  _buildAccountActions(context, vendor),
-                  SizedBox(height: 24.h),
-                  // المحفظة
-                  const ProfileSectionTitle(
-                    title: 'المحفظة والمالية',
-                    icon: Icons.account_balance_wallet_rounded,
-                  ),
-                  _buildWalletSection(context),
+                  _buildAccountSection(context, vendor),
 
-                  SizedBox(height: 24.h),
+                  SizedBox(height: 32.h),
 
-                  // الإعدادات
+                  // 2️⃣ قسم الإعدادات
                   const ProfileSectionTitle(
                     title: 'الإعدادات',
                     icon: Icons.settings_rounded,
                   ),
                   _buildSettings(context, vendor),
 
-                  SizedBox(height: 24.h),
+                  SizedBox(height: 32.h),
+
+                  // 3️⃣ قسم المالية
+                  const ProfileSectionTitle(
+                    title: 'المالية',
+                    icon: Icons.account_balance_wallet_rounded,
+                  ),
+                  _buildFinanceSection(context),
+
+                  SizedBox(height: 32.h),
+
+                  // 4️⃣ قسم المساعدة
+                  const ProfileSectionTitle(
+                    title: 'المساعدة والدعم',
+                    icon: Icons.help_rounded,
+                  ),
+                  _buildHelpSection(context),
 
                   SizedBox(height: 32.h),
                 ],
@@ -111,21 +120,58 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildWalletSection(BuildContext context) {
+  // 1️⃣ قسم الحساب
+  Widget _buildAccountSection(BuildContext context, VendorModel vendor) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: AppSize.horizontalPadding),
-      child: ProfileActionTile(
-        icon: Icons.account_balance_wallet_rounded,
-        title: AppMessage.wallet,
-        subtitle: 'عرض الرصيد وسجل المعاملات',
-        onTap: () {
-          AppRoutes.pushTo(context, const WalletScreen());
-        },
-        iconColor: AppColor.green,
+      child: Column(
+        children: [
+          ProfileActionTile(
+            icon: Icons.edit_rounded,
+            title: 'تعديل الملف الشخصي',
+            subtitle: 'تعديل صور المطعم',
+            onTap: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditProfileScreen(vendor: vendor),
+                ),
+              );
+              if (result == true && mounted) {
+                _refreshData();
+              }
+            },
+            iconColor: AppColor.mainColor,
+          ),
+          SizedBox(height: 12.h),
+          ProfileActionTile(
+            icon: Icons.lock_rounded,
+            title: 'تغيير كلمة المرور',
+            subtitle: 'تحديث كلمة المرور الخاصة بك',
+            onTap: () {
+              AppSnackBar.show(
+                message: 'قريباً',
+                type: ToastType.info,
+              );
+            },
+            iconColor: AppColor.amber,
+          ),
+          SizedBox(height: 12.h),
+          ProfileActionTile(
+            icon: Icons.logout_rounded,
+            title: 'تسجيل الخروج',
+            subtitle: 'الخروج من حسابك',
+            onTap: () {
+              _showLogoutDialog(context);
+            },
+            iconColor: AppColor.red,
+          ),
+        ],
       ),
     );
   }
 
+  // 2️⃣ قسم الإعدادات
   Widget _buildSettings(BuildContext context, VendorModel vendor) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: AppSize.horizontalPadding),
@@ -179,6 +225,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onTap: () {
               AppRoutes.pushTo(context, const NotificationsSettingsScreen());
             },
+            iconColor: AppColor.blue,
           ),
           SizedBox(height: 12.h),
           ProfileActionTile(
@@ -186,74 +233,117 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: 'اللغة',
             subtitle: 'العربية',
             onTap: () {
-              // تغيير اللغة
+              AppSnackBar.show(
+                message: 'قريباً',
+                type: ToastType.info,
+              );
             },
+            iconColor: AppColor.textColor,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAccountActions(BuildContext context, VendorModel vendor) {
+  // 3️⃣ قسم المالية
+  Widget _buildFinanceSection(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: AppSize.horizontalPadding),
       child: Column(
         children: [
           ProfileActionTile(
-            icon: Icons.edit_rounded,
-            title: 'تعديل الملف الشخصي',
-            subtitle: 'تعديل معلومات المطعم والمشرف',
-            onTap: () async {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EditProfileScreen(vendor: vendor),
-                ),
+            icon: Icons.account_balance_wallet_rounded,
+            title: AppMessage.wallet,
+            subtitle: 'عرض الرصيد وسجل المعاملات',
+            onTap: () {
+              AppRoutes.pushTo(context, const WalletScreen());
+            },
+            iconColor: AppColor.green,
+          ),
+          SizedBox(height: 12.h),
+          ProfileActionTile(
+            icon: Icons.receipt_long_rounded,
+            title: 'التقارير المالية',
+            subtitle: 'عرض تقارير المبيعات والأرباح',
+            onTap: () {
+              AppSnackBar.show(
+                message: 'قريباً',
+                type: ToastType.info,
               );
-              // تحديث البيانات عند العودة
-              if (result == true && mounted) {
-                _refreshData();
-              }
-            },
-          ),
-          SizedBox(height: 12.h),
-          ProfileActionTile(
-            icon: Icons.lock_rounded,
-            title: 'تغيير كلمة المرور',
-            subtitle: 'تحديث كلمة المرور الخاصة بك',
-            onTap: () {
-              // فتح صفحة تغيير كلمة المرور
-            },
-            iconColor: AppColor.amber,
-          ),
-          SizedBox(height: 12.h),
-          ProfileActionTile(
-            icon: Icons.help_rounded,
-            title: 'المساعدة والدعم',
-            subtitle: 'تواصل معنا للحصول على المساعدة',
-            onTap: () {
-              // فتح صفحة الدعم
             },
             iconColor: AppColor.blue,
           ),
           SizedBox(height: 12.h),
           ProfileActionTile(
-            icon: Icons.info_rounded,
-            title: 'عن التطبيق',
-            subtitle: 'الإصدار 1.0.0',
+            icon: Icons.monetization_on_rounded,
+            title: 'طلبات السحب',
+            subtitle: 'إدارة طلبات سحب الأرباح',
             onTap: () {
-              // عرض معلومات التطبيق
+              AppSnackBar.show(
+                message: 'قريباً',
+                type: ToastType.info,
+              );
             },
+            iconColor: AppColor.amber,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 4️⃣ قسم المساعدة
+  Widget _buildHelpSection(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: AppSize.horizontalPadding),
+      child: Column(
+        children: [
+          ProfileActionTile(
+            icon: Icons.help_outline_rounded,
+            title: 'مركز المساعدة',
+            subtitle: 'الأسئلة الشائعة والإرشادات',
+            onTap: () {
+              AppSnackBar.show(
+                message: 'قريباً',
+                type: ToastType.info,
+              );
+            },
+            iconColor: AppColor.blue,
           ),
           SizedBox(height: 12.h),
           ProfileActionTile(
-            icon: Icons.logout_rounded,
-            title: 'تسجيل الخروج',
-            subtitle: 'الخروج من حسابك',
+            icon: Icons.chat_bubble_outline_rounded,
+            title: 'تواصل معنا',
+            subtitle: 'الدردشة المباشرة مع الدعم الفني',
             onTap: () {
-              _showLogoutDialog(context);
+              AppSnackBar.show(
+                message: 'قريباً',
+                type: ToastType.info,
+              );
+            },
+            iconColor: AppColor.green,
+          ),
+          SizedBox(height: 12.h),
+          ProfileActionTile(
+            icon: Icons.bug_report_outlined,
+            title: 'الإبلاغ عن مشكلة',
+            subtitle: 'أخبرنا إذا واجهت أي مشكلة',
+            onTap: () {
+              AppSnackBar.show(
+                message: 'قريباً',
+                type: ToastType.info,
+              );
             },
             iconColor: AppColor.red,
+          ),
+          SizedBox(height: 12.h),
+          ProfileActionTile(
+            icon: Icons.info_outline_rounded,
+            title: 'عن التطبيق',
+            subtitle: 'الإصدار 1.0.0',
+            onTap: () {
+              _showAboutDialog(context);
+            },
+            iconColor: AppColor.textColor,
           ),
         ],
       ),
@@ -288,9 +378,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           ElevatedButton(
             onPressed: () {
-              // تنفيذ تسجيل الخروج
               Navigator.pop(context);
-              // AppRoutes.pushReplacementTo(context, const LoginScreen());
+              AppSnackBar.show(
+                message: 'قريباً',
+                type: ToastType.info,
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColor.red,
@@ -300,6 +392,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             child: const Text(
               'تسجيل الخروج',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAboutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        title: Row(
+          children: [
+            Icon(
+              Icons.info_outline_rounded,
+              color: AppColor.mainColor,
+              size: 24.sp,
+            ),
+            SizedBox(width: 12.w),
+            const Text('عن التطبيق'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('تطبيق جايك للمطاعم'),
+            SizedBox(height: 8.h),
+            const Text('الإصدار: 1.0.0'),
+            SizedBox(height: 8.h),
+            const Text('© 2024 جميع الحقوق محفوظة'),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColor.mainColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+            ),
+            child: const Text(
+              'حسناً',
               style: TextStyle(color: Colors.white),
             ),
           ),
