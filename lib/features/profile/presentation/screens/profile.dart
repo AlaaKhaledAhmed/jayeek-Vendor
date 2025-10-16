@@ -4,6 +4,8 @@ import '../../../../core/constants/app_color.dart';
 import '../../../../core/constants/app_size.dart';
 import '../../../../core/constants/app_string.dart';
 import '../../../../core/routing/app_routes_methods.dart';
+import '../../../../core/widgets/app_snack_bar.dart';
+import '../../../../core/widgets/app_text.dart';
 import '../../data/mock/mock_vendor_data.dart';
 import '../../data/models/vendor_model.dart';
 import '../widgets/modern_profile_header.dart';
@@ -30,6 +32,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     // استخدام البيانات التجريبية
     vendor = MockVendorData.mockVendor;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // تحديث البيانات عند العودة للشاشة
+    _refreshData();
   }
 
   void _refreshData() {
@@ -67,24 +76,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   SizedBox(height: 24.h),
 
-                  // معلومات المطعم
+                  // معلومات الحساب
                   const ProfileSectionTitle(
-                    title: 'معلومات المطعم',
-                    icon: Icons.restaurant_rounded,
+                    title: 'الحساب',
+                    icon: Icons.account_circle_rounded,
                   ),
-                  _buildRestaurantInfo(vendor, context),
-
-                  SizedBox(height: 24.h),
-
-                  // معلومات المشرف
-                  const ProfileSectionTitle(
-                    title: 'معلومات المشرف',
-                    icon: Icons.person_rounded,
-                  ),
-                  _buildSupervisorInfo(vendor),
-
-                  SizedBox(height: 24.h),
-
+                  _buildAccountActions(context, vendor),
                   // المحفظة
                   const ProfileSectionTitle(
                     title: 'المحفظة والمالية',
@@ -103,94 +100,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   SizedBox(height: 24.h),
 
-                  // معلومات الحساب
-                  const ProfileSectionTitle(
-                    title: 'الحساب',
-                    icon: Icons.account_circle_rounded,
-                  ),
-                  _buildAccountActions(context, vendor),
-
                   SizedBox(height: 32.h),
                 ],
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRestaurantInfo(VendorModel vendor, BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppSize.horizontalPadding),
-      child: Column(
-        children: [
-          ProfileInfoTile(
-            icon: Icons.badge_rounded,
-            title: 'رقم الترخيص',
-            value: vendor.licenseNumber ?? 'غير محدد',
-          ),
-          SizedBox(height: 12.h),
-          ProfileInfoTile(
-            icon: Icons.location_on_rounded,
-            title: 'العنوان',
-            value: vendor.address ?? 'غير محدد',
-          ),
-          SizedBox(height: 12.h),
-          ProfileInfoTile(
-            icon: Icons.location_city_rounded,
-            title: 'المدينة',
-            value: vendor.city ?? 'غير محدد',
-          ),
-          SizedBox(height: 12.h),
-          ProfileInfoTile(
-            icon: Icons.schedule_rounded,
-            title: 'ساعات العمل',
-            value: vendor.workingHours != null
-                ? '${vendor.workingHours!.openTime} - ${vendor.workingHours!.closeTime}'
-                : 'غير محدد',
-            onTap: () async {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => WorkingHoursScreen(vendor: vendor),
-                ),
-              );
-              // تحديث البيانات عند العودة
-              if (result == true && mounted) {
-                _refreshData();
-              }
-            },
-            showArrow: true,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSupervisorInfo(VendorModel vendor) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppSize.horizontalPadding),
-      child: Column(
-        children: [
-          ProfileInfoTile(
-            icon: Icons.person_outline_rounded,
-            title: 'اسم المشرف',
-            value: vendor.supervisorName,
-          ),
-          SizedBox(height: 12.h),
-          ProfileInfoTile(
-            icon: Icons.phone_rounded,
-            title: 'رقم الجوال',
-            value: vendor.phone,
-            iconColor: AppColor.green,
-          ),
-          SizedBox(height: 12.h),
-          ProfileInfoTile(
-            icon: Icons.email_rounded,
-            title: 'البريد الإلكتروني',
-            value: vendor.email,
-            iconColor: AppColor.blue,
           ),
         ],
       ),
@@ -218,6 +131,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         children: [
           ProfileActionTile(
+            icon: Icons.schedule_rounded,
+            title: 'ساعات العمل',
+            subtitle: vendor.workingHours != null
+                ? '${vendor.workingHours!.openTime} - ${vendor.workingHours!.closeTime}'
+                : 'غير محدد',
+            onTap: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => WorkingHoursScreen(vendor: vendor),
+                ),
+              );
+              if (result == true && mounted) {
+                _refreshData();
+              }
+            },
+            iconColor: AppColor.mainColor,
+          ),
+          SizedBox(height: 12.h),
+          ProfileActionTile(
+            icon: Icons.toggle_on_rounded,
+            title: 'حالة المطعم',
+            subtitle: vendor.isActive
+                ? 'نشط - يمكن قبول طلبات جديدة'
+                : 'غير نشط - لا يمكن قبول طلبات جديدة',
+            onTap: () {
+              _toggleRestaurantStatus(!vendor.isActive);
+            },
+            iconColor: vendor.isActive ? AppColor.green : AppColor.red,
+            trailing: Switch(
+              value: vendor.isActive,
+              onChanged: (value) {
+                _toggleRestaurantStatus(value);
+              },
+              activeColor: AppColor.green,
+              inactiveThumbColor: AppColor.red,
+            ),
+            showArrow: false,
+          ),
+          SizedBox(height: 12.h),
+          ProfileActionTile(
             icon: Icons.notifications_rounded,
             title: 'الإشعارات',
             subtitle: 'إدارة إشعارات الطلبات',
@@ -233,24 +187,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onTap: () {
               // تغيير اللغة
             },
-          ),
-          SizedBox(height: 12.h),
-          ProfileActionTile(
-            icon: Icons.toggle_on_rounded,
-            title: 'حالة المطعم',
-            subtitle: vendor.isActive ? 'نشط - يقبل طلبات' : 'مغلق',
-            onTap: () {
-              // تغيير حالة المطعم
-            },
-            iconColor: vendor.isActive ? AppColor.green : AppColor.red,
-            trailing: Switch(
-              value: vendor.isActive,
-              onChanged: (value) {
-                // تحديث حالة المطعم
-              },
-              activeColor: AppColor.green,
-            ),
-            showArrow: false,
           ),
         ],
       ),
@@ -369,5 +305,71 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
     );
+  }
+
+  void _toggleRestaurantStatus(bool isActive) {
+    // عرض تأكيد قبل التغيير
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.r),
+        ),
+        title: AppText(
+          text: isActive ? 'تفعيل المطعم' : 'إيقاف المطعم',
+          fontSize: AppSize.heading2,
+          fontWeight: FontWeight.bold,
+        ),
+        content: AppText(
+          text: isActive
+              ? 'هل أنت متأكد من تفعيل المطعم؟ سيتمكن العملاء من إرسال طلبات جديدة.'
+              : 'هل أنت متأكد من إيقاف المطعم؟ لن يتمكن العملاء من إرسال طلبات جديدة.',
+          fontSize: AppSize.normalText,
+          color: AppColor.textColor.withOpacity(0.8),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const AppText(
+              text: 'إلغاء',
+              color: AppColor.textColor,
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _updateRestaurantStatus(isActive);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isActive ? AppColor.green : AppColor.red,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+            ),
+            child: AppText(
+              text: isActive ? 'تفعيل' : 'إيقاف',
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _updateRestaurantStatus(bool isActive) {
+    // تحديث الحالة في MockVendorData
+    MockVendorData.updateVendorInfo(isActive: isActive);
+
+    // عرض رسالة نجاح
+    AppSnackBar.show(
+      message: isActive
+          ? 'تم تفعيل المطعم بنجاح. يمكنك الآن قبول الطلبات الجديدة.'
+          : 'تم إيقاف المطعم بنجاح. لن تصلك طلبات جديدة.',
+      type: isActive ? ToastType.success : ToastType.warning,
+    );
+
+    // تحديث البيانات
+    _refreshData();
   }
 }

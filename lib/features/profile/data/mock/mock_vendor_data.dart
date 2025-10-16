@@ -57,6 +57,7 @@ class MockVendorData {
     String? city,
     String? logo,
     String? coverImage,
+    bool? isActive,
   }) {
     _mockVendor = _mockVendor.copyWith(
       restaurantName: restaurantName,
@@ -68,6 +69,7 @@ class MockVendorData {
       city: city,
       logo: logo,
       coverImage: coverImage,
+      isActive: isActive,
     );
   }
 
