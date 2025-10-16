@@ -7,8 +7,10 @@ import '../../../../core/services/image_picker_service.dart';
 import '../../../../core/services/photo_permission_service.dart';
 import '../../../../core/theme/app_them.dart';
 import '../../../../core/widgets/app_bar.dart';
+import '../../../../core/widgets/app_decoration.dart';
 import '../../../../core/widgets/app_snack_bar.dart';
 import '../../../../core/widgets/app_text.dart';
+import '../../../../core/widgets/info_chip.dart';
 import '../../data/mock/mock_vendor_data.dart';
 import '../../data/models/vendor_model.dart';
 
@@ -98,58 +100,44 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
           SizedBox(height: 24.h),
 
-          // ملاحظة عصرية
+          // ملاحظة الدعم
           Container(
-            padding: EdgeInsets.all(18.w),
-            decoration: BoxDecoration(
+            padding: EdgeInsets.all(16.w),
+            decoration: AppDecoration.decoration(
+              radius: 16,
+              shadow: true,
+              shadowOpacity: 0.08,
+              blurRadius: 10,
+              showBorder: true,
+              borderColor: AppColor.amber.withOpacity(0.2),
+              borderWidth: 1,
+              isGradient: true,
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
                   AppColor.amber.withOpacity(0.08),
-                  AppColor.amber.withOpacity(0.04),
+                  AppColor.amber.withOpacity(0.03),
                 ],
               ),
-              borderRadius: BorderRadius.circular(18.r),
-              border: Border.all(
-                color: AppColor.amber.withOpacity(0.25),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColor.amber.withOpacity(0.1),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
             ),
             child: Row(
               children: [
-                // أيقونة بتصميم عصري
+                // أيقونة
                 Container(
                   padding: EdgeInsets.all(10.w),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        AppColor.amber.withOpacity(0.2),
-                        AppColor.amber.withOpacity(0.15),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(
-                      color: AppColor.amber.withOpacity(0.3),
-                      width: 1,
-                    ),
+                  decoration: AppDecoration.decoration(
+                    radius: 12,
+                    color: AppColor.amber.withOpacity(0.15),
+                    shadow: false,
                   ),
                   child: Icon(
                     Icons.support_agent_rounded,
                     color: AppColor.amber,
-                    size: 24.sp,
+                    size: 22.sp,
                   ),
                 ),
-                SizedBox(width: 14.w),
+                SizedBox(width: 12.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -160,11 +148,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         fontWeight: AppThem().bold,
                         color: AppColor.amber,
                       ),
-                      SizedBox(height: 4.h),
+                      SizedBox(height: 3.h),
                       AppText(
                         text: 'لتعديل معلومات المطعم أو المشرف',
-                        fontSize: AppSize.captionText,
-                        color: AppColor.textColor.withOpacity(0.7),
+                        fontSize: AppSize.captionText - 1,
+                        color: AppColor.textColor.withOpacity(0.65),
                       ),
                     ],
                   ),
@@ -526,7 +514,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 // Badge زخرفي
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                   decoration: BoxDecoration(
                     color: color.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20.r),
@@ -588,33 +577,29 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     required Color color,
   }) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.03),
-        borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(
-          color: color.withOpacity(0.1),
-          width: 1,
-        ),
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+      decoration: AppDecoration.decoration(
+        radius: 12,
+        color: color.withOpacity(0.04),
+        shadow: false,
+        showBorder: true,
+        borderColor: color.withOpacity(0.1),
+        borderWidth: 1,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // أيقونة صغيرة
+          // نقطة دائرية
           Container(
             width: 6.w,
             height: 6.w,
-            margin: EdgeInsets.only(top: 6.h, left: 10.w),
-            decoration: BoxDecoration(
+            margin: EdgeInsets.only(top: 5.h, left: 8.w),
+            decoration: AppDecoration.decoration(
+              isCircle: true,
               color: color,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: color.withOpacity(0.3),
-                  blurRadius: 4,
-                  spreadRadius: 1,
-                ),
-              ],
+              shadow: true,
+              shadowOpacity: 0.3,
+              blurRadius: 4,
             ),
           ),
           // المحتوى
@@ -622,15 +607,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // العنوان
                 AppText(
                   text: label,
                   fontSize: AppSize.captionText,
-                  color: color.withOpacity(0.7),
+                  color: color.withOpacity(0.65),
                   fontWeight: FontWeight.w600,
                 ),
-                SizedBox(height: 6.h),
-                // القيمة
+                SizedBox(height: 5.h),
                 AppText(
                   text: value,
                   fontSize: AppSize.normalText,
