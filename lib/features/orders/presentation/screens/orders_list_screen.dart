@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:jayeek_vendor/core/widgets/scroll_list.dart';
 import '../../../../../core/constants/app_color.dart';
-import '../../../../../core/constants/app_icons.dart';
 import '../../../../../core/constants/app_size.dart';
 import '../../../../../core/constants/app_string.dart';
 import '../../../../../core/routing/app_routes_methods.dart';
 import '../../../../../core/theme/app_them.dart';
 import '../../../../../core/widgets/app_bar.dart';
 import '../../../../../core/widgets/app_text.dart';
-import '../../../../../core/widgets/filter_chip_with_icon.dart';
-import '../../data/models/order_model.dart';
 import '../../providers/orders_list/orders_list_provider.dart';
 import '../widgets/order_card.dart';
 import '../widgets/order_status.dart';
@@ -75,11 +71,13 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen> {
       ),
       body: Column(
         children: [
-          // Status Filter Chips
-          OrderByCategories(state: state, notifier: notifier),
-
-          SizedBox(height: 16.h),
-
+          Container(
+            color: AppColor.scaffoldColor,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(12.w, 8.h, 12.w, 8.h),
+              child: OrderByCategories(state: state, notifier: notifier),
+            ),
+          ),
           // Orders List
           Expanded(
             child: _buildOrdersList(state, notifier),
@@ -193,14 +191,17 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen> {
           }
 
           final order = state.orders[index];
-          return OrderCard(
-            order: order,
-            onTap: () {
-              AppRoutes.pushTo(
-                context,
-                OrderDetailsScreen(orderId: order.id),
-              );
-            },
+          return Padding(
+            padding: EdgeInsets.only(bottom: 16.h),
+            child: OrderCard(
+              order: order,
+              onTap: () {
+                AppRoutes.pushTo(
+                  context,
+                  OrderDetailsScreen(orderId: order.id),
+                );
+              },
+            ),
           );
         },
       ),

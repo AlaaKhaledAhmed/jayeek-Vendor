@@ -46,12 +46,14 @@ class OrderCard extends StatelessWidget {
     );
   }
 
-  /// قسم الـ Header مع Gradient
+  /// قسم الـ Header مع Gradient عصري
   Widget _buildHeaderSection() {
     return Stack(
       children: [
         GradientHeaderCard(
           primaryColor: OrderStatusHelper.getStatusColor(order.status),
+          secondaryColor:
+              OrderStatusHelper.getStatusSecondaryColor(order.status),
           child: Padding(
             padding: EdgeInsets.all(16.w),
             child: Column(
@@ -61,13 +63,13 @@ class OrderCard extends StatelessWidget {
                   order: order,
                   formattedTime: _formatTime(order.createdAt),
                 ),
-                const Spacer(),
+                SizedBox(height: 16.h),
                 CustomerInfoCard(order: order),
               ],
             ),
           ),
         ),
-        // أيقونة الحالة العائمة
+        // أيقونة الحالة العائمة مع تحسين التصميم
         Positioned(
           top: 16.h,
           left: 16.w,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../constants/app_color.dart';
 
-/// Widget لعرض أيقونة عائمة مع ظل وخلفية
+/// Widget لعرض أيقونة عائمة عصرية مع ظل وتدرج لوني
 /// يستخدم في البطاقات لعرض الحالة أو المعلومات الهامة
 class FloatingIconBadge extends StatelessWidget {
   final IconData icon;
@@ -10,14 +10,16 @@ class FloatingIconBadge extends StatelessWidget {
   final Color? backgroundColor;
   final double size;
   final double iconSize;
+  final bool showGradient;
 
   const FloatingIconBadge({
     super.key,
     required this.icon,
     required this.iconColor,
     this.backgroundColor,
-    this.size = 36,
-    this.iconSize = 20,
+    this.size = 42,
+    this.iconSize = 22,
+    this.showGradient = true,
   });
 
   @override
@@ -25,22 +27,43 @@ class FloatingIconBadge extends StatelessWidget {
     return Container(
       width: size.w,
       height: size.w,
-      padding: EdgeInsets.all(8.w),
       decoration: BoxDecoration(
-        color: backgroundColor ?? AppColor.white,
-        borderRadius: BorderRadius.circular(8.r),
+        gradient: showGradient
+            ? LinearGradient(
+                colors: [
+                  Colors.white,
+                  iconColor.withOpacity(0.08),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
+            : null,
+        color: showGradient ? null : (backgroundColor ?? AppColor.white),
+        borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: AppColor.black.withOpacity(0.05),
-            blurRadius: 8,
+            color: iconColor.withOpacity(0.15),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+            spreadRadius: 0,
+          ),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 6,
             offset: const Offset(0, 2),
           ),
         ],
+        border: Border.all(
+          color: iconColor.withOpacity(0.1),
+          width: 1.5,
+        ),
       ),
-      child: Icon(
-        icon,
-        size: iconSize.sp,
-        color: iconColor,
+      child: Center(
+        child: Icon(
+          icon,
+          size: iconSize.sp,
+          color: iconColor,
+        ),
       ),
     );
   }

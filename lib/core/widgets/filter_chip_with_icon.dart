@@ -50,48 +50,70 @@ class FilterChipWithIcon extends StatelessWidget {
     final effectiveSelectedIconColor = selectedIconColor ?? AppColor.white;
     final effectiveUnselectedIconColor =
         unselectedIconColor ?? AppColor.subtextColor;
-    final effectiveBorderRadius = borderRadius ?? 25;
+    final effectiveBorderRadius = borderRadius ?? 30;
 
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeInOut,
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOutCubic,
+        padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 12.h),
         margin: EdgeInsets.only(left: 8.w),
-        decoration: AppDecoration.decoration(
-          color: isSelected ? effectiveSelectedColor : effectiveUnselectedColor,
-          radius: effectiveBorderRadius,
-          shadow: isSelected && showShadow,
-          shadowOpacity: 0.2,
-          showBorder: !isSelected,
-          borderColor: AppColor.borderColor,
-          borderWidth: 1.5,
+        decoration: BoxDecoration(
+          gradient: isSelected
+              ? LinearGradient(
+                  colors: [
+                    effectiveSelectedColor,
+                    effectiveSelectedColor.withOpacity(0.8),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
+          color: isSelected ? null : effectiveUnselectedColor,
+          borderRadius: BorderRadius.circular(effectiveBorderRadius.r),
+          border: Border.all(
+            color: isSelected
+                ? Colors.transparent
+                : AppColor.borderColor.withOpacity(0.3),
+            width: isSelected ? 0 : 1.5,
+          ),
+          boxShadow: isSelected && showShadow
+              ? [
+                  BoxShadow(
+                    color: effectiveSelectedColor.withOpacity(0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                    spreadRadius: 0,
+                  ),
+                ]
+              : [],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // الأيقونة مع Animation
+            // الأيقونة مع Animation عصري
             AnimatedScale(
-              scale: isSelected ? 1.1 : 1.0,
-              duration: const Duration(milliseconds: 200),
+              scale: isSelected ? 1.15 : 1.0,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.elasticOut,
               child: Icon(
                 icon,
-                size: AppSize.mediumIconSize,
+                size: 20.sp,
                 color: isSelected
                     ? effectiveSelectedIconColor
                     : effectiveUnselectedIconColor,
               ),
             ),
-            SizedBox(width: 8.w),
+            SizedBox(width: 10.w),
 
-            // النص
+            // النص مع خط أوضح
             AppText(
               text: label,
               color: isSelected
                   ? effectiveSelectedTextColor
                   : effectiveUnselectedTextColor,
-              fontSize: AppSize.captionText,
+              fontSize: 13.sp,
               fontWeight: isSelected ? AppThem().bold : FontWeight.w600,
             ),
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jayeek_vendor/features/orders/providers/orders_list/orders_list_state.dart';
 
 import '../../../../core/constants/app_color.dart';
@@ -17,59 +18,61 @@ class OrderByCategories extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Row(
-        children: [
-          FilterChipWithIcon(
-            label: AppMessage.all,
-            icon: AppIcons.allOrders,
-            isSelected: state.selectedStatus == null,
-            onTap: () => notifier.filterByStatus(null),
-            selectedColor: AppColor.mainColor,
-          ),
-          FilterChipWithIcon(
-            label: AppMessage.statusPending,
-            icon: AppIcons.pendingOrder,
-            isSelected: state.selectedStatus == OrderStatus.pending,
-            onTap: () => notifier.filterByStatus(OrderStatus.pending),
-            selectedColor: AppColor.mainColor,
-          ),
-          FilterChipWithIcon(
-            label: AppMessage.statusConfirmed,
-            icon: AppIcons.confirmedOrder,
-            isSelected: state.selectedStatus == OrderStatus.confirmed,
-            onTap: () => notifier.filterByStatus(OrderStatus.confirmed),
-            selectedColor: AppColor.mainColor,
-          ),
-          FilterChipWithIcon(
-            label: AppMessage.statusPreparing,
-            icon: AppIcons.preparingOrder,
-            isSelected: state.selectedStatus == OrderStatus.preparing,
-            onTap: () => notifier.filterByStatus(OrderStatus.preparing),
-            selectedColor: AppColor.mainColor,
-          ),
-          FilterChipWithIcon(
-            label: AppMessage.statusReady,
-            icon: AppIcons.readyOrder,
-            isSelected: state.selectedStatus == OrderStatus.ready,
-            onTap: () => notifier.filterByStatus(OrderStatus.ready),
-            selectedColor: AppColor.mainColor,
-          ),
-          FilterChipWithIcon(
-            label: AppMessage.statusOnTheWay,
-            icon: AppIcons.onTheWayOrder,
-            isSelected: state.selectedStatus == OrderStatus.onTheWay,
-            onTap: () => notifier.filterByStatus(OrderStatus.onTheWay),
-            selectedColor: AppColor.mainColor,
-          ),
-          FilterChipWithIcon(
-            label: AppMessage.statusDelivered,
-            icon: AppIcons.deliveredOrder,
-            isSelected: state.selectedStatus == OrderStatus.delivered,
-            onTap: () => notifier.filterByStatus(OrderStatus.delivered),
-            selectedColor: AppColor.mainColor,
-          ),
-        ],
+    final statuses = [
+      {'label': AppMessage.all, 'icon': AppIcons.allOrders, 'status': null},
+      {
+        'label': AppMessage.statusPending,
+        'icon': AppIcons.pendingOrder,
+        'status': OrderStatus.pending
+      },
+      {
+        'label': AppMessage.statusConfirmed,
+        'icon': AppIcons.confirmedOrder,
+        'status': OrderStatus.confirmed
+      },
+      {
+        'label': AppMessage.statusPreparing,
+        'icon': AppIcons.preparingOrder,
+        'status': OrderStatus.preparing
+      },
+      {
+        'label': AppMessage.statusReady,
+        'icon': AppIcons.readyOrder,
+        'status': OrderStatus.ready
+      },
+      {
+        'label': AppMessage.statusOnTheWay,
+        'icon': AppIcons.onTheWayOrder,
+        'status': OrderStatus.onTheWay
+      },
+      {
+        'label': AppMessage.statusDelivered,
+        'icon': AppIcons.deliveredOrder,
+        'status': OrderStatus.delivered
+      },
+    ];
+
+    return SizedBox(
+      height: 50.h,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(horizontal: 4.w),
+        itemCount: statuses.length,
+        separatorBuilder: (_, __) => SizedBox(width: 2.w),
+        itemBuilder: (_, i) {
+          final item = statuses[i];
+          final selected = state.selectedStatus == item['status'];
+
+          return FilterChipWithIcon(
+            label: item['label'] as String,
+            icon: item['icon'] as IconData,
+            isSelected: selected,
+            onTap: () =>
+                notifier.filterByStatus(item['status'] as OrderStatus?),
+            selectedColor: AppColor.subtextColor,
+            borderRadius: 25,
+          );
+        },
       ),
     );
   }
