@@ -17,7 +17,8 @@ class AppColor {
   static Color red = Colors.red[700]!;
   static const Color lightRed = Color(0xFFFFC8C8);
   static const Color green = Color(0xFF2FD506);
-   static Color lightGreen = const Color(0xFFAFE1AF).resolveOpacity(0.5);
+  static Color lightGreen = const Color(0xFFAFE1AF).resolveOpacity(0.5);
+  static const Color blue = Color(0xFF3B82F6);
   static const Color backgroundColor = Color(0xFFF9FAFB);
   static const Color borderColor = Color(0xFFE5E7EB);
   static const Color subGrayText = Color(0xFF6B7280);
