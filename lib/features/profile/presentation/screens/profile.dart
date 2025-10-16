@@ -82,6 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: Icons.account_circle_rounded,
                   ),
                   _buildAccountActions(context, vendor),
+                  SizedBox(height: 24.h),
                   // المحفظة
                   const ProfileSectionTitle(
                     title: 'المحفظة والمالية',
