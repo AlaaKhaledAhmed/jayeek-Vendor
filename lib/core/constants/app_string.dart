@@ -200,4 +200,25 @@ class AppMessage {
   static const String addons = 'إضافات';
   static const String quantity = 'الكمية';
   static const String minutes = 'دقيقة';
+
+  // Wallet & Transactions Strings
+  static const String wallet = 'المحفظة';
+  static const String balance = 'الرصيد المتاح';
+  static const String totalEarnings = 'إجمالي الإيرادات';
+  static const String totalWithdrawals = 'إجمالي المسحوبات';
+  static const String pendingAmount = 'قيد المعالجة';
+  static const String allTransactions = 'كل العمليات';
+  static const String earnings = 'الإيرادات';
+  static const String withdrawals = 'المسحوبات';
+  static const String commissions = 'العمولات';
+  static const String requestWithdrawal = 'طلب سحب';
+  static const String withdrawalAmount = 'مبلغ السحب';
+  static const String bankAccount = 'الحساب البنكي';
+  static const String transactionDetails = 'تفاصيل العملية';
+  static const String transactionType = 'نوع العملية';
+  static const String transactionStatus = 'حالة العملية';
+  static const String transactionDate = 'تاريخ العملية';
+  static const String reference = 'الرقم المرجعي';
+  static const String noTransactions = 'لا توجد عمليات';
+  static const String noTransactionsMessage = 'لم تتم أي عمليات مالية بعد';
 }

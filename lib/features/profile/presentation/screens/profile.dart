@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/constants/app_color.dart';
 import '../../../../core/constants/app_size.dart';
+import '../../../../core/constants/app_string.dart';
+import '../../../../core/routing/app_routes_methods.dart';
 import '../../data/mock/mock_vendor_data.dart';
 import '../../data/models/vendor_model.dart';
 import '../widgets/profile_action_tile.dart';
 import '../widgets/profile_header.dart';
 import '../widgets/profile_info_tile.dart';
 import '../widgets/profile_section_title.dart';
+import 'edit_profile_screen.dart';
+import 'notifications_settings_screen.dart';
+import 'wallet_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -59,6 +64,15 @@ class ProfileScreen extends StatelessWidget {
 
                   SizedBox(height: 24.h),
 
+                  // المحفظة
+                  const ProfileSectionTitle(
+                    title: 'المحفظة والمالية',
+                    icon: Icons.account_balance_wallet_rounded,
+                  ),
+                  _buildWalletSection(context),
+
+                  SizedBox(height: 24.h),
+
                   // الإعدادات
                   const ProfileSectionTitle(
                     title: 'الإعدادات',
@@ -73,7 +87,7 @@ class ProfileScreen extends StatelessWidget {
                     title: 'الحساب',
                     icon: Icons.account_circle_rounded,
                   ),
-                  _buildAccountActions(context),
+                  _buildAccountActions(context, vendor),
 
                   SizedBox(height: 32.h),
                 ],
@@ -157,6 +171,21 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildWalletSection(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: AppSize.horizontalPadding),
+      child: ProfileActionTile(
+        icon: Icons.account_balance_wallet_rounded,
+        title: AppMessage.wallet,
+        subtitle: 'عرض الرصيد وسجل المعاملات',
+        onTap: () {
+          AppRoutes.pushTo(context, const WalletScreen());
+        },
+        iconColor: AppColor.green,
+      ),
+    );
+  }
+
   Widget _buildSettings(BuildContext context, VendorModel vendor) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: AppSize.horizontalPadding),
@@ -167,7 +196,7 @@ class ProfileScreen extends StatelessWidget {
             title: 'الإشعارات',
             subtitle: 'إدارة إشعارات الطلبات',
             onTap: () {
-              // فتح صفحة الإشعارات
+              AppRoutes.pushTo(context, const NotificationsSettingsScreen());
             },
           ),
           SizedBox(height: 12.h),
@@ -202,7 +231,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAccountActions(BuildContext context) {
+  Widget _buildAccountActions(BuildContext context, VendorModel vendor) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: AppSize.horizontalPadding),
       child: Column(
@@ -212,7 +241,10 @@ class ProfileScreen extends StatelessWidget {
             title: 'تعديل الملف الشخصي',
             subtitle: 'تعديل معلومات المطعم والمشرف',
             onTap: () {
-              // فتح صفحة التعديل
+              AppRoutes.pushTo(
+                context,
+                EditProfileScreen(vendor: vendor),
+              );
             },
           ),
           SizedBox(height: 12.h),
