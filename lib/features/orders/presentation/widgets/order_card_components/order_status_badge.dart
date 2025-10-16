@@ -18,20 +18,18 @@ class OrderStatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = OrderStatusHelper.getStatusColor(status);
-    final secondaryColor = OrderStatusHelper.getStatusSecondaryColor(status);
     final icon = OrderStatusHelper.getStatusIcon(status);
 
     return Container(
       width: AppSize.scale(40.spMin),
       height: AppSize.scale(40.spMin),
       decoration: AppDecoration.decoration(
-        radius: 8,
-        showBorder: true,shadow: false,
-        borderWidth: 1,
-        borderColor: color,
-        color: color.resolveOpacity(0.2)
-      ),
-
+          radius: 8,
+          showBorder: true,
+          shadow: false,
+          borderWidth: 1,
+          borderColor: color,
+          color: color.resolveOpacity(0.2)),
       child: Center(
         child: Icon(
           icon,

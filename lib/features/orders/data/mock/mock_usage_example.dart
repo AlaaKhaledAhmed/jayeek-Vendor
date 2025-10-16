@@ -186,16 +186,7 @@ Future<void> example6UpdateOrderStatus(WidgetRef ref, String orderId) async {
 
   if (!onTheWayResult.hasError) {
     print('✅ تم تحديث حالة الطلب إلى: في الطريق');
-  }
-
-  // وأخيراً "تم التوصيل"
-  final deliveredResult = await ordersRepo.updateOrderStatus(
-    orderId: orderId,
-    newStatus: OrderStatus.delivered,
-  );
-
-  if (!deliveredResult.hasError) {
-    print('✅ تم تحديث حالة الطلب إلى: تم التوصيل');
+    print('✅ الطلب جاهز للتسليم للسائق');
   }
 }
 
@@ -280,30 +271,19 @@ Future<void> example8CompleteOrderLifecycle(WidgetRef ref) async {
     print('   ✅ الطلب جاهز للتوصيل\n');
   }
 
-  // 5. في الطريق
-  print('5️⃣ في الطريق...');
+  // 5. في الطريق (تم تسليم الطلب للسائق)
+  print('5️⃣ تسليم الطلب للسائق...');
   await Future.delayed(const Duration(seconds: 1));
   final onTheWayResult = await ordersRepo.updateOrderStatus(
     orderId: orderId,
     newStatus: OrderStatus.onTheWay,
   );
   if (!onTheWayResult.hasError) {
-    print('   ✅ الطلب في الطريق للعميل\n');
+    print('   ✅ تم تسليم الطلب للسائق بنجاح\n');
   }
 
-  // 6. تم التوصيل
-  print('6️⃣ تم التوصيل...');
-  await Future.delayed(const Duration(seconds: 1));
-  final deliveredResult = await ordersRepo.updateOrderStatus(
-    orderId: orderId,
-    newStatus: OrderStatus.delivered,
-  );
-  if (!deliveredResult.hasError) {
-    print('   ✅ تم التوصيل بنجاح\n');
-  }
-
-  // 7. الحالة النهائية
-  print('7️⃣ الحالة النهائية:');
+  // 6. الحالة النهائية
+  print('6️⃣ الحالة النهائية:');
   orderResult = await ordersRepo.getOrderDetails(orderId: orderId);
   if (!orderResult.hasError && orderResult.data != null) {
     print('   📊 ${orderResult.data!.status.arabicLabel}');

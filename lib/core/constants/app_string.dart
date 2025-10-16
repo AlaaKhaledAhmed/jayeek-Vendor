@@ -171,7 +171,7 @@ class AppMessage {
   static const String statusPreparing = 'قيد التحضير';
   static const String statusReady = 'جاهز';
   static const String statusOnTheWay = 'في الطريق';
-  static const String statusDelivered = 'تم التوصيل';
+  static const String statusDelivered = 'تم التسليم';
   static const String statusCancelled = 'ملغي';
 
   // Order Actions
@@ -179,8 +179,7 @@ class AppMessage {
   static const String rejectOrder = 'رفض الطلب';
   static const String markAsPreparing = 'بدء التحضير';
   static const String markAsReady = 'جاهز للتوصيل';
-  static const String markAsOnTheWay = 'تم الشحن';
-  static const String markAsDelivered = 'تم التوصيل';
+  static const String markAsOnTheWay = 'تم تسليم الطلب الى السائٍق';
   static const String estimatedPrepTime = 'وقت التحضير المتوقع (بالدقائق)';
   static const String enterEstimatedTime = 'أدخل الوقت المتوقع';
   static const String rejectionReason = 'سبب الرفض (اختياري)';

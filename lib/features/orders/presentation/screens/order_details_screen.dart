@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:jayeek_vendor/core/extensions/color_extensions.dart';
 import 'package:jayeek_vendor/core/widgets/app_decoration.dart';
 import 'package:jayeek_vendor/core/widgets/custom_load.dart';
 import '../../../../../core/constants/app_color.dart';
@@ -20,7 +19,6 @@ import '../widgets/order_details_components/customer_info_card.dart';
 import '../widgets/order_details_components/order_header_card.dart';
 import '../widgets/order_details_components/order_items_card.dart';
 import '../widgets/order_details_components/order_summary_card.dart';
-import '../widgets/order_status_timeline.dart';
 
 class OrderDetailsScreen extends ConsumerStatefulWidget {
   final String orderId;
@@ -128,9 +126,10 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
           ),
         ),
 
-        // Action Buttons
+        // Action Buttons - لا تظهر للطلبات الملغاة أو المسلمة أو في الطريق
         if (order.status != OrderStatus.cancelled &&
-            order.status != OrderStatus.delivered)
+            order.status != OrderStatus.delivered &&
+            order.status != OrderStatus.onTheWay)
           _buildActionButtons(order, notifier),
       ],
     );
@@ -140,9 +139,7 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
   Widget _buildModernOrderNotes(String notes) {
     return Container(
       padding: EdgeInsets.all(18.w),
-      decoration: AppDecoration.decoration(
-
-      ),
+      decoration: AppDecoration.decoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -259,15 +256,6 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
           onPressed: () => _updateStatus(notifier, OrderStatus.onTheWay),
           width: double.infinity,
           backgroundColor: AppColor.mainColor,
-          showLoader: isUpdating,
-        );
-
-      case OrderStatus.onTheWay:
-        return AppButtons(
-          text: AppMessage.markAsDelivered,
-          onPressed: () => _updateStatus(notifier, OrderStatus.delivered),
-          width: double.infinity,
-          backgroundColor: AppColor.green,
           showLoader: isUpdating,
         );
 

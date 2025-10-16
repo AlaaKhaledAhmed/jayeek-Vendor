@@ -19,7 +19,7 @@ class OrderStatusHelper {
       case OrderStatus.onTheWay:
         return const Color(0xFFFECA57); // أصفر ذهبي دافئ
       case OrderStatus.delivered:
-        return const Color(0xFF5F27CD); // بنفسجي ملكي عصري
+        return const Color(0xFF10B981); // أخضر نجاح
       case OrderStatus.cancelled:
         return const Color(0xFFEE5A6F); // أحمر وردي ناعم
     }
@@ -39,7 +39,7 @@ class OrderStatusHelper {
       case OrderStatus.onTheWay:
         return const Color(0xFFFFA502); // برتقالي مشمشي
       case OrderStatus.delivered:
-        return const Color(0xFF7F3FBF); // بنفسجي فاتح
+        return const Color(0xFF059669); // أخضر داكن
       case OrderStatus.cancelled:
         return const Color(0xFFFF6B9D); // وردي فاتح
     }

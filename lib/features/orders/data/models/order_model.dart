@@ -8,7 +8,7 @@ enum OrderStatus {
   preparing('preparing', 'قيد التحضير'),
   ready('ready', 'جاهز'),
   onTheWay('on_the_way', 'في الطريق'),
-  delivered('delivered', 'تم التوصيل'),
+  delivered('delivered', 'تم التسليم'),
   cancelled('cancelled', 'ملغي');
 
   final String value;
