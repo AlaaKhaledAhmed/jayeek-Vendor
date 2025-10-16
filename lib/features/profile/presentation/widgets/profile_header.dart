@@ -134,7 +134,7 @@ class ProfileHeader extends StatelessWidget {
   }
 
   Widget _buildDefaultLogo() {
-    return Container(
+    return ColoredBox(
       color: AppColor.mainColor.resolveOpacity(0.1),
       child: Icon(
         Icons.restaurant_rounded,
