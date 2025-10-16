@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import '../../../../core/constants/app_color.dart';
 import '../../../../core/constants/app_string.dart';
 import '../../../../core/widgets/app_decoration.dart';
-import '../../../../core/widgets/floating_icon_badge.dart';
 import '../../../../core/widgets/gradient_header_card.dart';
 import '../../data/models/order_model.dart';
 import 'order_card_components/customer_info_card.dart';
@@ -30,11 +29,7 @@ class OrderCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(15.r),
       child: Ink(
-        decoration: AppDecoration.decoration(
-          radius: 15,
-          shadow: true,
-          shadowOpacity: 0.08,
-        ),
+        decoration: AppDecoration.decoration(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -48,37 +43,23 @@ class OrderCard extends StatelessWidget {
 
   /// قسم الـ Header مع Gradient عصري
   Widget _buildHeaderSection() {
-    return Stack(
-      children: [
-        GradientHeaderCard(
-          primaryColor: OrderStatusHelper.getStatusColor(order.status),
-          secondaryColor:
-              OrderStatusHelper.getStatusSecondaryColor(order.status),
-          child: Padding(
-            padding: EdgeInsets.all(16.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                OrderHeaderSection(
-                  order: order,
-                  formattedTime: _formatTime(order.createdAt),
-                ),
-                SizedBox(height: 16.h),
-                CustomerInfoCard(order: order),
-              ],
+    return GradientHeaderCard(
+      primaryColor: OrderStatusHelper.getStatusColor(order.status),
+      secondaryColor: OrderStatusHelper.getStatusSecondaryColor(order.status),
+      child: Padding(
+        padding: EdgeInsets.all(16.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            OrderHeaderSection(
+              order: order,
+              formattedTime: _formatTime(order.createdAt),
             ),
-          ),
+            SizedBox(height: 16.h),
+            CustomerInfoCard(order: order),
+          ],
         ),
-        // أيقونة الحالة العائمة مع تحسين التصميم
-        Positioned(
-          top: 16.h,
-          left: 16.w,
-          child: FloatingIconBadge(
-            icon: OrderStatusHelper.getStatusIcon(order.status),
-            iconColor: OrderStatusHelper.getStatusColor(order.status),
-          ),
-        ),
-      ],
+      ),
     );
   }
 

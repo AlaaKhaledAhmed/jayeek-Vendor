@@ -22,8 +22,6 @@ class FilterChipWithIcon extends StatelessWidget {
   final Color? unselectedIconColor;
   final bool showShadow;
   final double? borderRadius;
-  final bool showIcon;
-  final bool showLabel;
 
   const FilterChipWithIcon({
     super.key,
@@ -40,8 +38,6 @@ class FilterChipWithIcon extends StatelessWidget {
     this.unselectedIconColor,
     this.showShadow = true,
     this.borderRadius,
-    this.showIcon = true,
-    this.showLabel = true,
   });
 
   @override
@@ -97,32 +93,29 @@ class FilterChipWithIcon extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             // الأيقونة مع Animation عصري
-            if (showIcon) ...[
-              AnimatedScale(
-                scale: isSelected ? 1.15 : 1.0,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.elasticOut,
-                child: Icon(
-                  icon,
-                  size: 20.sp,
-                  color: isSelected
-                      ? effectiveSelectedIconColor
-                      : effectiveUnselectedIconColor,
-                ),
+            AnimatedScale(
+              scale: isSelected ? 1.15 : 1.0,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.elasticOut,
+              child: Icon(
+                icon,
+                size: 20.sp,
+                color: isSelected
+                    ? effectiveSelectedIconColor
+                    : effectiveUnselectedIconColor,
               ),
-              if (showLabel) SizedBox(width: 10.w),
-            ],
+            ),
+            SizedBox(width: 10.w),
 
             // النص مع خط أوضح
-            if (showLabel)
-              AppText(
-                text: label,
-                color: isSelected
-                    ? effectiveSelectedTextColor
-                    : effectiveUnselectedTextColor,
-                fontSize: 13.sp,
-                fontWeight: isSelected ? AppThem().bold : FontWeight.w600,
-              ),
+            AppText(
+              text: label,
+              color: isSelected
+                  ? effectiveSelectedTextColor
+                  : effectiveUnselectedTextColor,
+              fontSize: 13.sp,
+              fontWeight: isSelected ? AppThem().bold : FontWeight.w600,
+            ),
 
             // العداد (اختياري)
             if (count != null && count! > 0) ...[

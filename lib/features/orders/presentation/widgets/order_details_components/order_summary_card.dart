@@ -39,7 +39,7 @@ class OrderSummaryCard extends StatelessWidget {
             false,
           ),
           SizedBox(height: 12.h),
-          Divider(color: AppColor.borderColor),
+          const Divider(),
           SizedBox(height: 12.h),
           _buildSummaryRow(
             AppMessage.orderTotal,
@@ -48,8 +48,9 @@ class OrderSummaryCard extends StatelessWidget {
           ),
           SizedBox(height: 12.h),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 15.h),
             decoration: AppDecoration.decoration(
+              shadow: false,
               color: order.isPaid
                   ? AppColor.green.withOpacity(0.1)
                   : AppColor.amber.withOpacity(0.1),

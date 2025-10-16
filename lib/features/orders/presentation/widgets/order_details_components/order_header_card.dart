@@ -25,8 +25,6 @@ class OrderHeaderCard extends StatelessWidget {
       padding: EdgeInsets.all(16.w),
       decoration: AppDecoration.decoration(
         color: AppColor.white,
-        radius: 12.r,
-        shadow: true,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,7 +53,7 @@ class OrderHeaderCard extends StatelessWidget {
             ],
           ),
           SizedBox(height: 12.h),
-          Divider(color: AppColor.borderColor),
+          const Divider(color: AppColor.borderColor),
           SizedBox(height: 12.h),
           Row(
             children: [

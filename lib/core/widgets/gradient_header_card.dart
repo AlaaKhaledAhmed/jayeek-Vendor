@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:jayeek_vendor/core/widgets/app_decoration.dart';
 
 /// Widget مشترك لعرض Header مع Gradient Background عصري
 /// قابل للاستخدام في أي صفحة تحتاج header عصري مع تدرجات جذابة
 class GradientHeaderCard extends StatelessWidget {
   final Color primaryColor;
   final Color? secondaryColor;
-  final double height;
+  final double? height;
   final Widget child;
   final BorderRadius? borderRadius;
 
@@ -15,7 +16,7 @@ class GradientHeaderCard extends StatelessWidget {
     required this.primaryColor,
     this.secondaryColor,
     required this.child,
-    this.height = 140,
+    this.height,
     this.borderRadius,
   });
 
@@ -24,8 +25,12 @@ class GradientHeaderCard extends StatelessWidget {
     final effectiveSecondaryColor = secondaryColor ?? primaryColor;
 
     return Container(
-      height: height.h,
-      decoration: BoxDecoration(
+      height: height?.h,
+      constraints: height == null ? null : BoxConstraints(minHeight: height!.h),
+      decoration: AppDecoration.decoration(
+        radiusOnlyTop: true,
+        isGradient: true,
+        shadow: false,
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -36,11 +41,6 @@ class GradientHeaderCard extends StatelessWidget {
           ],
           stops: const [0.0, 0.5, 1.0],
         ),
-        borderRadius: borderRadius ??
-            BorderRadius.only(
-              topLeft: Radius.circular(16.r),
-              topRight: Radius.circular(16.r),
-            ),
       ),
       child: child,
     );

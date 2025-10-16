@@ -150,7 +150,7 @@ class AppMessage {
   static const String allOrders = 'كل الطلبات';
   static const String orderDetails = 'تفاصيل الطلب';
   static const String orderNumber = 'رقم الطلب';
-  static const String customer = 'العميل';
+  static const String customer = 'معلومات العميل';
   static const String customerName = 'اسم العميل';
   static const String customerPhone = 'رقم العميل';
   static const String customerAddress = 'عنوان التوصيل';

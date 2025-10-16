@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:jayeek_vendor/core/widgets/app_refresh_indicator.dart';
+import 'package:jayeek_vendor/core/widgets/custom_load.dart';
 import '../../../../../core/constants/app_color.dart';
 import '../../../../../core/constants/app_size.dart';
 import '../../../../../core/constants/app_string.dart';
@@ -90,10 +92,9 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen> {
   Widget _buildOrdersList(state, notifier) {
     // Loading State
     if (state.isLoading && state.orders.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(
-          color: AppColor.mainColor,
-        ),
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: CustomLoad().loadVerticalList(context: context),
       );
     }
 
@@ -168,10 +169,10 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen> {
     }
 
     // Success State
-    return RefreshIndicator(
+    return AppRefreshIndicator(
       onRefresh: () => notifier.refresh(),
-      color: AppColor.mainColor,
       child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
         controller: _scrollController,
         padding: EdgeInsets.symmetric(
           horizontal: AppSize.horizontalPadding,

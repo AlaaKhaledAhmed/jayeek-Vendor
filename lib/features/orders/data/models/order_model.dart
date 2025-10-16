@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../../food_menu/domain/models/menu_item_model.dart';
 
 /// Order Status Enum
 enum OrderStatus {
@@ -22,7 +23,7 @@ enum OrderStatus {
   }
 }
 
-/// Order Item Model
+/// Order Item Model مع دعم MenuItem
 class OrderItemModel extends Equatable {
   final String id;
   final String name;
@@ -31,6 +32,7 @@ class OrderItemModel extends Equatable {
   final int quantity;
   final String? notes;
   final List<OrderAddonModel>? addons;
+  final MenuItemModel? menuItem; // إضافة كائن الوجبة من القائمة
 
   const OrderItemModel({
     required this.id,
@@ -40,6 +42,7 @@ class OrderItemModel extends Equatable {
     required this.quantity,
     this.notes,
     this.addons,
+    this.menuItem,
   });
 
   factory OrderItemModel.fromJson(Map<String, dynamic> json) {
@@ -55,6 +58,9 @@ class OrderItemModel extends Equatable {
               .map((addon) => OrderAddonModel.fromJson(addon))
               .toList()
           : null,
+      menuItem: json['menu_item'] != null
+          ? MenuItemModel.fromJson(json['menu_item'])
+          : null,
     );
   }
 
@@ -67,6 +73,7 @@ class OrderItemModel extends Equatable {
       'quantity': quantity,
       'notes': notes,
       'addons': addons?.map((addon) => addon.toJson()).toList(),
+      'menu_item': menuItem?.toJson(),
     };
   }
 
@@ -81,7 +88,8 @@ class OrderItemModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, name, image, price, quantity, notes, addons];
+  List<Object?> get props =>
+      [id, name, image, price, quantity, notes, addons, menuItem];
 }
 
 /// Order Addon Model

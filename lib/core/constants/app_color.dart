@@ -5,9 +5,7 @@ class AppColor {
   static const Color mainColor = Color(0xff0d364a);
   static const Color subtextColor = Color(0xffe8883b);
   static const Color accentColor = Color(0xffe3e1d5);
-  static const Color darkBlue = Color(0xff254D70);
 
-  static const Color base2 = Color(0xff1e81b0);
   static const Color amber = Colors.amber;
   static const Color textColor = Color(0xff111827);
   static const Color lightGray = Color(0xFFE5E7EB);
@@ -19,8 +17,7 @@ class AppColor {
   static Color red = Colors.red[700]!;
   static const Color lightRed = Color(0xFFFFC8C8);
   static const Color green = Color(0xFF2FD506);
-  static const Color darkGreen = Color(0xFF002C01);
-  static Color lightGreen = const Color(0xFFAFE1AF).resolveOpacity(0.5);
+   static Color lightGreen = const Color(0xFFAFE1AF).resolveOpacity(0.5);
   static const Color backgroundColor = Color(0xFFF9FAFB);
   static const Color borderColor = Color(0xFFE5E7EB);
   static const Color subGrayText = Color(0xFF6B7280);

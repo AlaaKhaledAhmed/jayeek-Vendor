@@ -1,4 +1,57 @@
-class MenuItemModel {
+import 'package:equatable/equatable.dart';
+
+/// Addon Model للإضافات على الوجبات
+class AddonModel extends Equatable {
+  final String id;
+  final String name;
+  final double price;
+  final bool isAvailable;
+
+  const AddonModel({
+    required this.id,
+    required this.name,
+    required this.price,
+    this.isAvailable = true,
+  });
+
+  factory AddonModel.fromJson(Map<String, dynamic> json) {
+    return AddonModel(
+      id: json['id']?.toString() ?? '',
+      name: json['name'] ?? '',
+      price: (json['price'] ?? 0).toDouble(),
+      isAvailable: json['is_available'] ?? true,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'price': price,
+      'is_available': isAvailable,
+    };
+  }
+
+  AddonModel copyWith({
+    String? id,
+    String? name,
+    double? price,
+    bool? isAvailable,
+  }) {
+    return AddonModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      price: price ?? this.price,
+      isAvailable: isAvailable ?? this.isAvailable,
+    );
+  }
+
+  @override
+  List<Object?> get props => [id, name, price, isAvailable];
+}
+
+/// Menu Item Model مع دعم الإضافات (Addons)
+class MenuItemModel extends Equatable {
   final String id;
   final String name;
   final String description;
@@ -9,6 +62,7 @@ class MenuItemModel {
   final String category;
   final String? branch;
   final bool isCustomizable;
+  final List<AddonModel>? availableAddons;
 
   const MenuItemModel({
     required this.id,
@@ -21,6 +75,7 @@ class MenuItemModel {
     required this.category,
     this.branch,
     this.isCustomizable = false,
+    this.availableAddons,
   });
 
   MenuItemModel copyWith({
@@ -33,6 +88,7 @@ class MenuItemModel {
     String? category,
     String? branch,
     bool? isCustomizable,
+    List<AddonModel>? availableAddons,
   }) {
     return MenuItemModel(
       id: id,
@@ -45,6 +101,7 @@ class MenuItemModel {
       category: category ?? this.category,
       branch: branch ?? this.branch,
       isCustomizable: isCustomizable ?? this.isCustomizable,
+      availableAddons: availableAddons ?? this.availableAddons,
     );
   }
 
@@ -60,6 +117,8 @@ class MenuItemModel {
       'category': category,
       'branch': branch,
       'isCustomizable': isCustomizable,
+      'availableAddons':
+          availableAddons?.map((addon) => addon.toJson()).toList(),
     };
   }
 
@@ -75,6 +134,26 @@ class MenuItemModel {
       category: json['category'] as String,
       branch: json['branch'] as String?,
       isCustomizable: json['isCustomizable'] as bool? ?? false,
+      availableAddons: json['availableAddons'] != null
+          ? (json['availableAddons'] as List)
+              .map((addon) => AddonModel.fromJson(addon))
+              .toList()
+          : null,
     );
   }
+
+  @override
+  List<Object?> get props => [
+        id,
+        name,
+        description,
+        imageUrl,
+        price,
+        isAvailable,
+        isFeatured,
+        category,
+        branch,
+        isCustomizable,
+        availableAddons,
+      ];
 }
