@@ -135,14 +135,21 @@ class CustomAddonNotifier extends StateNotifier<CustomAddonState>
   }
 
   ///delete addons===========================================================================================================================
-  Future<PostDataHandle<SingleAddon>> deleteAddon(int addonId) async {
+  Future<PostDataHandle<bool>> deleteAddon(int addonId) async {
     state = state.copyWith(isLoading: true);
-    final PostDataHandle<SingleAddon> apiResponse =
+    final PostDataHandle<bool> apiResponse =
         await _repository.deleteCustomAddon(addonId);
     state = state.copyWith(isLoading: false);
+
+    // Refresh the list after successful deletion
+    if (!apiResponse.hasError) {
+      getCustomAddons();
+    }
+
     return apiResponse;
   }
 
+  ///set unit==========================================================================================================================
   void setUnitType(String unitType) {
     _selectedUnitType = unitType;
   }

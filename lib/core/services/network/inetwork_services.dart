@@ -1,4 +1,3 @@
-
 import '../../domain/entity/file_upload_data.dart';
 import '../../model/data_handel.dart';
 
@@ -20,6 +19,12 @@ abstract class INetworkServices {
   });
 
   Future<PostDataHandle<T>> put<T>({
+    required String url,
+    Map<String, dynamic>? body,
+    bool requiresToken = true,
+    T Function(Map<String, dynamic>)? fromJson,
+  });
+  Future<PostDataHandle<T>> delete<T>({
     required String url,
     Map<String, dynamic>? body,
     bool requiresToken = true,

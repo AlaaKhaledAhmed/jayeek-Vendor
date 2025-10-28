@@ -62,6 +62,22 @@ class DioNetworkService implements INetworkServices {
   }
 
   @override
+  Future<PostDataHandle<T>> delete<T>({
+    required String url,
+    Map<String, dynamic>? body,
+    bool requiresToken = true,
+    T Function(Map<String, dynamic>)? fromJson,
+  }) {
+    return _sendRequest<T>(
+      requiresToken: requiresToken,
+      url: url,
+      method: 'DELETE',
+      body: body,
+      fromJson: fromJson,
+    );
+  }
+
+  @override
   Future<PostDataHandle<T>> uploadFile<T>({
     required String url,
     Map<String, dynamic>? body,

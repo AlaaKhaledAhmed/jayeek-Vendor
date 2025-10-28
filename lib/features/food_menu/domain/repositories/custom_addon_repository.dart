@@ -15,5 +15,5 @@ abstract interface class CustomAddonRepository {
   Future<PostDataHandle<SingleAddon>> updateCustomAddon(AddonsData addonDto);
 
   /// Delete a custom add-on
-  Future<PostDataHandle<SingleAddon>> deleteCustomAddon(int addonId);
+  Future<PostDataHandle<bool>> deleteCustomAddon(int addonId);
 }

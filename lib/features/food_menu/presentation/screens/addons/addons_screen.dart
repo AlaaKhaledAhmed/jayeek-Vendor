@@ -6,10 +6,11 @@ import 'package:jayeek_vendor/core/constants/app_color.dart';
 import 'package:jayeek_vendor/core/constants/app_size.dart';
 import 'package:jayeek_vendor/core/constants/app_string.dart';
 import 'package:jayeek_vendor/core/routing/app_routes_methods.dart';
-import 'package:jayeek_vendor/core/widgets/app_refresh_indicator.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
 import 'package:jayeek_vendor/core/widgets/custom_load.dart';
 import 'package:jayeek_vendor/core/widgets/data_view_builder.dart';
+import 'package:jayeek_vendor/core/widgets/app_snack_bar.dart';
+import 'package:jayeek_vendor/core/error/handel_post_response.dart';
 
 import '../../../providers/custom_addon/custom_addon_provider.dart';
 import '../../widgets/addon_item_card.dart';
@@ -44,12 +45,12 @@ class _AddonsListScreenState extends ConsumerState<AddonsScreen> {
       emptyBuilder: () => const AddonEmptyState(),
       onReload: () async => notifier.loadData(refresh: true),
       loadingBuilder: () => CustomLoad().loadVerticalList(context: context),
-      isDataEmpty: () => state.addonsData.data!.data!.isEmpty,
+      isDataEmpty: () => state.addonsData.data?.data?.isEmpty ?? true,
       successBuilder: (addons) => Padding(
         padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
         child: ListView.separated(
           padding: EdgeInsets.symmetric(vertical: 8.h),
-          itemCount: state.addons.length,
+          itemCount: addons.data!.length,
           separatorBuilder: (context, index) => SizedBox(height: 12.h),
           itemBuilder: (context, index) {
             final addon = addons.data![index];
@@ -67,7 +68,7 @@ class _AddonsListScreenState extends ConsumerState<AddonsScreen> {
               onDelete: () => _showDeleteDialog(
                 context,
                 ref,
-                addon,
+                addon.id!,
               ),
             );
           },
@@ -80,7 +81,7 @@ class _AddonsListScreenState extends ConsumerState<AddonsScreen> {
 void _showDeleteDialog(
   BuildContext context,
   WidgetRef ref,
-  addon,
+  int id,
 ) {
   showDialog(
     context: context,
@@ -97,16 +98,28 @@ void _showDeleteDialog(
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: AppText(
+          child: const AppText(
             text: AppMessage.cancel,
             color: AppColor.mediumGray,
           ),
         ),
         TextButton(
-          onPressed: () async {
+          onPressed: () {
             Navigator.pop(context);
-            await ref.read(customAddonProvider.notifier).deleteAddon(addon.id);
-            // Data will be refreshed automatically by the notifier
+            // Use HandelPostRequest to handle the delete operation
+            HandelPostRequest.handlePostRequest(
+              context: context,
+              formKey: null,
+              request: () =>
+                  ref.read(customAddonProvider.notifier).deleteAddon(id),
+              onSuccess: (data) {
+                // Show success message
+                AppSnackBar.show(
+                  message: AppMessage.addonDeleted,
+                  type: ToastType.success,
+                );
+              },
+            );
           },
           child: AppText(
             text: AppMessage.delete,
