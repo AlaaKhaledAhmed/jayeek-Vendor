@@ -124,3 +124,48 @@ class AddonsData extends Equatable {
         updatedAt,
       ];
 }
+
+class SingleAddon extends Equatable {
+  const SingleAddon({
+    this.success,
+    this.data,
+    this.message,
+  });
+
+  final bool? success;
+  final AddonsData? data;
+  final dynamic message;
+
+  SingleAddon copyWith({
+    bool? success,
+    AddonsData? data,
+    String? message,
+  }) {
+    return SingleAddon(
+      success: success ?? this.success,
+      data: data ?? this.data,
+      message: message ?? this.message,
+    );
+  }
+
+  factory SingleAddon.fromJson(Map<String, dynamic> json) {
+    return SingleAddon(
+      success: json["success"],
+      data: json["data"] == null ? null : AddonsData.fromJson(json["data"]),
+      message: json["message"],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        "success": success,
+        "data": data?.toJson(),
+        "message": message,
+      };
+
+  @override
+  List<Object?> get props => [
+        success,
+        data,
+        message,
+      ];
+}

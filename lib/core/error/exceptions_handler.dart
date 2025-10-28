@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:jayeek_vendor/core/util/print_info.dart';
 
 import '../model/data_handel.dart';
 import 'app_error_state.dart';
@@ -17,8 +18,9 @@ class ExceptionsHandler {
     }
 
     ///validation error
-    else if (code == 422 || code == 404) {
-      message = e.response?.data['message'];
+    else if (code == 422 || code == 404 || code == 400) {
+      printInfo('value');
+      message = e.response?.data['message'] ?? AppErrorState.formatException;
     }
 
     ///timeout error

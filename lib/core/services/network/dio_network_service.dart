@@ -139,6 +139,7 @@ class DioNetworkService implements INetworkServices {
         );
       }
     } on DioException catch (e) {
+
       return ExceptionsHandler.onDioException(e);
     } catch (e) {
       return PostDataHandle(

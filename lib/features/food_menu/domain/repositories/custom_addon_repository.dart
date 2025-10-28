@@ -6,16 +6,14 @@ abstract interface class CustomAddonRepository {
   Future<PostDataHandle<CustomAddonsModels>> getCustomAddons();
 
   /// Get a specific custom add-on by ID
-  Future<PostDataHandle<CustomAddonsModels>> getCustomAddonById(int addonId);
+  Future<PostDataHandle<SingleAddon>> getCustomAddonById(int addonId);
 
   /// Create a new custom add-on
-  Future<PostDataHandle<CustomAddonsModels>> createCustomAddon(
-      AddonsData addonDto);
+  Future<PostDataHandle<SingleAddon>> createCustomAddon(AddonsData addonDto);
 
   /// Update an existing custom add-on
-  Future<PostDataHandle<CustomAddonsModels>> updateCustomAddon(
-      AddonsData addonDto);
+  Future<PostDataHandle<SingleAddon>> updateCustomAddon(AddonsData addonDto);
 
   /// Delete a custom add-on
-  Future<PostDataHandle<void>> deleteCustomAddon(int addonId);
+  Future<PostDataHandle<SingleAddon>> deleteCustomAddon(int addonId);
 }

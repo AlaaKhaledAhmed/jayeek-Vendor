@@ -204,4 +204,5 @@ class AppMessage {
   static const String enterAddonDescription = 'يرجى إدخال وصف الإضافة';
   static const String enterAddonPrice = 'يرجى إدخال سعر الإضافة';
   static const String chooseAddonUnitType = 'يرجى اختيار نوع الوحدة';
+  static const String done = 'تمت  العمليه بنجاح';
 }

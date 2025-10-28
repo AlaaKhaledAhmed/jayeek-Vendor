@@ -18,39 +18,44 @@ class CustomAddonRepositoryImpl implements CustomAddonRepository {
   }
 
   @override
-  Future<PostDataHandle<CustomAddonsModels>> getCustomAddonById(int addonId) {
-    return networkService.get<CustomAddonsModels>(
+  Future<PostDataHandle<SingleAddon>> getCustomAddonById(int addonId) {
+    return networkService.get<SingleAddon>(
         url: '${ApiEndPoints.getCustomAddonByIdUrl}/$addonId',
-        requiresToken: true,
-        fromJson: CustomAddonsModels.fromJson);
+        fromJson: SingleAddon.fromJson);
   }
 
   @override
-  Future<PostDataHandle<CustomAddonsModels>> createCustomAddon(
-      AddonsData addonDto) {
-    return networkService.post<CustomAddonsModels>(
+  Future<PostDataHandle<SingleAddon>> createCustomAddon(AddonsData addonDto) {
+    return networkService.post<SingleAddon>(
       url: ApiEndPoints.createCustomAddonUrl,
-      body: addonDto.toJson(),
-      fromJson: CustomAddonsModels.fromJson,
+      body: {
+        'name': addonDto.name,
+        'description': addonDto.description,
+        'price': addonDto.price,
+        'image_url': addonDto.imageUrl,
+      },
+      fromJson: SingleAddon.fromJson,
     );
   }
 
   @override
-  Future<PostDataHandle<CustomAddonsModels>> updateCustomAddon(
-      AddonsData addon) {
-    // For now, use regular POST without multipart
-    // You can implement multipart upload later
-    return networkService.post<CustomAddonsModels>(
+  Future<PostDataHandle<SingleAddon>> updateCustomAddon(AddonsData addon) {
+    return networkService.post<SingleAddon>(
         url: ApiEndPoints.updateCustomAddonUrl,
-        body: addon.toJson(),
-        fromJson: CustomAddonsModels.fromJson);
+        body: {
+          'id': addon.id,
+          'name': addon.name,
+          'description': addon.description,
+          'price': addon.price,
+          'image_url': addon.imageUrl,
+        },
+        fromJson: SingleAddon.fromJson);
   }
 
   @override
-  Future<PostDataHandle<void>> deleteCustomAddon(int addonId) {
-    return networkService.post<void>(
-      url: '${ApiEndPoints.deleteCustomAddonUrl}/$addonId',
-      fromJson: CustomAddonsModels.fromJson,
-    );
+  Future<PostDataHandle<SingleAddon>> deleteCustomAddon(int addonId) {
+    return networkService.post<SingleAddon>(
+        url: '${ApiEndPoints.deleteCustomAddonUrl}/$addonId',
+        fromJson: SingleAddon.fromJson);
   }
 }

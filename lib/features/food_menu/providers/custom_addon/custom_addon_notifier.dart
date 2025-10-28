@@ -103,7 +103,7 @@ class CustomAddonNotifier extends StateNotifier<CustomAddonState>
   }
 
   ///create addons=====================================================================================================================
-  Future<PostDataHandle<CustomAddonsModels>> createAddon() async {
+  Future<PostDataHandle<SingleAddon>> createAddon() async {
     final addonDto = AddonsData(
       name: _nameController.text.trim(),
       description: _descriptionController.text.trim(),
@@ -111,14 +111,15 @@ class CustomAddonNotifier extends StateNotifier<CustomAddonState>
       imageUrl: _selectedImagePath,
     );
     state = state.copyWith(isLoading: true);
-    final PostDataHandle<CustomAddonsModels> apiResponse =
+    final PostDataHandle<SingleAddon> apiResponse =
         await _repository.createCustomAddon(addonDto);
     state = state.copyWith(isLoading: false);
+
     return apiResponse;
   }
 
   ///update addons===========================================================================================================================
-  Future<PostDataHandle<CustomAddonsModels>> updateAddon(int id) async {
+  Future<PostDataHandle<SingleAddon>> updateAddon(int id) async {
     final addonDto = AddonsData(
       id: id,
       name: _nameController.text.trim(),
@@ -127,16 +128,16 @@ class CustomAddonNotifier extends StateNotifier<CustomAddonState>
       imageUrl: _selectedImagePath,
     );
     state = state.copyWith(isLoading: true);
-    final PostDataHandle<CustomAddonsModels> apiResponse =
+    final PostDataHandle<SingleAddon> apiResponse =
         await _repository.updateCustomAddon(addonDto);
     state = state.copyWith(isLoading: false);
     return apiResponse;
   }
 
   ///delete addons===========================================================================================================================
-  Future<PostDataHandle<void>> deleteAddon(int addonId) async {
+  Future<PostDataHandle<SingleAddon>> deleteAddon(int addonId) async {
     state = state.copyWith(isLoading: true);
-    final PostDataHandle<void> apiResponse =
+    final PostDataHandle<SingleAddon> apiResponse =
         await _repository.deleteCustomAddon(addonId);
     state = state.copyWith(isLoading: false);
     return apiResponse;
