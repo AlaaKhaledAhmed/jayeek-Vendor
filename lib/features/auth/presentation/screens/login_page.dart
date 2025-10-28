@@ -53,7 +53,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           image: _backgroundImage.image,
           alignment: AlignmentDirectional.bottomCenter,
         ),
-
         child: _buildBody(context: context),
       ),
     );
@@ -94,7 +93,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 LengthLimitingTextInputFormatter(9),
               ],
               suffix: const Text('962+'),
-
               ltr: true,
             ),
             SizedBox(height: 10.h),

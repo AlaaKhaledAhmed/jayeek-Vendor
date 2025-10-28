@@ -36,7 +36,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
 
     ///save token
     if (!result.hasError) {
-      SharedPreferencesService.saveToken(token: result.data!['token']);
+      SharedPreferencesService.saveToken(token: result.data?['data']['token']);
     }
 
     return result;
