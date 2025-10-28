@@ -11,7 +11,7 @@ import 'package:jayeek_vendor/core/widgets/app_decoration.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
 import '../../domain/models/menu_item_model.dart';
 import '../../providers/menu/menu_provider.dart';
-import '../screens/update_item.dart';
+import '../screens/update_food.dart';
 import 'customizable_badge.dart';
 import 'price_chip.dart';
 
@@ -27,7 +27,7 @@ class MenuItemCard extends ConsumerWidget {
     return InkWell(
       onTap: () {
         // Navigate to update page
-        AppRoutes.pushTo(context, UpdateItemPage(item: item));
+        AppRoutes.pushTo(context, UpdateFoodPage(item: item));
       },
       borderRadius: BorderRadius.circular(15),
       child: Ink(
@@ -166,8 +166,8 @@ class MenuItemCard extends ConsumerWidget {
 
                   IconButton(
                     tooltip: AppMessage.delete,
-                    onPressed: () => _confirmDelete(context, () {
-                      notifier.deleteItem(item.id);
+                    onPressed: () => _confirmDelete(context, () async {
+                      await notifier.deleteItem(item.id);
                     }),
                     icon: Icon(AppIcons.delete, color: AppColor.mediumGray),
                   ),

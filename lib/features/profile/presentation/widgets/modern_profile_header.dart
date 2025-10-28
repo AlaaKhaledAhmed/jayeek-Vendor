@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jayeek_vendor/core/extensions/color_extensions.dart';
 import '../../../../core/constants/app_color.dart';
-import '../../../../core/constants/app_size.dart';
 import '../../../../core/services/image_picker_service.dart';
 import '../../../../core/services/photo_permission_service.dart';
 import '../../../../core/theme/app_them.dart';

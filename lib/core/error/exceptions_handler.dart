@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 import '../model/data_handel.dart';
-import 'app_error_message.dart';
 import 'app_error_state.dart';
 
 class ExceptionsHandler {

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import '../../../../../core/constants/app_end_points.dart';
 import '../../../../../core/model/data_handel.dart';
 import '../../../../../core/services/network/inetwork_services.dart';
@@ -19,7 +17,7 @@ class AuthRepositoryImplementing implements AuthRepository {
       url: ApiEndPoints.loginUrl,
       requiresToken: false,
       body: {'userName': phone, 'password': password},
-      fromJson: (json)=>json,
+      fromJson: (json) => json,
     );
   }
 

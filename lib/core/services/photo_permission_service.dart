@@ -73,10 +73,9 @@ class AppPermissions {
   }
 
 //pick image========================================================================================
-  static Future<bool > photoPermission({required BuildContext context}) async {
+  static Future<bool> photoPermission({required BuildContext context}) async {
     try {
       if (Platform.isIOS) {
-
         // final permissionStatus = await Permission.photos.status;
         // printInfo('value');
         // if (permissionStatus.isDenied || permissionStatus.isPermanentlyDenied) {
@@ -104,7 +103,7 @@ class AppPermissions {
     } catch (e) {
       printInfo('Error picking image: $e');
       return false;
-     // return null;
+      // return null;
     }
     return false;
     //return null;
@@ -115,7 +114,7 @@ class AppPermissions {
     final PermissionStatus recordPermission =
         await Permission.microphone.request();
     if (recordPermission.isGranted) {
-      return AppConstants.isGranted;
+      return true;
     } else if (recordPermission.isPermanentlyDenied) {
       AppDialog.noPermissionDialog(
           context: context,

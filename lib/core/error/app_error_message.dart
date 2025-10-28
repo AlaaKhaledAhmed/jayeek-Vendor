@@ -1,7 +1,5 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:jayeek_vendor/core/constants/app_string.dart';
 
-import '../localization/locale_keys.g.dart';
 import 'app_error_state.dart';
 
 class AppErrorMessage {

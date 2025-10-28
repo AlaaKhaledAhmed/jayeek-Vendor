@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import '../../constants/app_constants.dart';
 import '../../domain/entity/file_upload_data.dart';
-import '../../error/app_error_message.dart';
 import '../../error/app_error_state.dart';
 import '../../error/exceptions_handler.dart';
 import '../../model/data_handel.dart';

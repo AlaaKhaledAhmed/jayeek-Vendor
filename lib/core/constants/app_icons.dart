@@ -28,4 +28,8 @@ class AppIcons {
   static IconData cancelledOrder = Icons.cancel_rounded;
 
   static IconData warning = Icons.warning_amber_rounded;
-}
+
+  // Add-on Icons
+  static IconData addon = Icons.add_circle;
+  static IconData addonEdit = Icons.edit_rounded;
+  }

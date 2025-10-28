@@ -14,15 +14,14 @@ import 'package:jayeek_vendor/core/widgets/custom_load.dart';
 import 'package:jayeek_vendor/core/widgets/scroll_list.dart';
 import '../../providers/add_item_provider.dart';
 import '../../providers/menu/menu_provider.dart';
-import '../widgets/addons_section.dart';
 import '../widgets/food_menu_bottom_sheets.dart';
 import '../widgets/meal_image_picker.dart';
 import '../widgets/switch_row.dart';
 
 /// AddItemPage - Refactored with clean architecture
 /// All widgets extracted to separate files in widgets folder
-class AddItemPage extends ConsumerWidget {
-  const AddItemPage({super.key});
+class AddFoodPage extends ConsumerWidget {
+  const AddFoodPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -168,27 +167,6 @@ class AddItemPage extends ConsumerWidget {
                         value: state.isAvailable,
                         onChanged: notifier.toggleAvailable,
                       ),
-                      SizedBox(height: 14.h),
-
-                      // الإضافات (القوائم)
-                      AddonsSection(
-                        groups: state.addonGroups,
-                        onAddGroup: () =>
-                            FoodMenuBottomSheets.showCreateAddonGroup(
-                          context,
-                          onAdd: notifier.addAddonGroup,
-                        ),
-                        onDeleteGroup: notifier.deleteAddonGroup,
-                        onAddItem: (gIndex) =>
-                            FoodMenuBottomSheets.showAddAddonItem(
-                          context,
-                          onAdd: (item) => notifier.addAddonItem(gIndex, item),
-                        ),
-                        onToggleRequired: notifier.setGroupRequired,
-                        onMaxChange: notifier.setGroupMaxSelectable,
-                        onDeleteItem: notifier.deleteAddonItem,
-                      ),
-
                       SizedBox(height: 20.h),
 
                       // زر الحفظ

@@ -14,15 +14,14 @@ import 'package:jayeek_vendor/core/widgets/scroll_list.dart';
 import '../../domain/models/menu_item_model.dart';
 import '../../providers/menu/menu_provider.dart';
 import '../../providers/update_item/update_item_provider.dart';
-import '../widgets/addons_section.dart';
 import '../widgets/food_menu_bottom_sheets.dart';
 import '../widgets/meal_image_picker.dart';
 import '../widgets/switch_row.dart';
 
-class UpdateItemPage extends ConsumerWidget {
+class UpdateFoodPage extends ConsumerWidget {
   final MenuItemModel item;
 
-  const UpdateItemPage({super.key, required this.item});
+  const UpdateFoodPage({super.key, required this.item});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -150,28 +149,6 @@ class UpdateItemPage extends ConsumerWidget {
                         value: state.isAvailable,
                         onChanged: notifier.toggleAvailable,
                       ),
-                      SizedBox(height: 14.h),
-
-                      // الإضافات (القوائم)
-                      AddonsSection(
-                        groups: state.addonGroups,
-                        onAddGroup: () =>
-                            FoodMenuBottomSheets.showCreateAddonGroup(
-                              context,
-                              onAdd: notifier.addAddonGroup,
-                            ),
-                        onDeleteGroup: notifier.deleteAddonGroup,
-                        onAddItem: (gIndex) =>
-                            FoodMenuBottomSheets.showAddAddonItem(
-                              context,
-                              onAdd: (item) =>
-                                  notifier.addAddonItem(gIndex, item),
-                            ),
-                        onToggleRequired: notifier.setGroupRequired,
-                        onMaxChange: notifier.setGroupMaxSelectable,
-                        onDeleteItem: notifier.deleteAddonItem,
-                      ),
-
                       SizedBox(height: 20.h),
 
                       // زر الحفظ

@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jayeek_vendor/features/food_menu/data/repositories_impl/food_repository_impl.dart';
 import 'package:jayeek_vendor/features/food_menu/domain/repositories/food_repository.dart';
+import 'package:jayeek_vendor/features/food_menu/data/repositories_impl/custom_addon_repository_impl.dart';
+import 'package:jayeek_vendor/features/food_menu/domain/repositories/custom_addon_repository.dart';
 import 'package:jayeek_vendor/features/orders/data/repositories_impl/mock_orders_repository_impl.dart';
 import 'package:jayeek_vendor/features/orders/data/repositories_impl/orders_repository_impl.dart';
 import 'package:jayeek_vendor/features/orders/domain/repositories/orders_repository.dart';
@@ -34,6 +36,11 @@ final loginDi = Provider<AuthRepository>(
 );
 final foodDi = Provider<FoodRepository>(
   (ref) => FoodRepositoryImpl(networkService: ref.read(networkServicesDi)),
+);
+
+final customAddonDi = Provider<CustomAddonRepository>(
+  (ref) =>
+      CustomAddonRepositoryImpl(networkService: ref.read(networkServicesDi)),
 );
 
 /// Orders Repository

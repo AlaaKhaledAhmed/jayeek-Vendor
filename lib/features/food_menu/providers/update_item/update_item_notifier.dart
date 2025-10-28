@@ -142,43 +142,51 @@ class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
   Future<MenuItemModel?> update() async {
     if (!formKey.currentState!.validate()) return null;
 
-    // Create updated MenuItemModel
-    final updatedItem = item.copyWith(
-      name: nameController.text,
-      description: descriptionController.text,
-      price: double.tryParse(priceController.text) ?? item.price,
-      imageUrl: state.mealImagePath ?? item.imageUrl,
-      category: selectedCategory,
-      branch: selectedBranch,
-      isAvailable: state.isAvailable,
-      isCustomizable: state.isCustomizable,
-    );
+    state = state.copyWith(isLoading: true, );
 
-    final payload = updatedItem.toJson();
-    payload['addons'] = state.addonGroups
-        .map(
-          (g) => {
-            "name": g.name,
-            "required": g.isRequired,
-            "maxSelectable": g.maxSelectable,
-            "items": g.items
-                .map(
-                  (i) => {
-                    "name": i.name,
-                    "price": i.price,
-                    "quantity": i.quantity,
-                  },
-                )
-                .toList(),
-          },
-        )
-        .toList();
+    try {
+      // Create updated MenuItemModel
+      final updatedItem = item.copyWith(
+        name: nameController.text,
+        description: descriptionController.text,
+        price: double.tryParse(priceController.text) ?? item.price,
+        imageUrl: state.mealImagePath ?? item.imageUrl,
+        category: selectedCategory,
+        branch: selectedBranch,
+        isAvailable: state.isAvailable,
+        isCustomizable: state.isCustomizable,
+      );
 
-    state = state.copyWith(isLoading: true);
-    await repository.updateFoodItem(payload);
-    state = state.copyWith(isLoading: false);
+      final payload = updatedItem.toJson();
+      payload['addons'] = state.addonGroups
+          .map(
+            (g) => {
+              "name": g.name,
+              "required": g.isRequired,
+              "maxSelectable": g.maxSelectable,
+              "items": g.items
+                  .map(
+                    (i) => {
+                      "name": i.name,
+                      "price": i.price,
+                      "quantity": i.quantity,
+                    },
+                  )
+                  .toList(),
+            },
+          )
+          .toList();
 
-    return updatedItem;
+      await repository.updateFoodItem(payload);
+      state = state.copyWith(isLoading: false);
+      return updatedItem;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+       
+      );
+      return null;
+    }
   }
 
   @override

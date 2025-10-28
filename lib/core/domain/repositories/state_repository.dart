@@ -1,4 +1,4 @@
-abstract interface class StateRepository {
+abstract class StateRepository {
   void resetState();
   void loadData({bool? refresh});
 }

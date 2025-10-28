@@ -125,7 +125,7 @@ class AppDecoration {
               fit: cover ? BoxFit.cover : BoxFit.contain,
               colorFilter: colorFilter,
               alignment: alignment,
-            )
+              onError: (object, stackTrace) {})
           : null,
       border: buildBorder(),
       borderRadius: isCircle ? null : resolveRadius(),

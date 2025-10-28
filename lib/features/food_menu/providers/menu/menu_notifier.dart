@@ -7,15 +7,15 @@ class MenuNotifier extends StateNotifier<MenuState> {
   final FoodRepository repository;
 
   MenuNotifier(this.repository)
-    : super(
-        const MenuState(
-          items: [],
-          isLoading: true,
-          query: '',
-          category: null,
-          gridMode: false,
-        ),
-      ) {
+      : super(
+          const MenuState(
+            items: [],
+            isLoading: true,
+            query: '',
+            category: null,
+            gridMode: false,
+          ),
+        ) {
     _loadMenu();
   }
 
@@ -56,20 +56,28 @@ class MenuNotifier extends StateNotifier<MenuState> {
   }
 
   void toggleAvailability(String id) {
-    final updated = state.items
-        .map((e) {
-          if (e.id == id) return e.copyWith(isAvailable: !e.isAvailable);
-          return e;
-        })
-        .toList(growable: false);
+    final updated = state.items.map((e) {
+      if (e.id == id) return e.copyWith(isAvailable: !e.isAvailable);
+      return e;
+    }).toList(growable: false);
     state = state.copyWith(items: updated);
   }
 
-  void deleteItem(String id) {
-    final updated = state.items
-        .where((e) => e.id != id)
-        .toList(growable: false);
-    state = state.copyWith(items: updated);
+  Future<void> deleteItem(String id) async {
+    try {
+      // Call API to delete item from server
+      await repository.deleteMenuItem(id);
+
+      // Update local state after successful deletion
+      final updated =
+          state.items.where((e) => e.id != id).toList(growable: false);
+      state = state.copyWith(items: updated);
+    } catch (e) {
+      // Handle error - you might want to show a snackbar or error message
+      print('Error deleting item: $e');
+      // Optionally refresh the menu to get the latest state
+      await refreshMenu();
+    }
   }
 
   void updateItem(MenuItemModel updatedItem) {

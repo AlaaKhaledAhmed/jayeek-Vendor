@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jayeek_vendor/core/services/shared_preferences_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../../core/model/data_handel.dart';
 import '../../../../../core/util/print_info.dart';
 import '../../domain/repositories/auth_repository.dart';

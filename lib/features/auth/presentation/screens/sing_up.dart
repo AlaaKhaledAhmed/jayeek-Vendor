@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jayeek_vendor/core/extensions/context_extensions.dart';
 import 'package:jayeek_vendor/features/auth/presentation/screens/login_page.dart';
-import 'package:jayeek_vendor/features/auth/presentation/screens/sing_up.dart';
 import 'package:jayeek_vendor/features/auth/providers/sing_up/sing_up_provider.dart';
 import '../../../../../core/constants/app_color.dart';
 import '../../../../../core/constants/app_size.dart';
@@ -19,7 +18,6 @@ import '../../../../../core/widgets/app_text_fields.dart';
 import '../../../../../generated/assets.dart';
 import '../../../../core/routing/app_routes_methods.dart';
 import '../../../home/presentation/screens/home_page.dart';
-import '../../providers/login/login_provider.dart';
 
 class SingUp extends ConsumerStatefulWidget {
   const SingUp({super.key});
@@ -55,7 +53,6 @@ class _SingUpState extends ConsumerState<SingUp> {
           image: _backgroundImage.image,
           alignment: AlignmentDirectional.bottomCenter,
         ),
-
         child: _buildBody(context: context),
       ),
     );
@@ -64,7 +61,6 @@ class _SingUpState extends ConsumerState<SingUp> {
   //==========================================================================================================
   Widget _buildBody({required BuildContext context}) {
     final notifier = ref.read(singUpProvider.notifier);
-    final state = ref.watch(singUpProvider);
     return Padding(
       padding: EdgeInsets.only(
         left: AppSize.horizontalPadding,
@@ -119,7 +115,6 @@ class _SingUpState extends ConsumerState<SingUp> {
                 LengthLimitingTextInputFormatter(9),
               ],
               suffix: const Text('962+'),
-
               ltr: true,
             ),
 

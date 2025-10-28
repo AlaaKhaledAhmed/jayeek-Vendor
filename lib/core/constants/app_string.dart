@@ -179,4 +179,29 @@ class AppMessage {
   static const String reference = 'الرقم المرجعي';
   static const String noTransactions = 'لا توجد عمليات';
   static const String noTransactionsMessage = 'لم تتم أي عمليات مالية بعد';
+
+  // Add-ons Strings
+  static const String addAddon = 'إضافة إضافة جديدة';
+  static const String editAddon = 'تعديل الإضافة';
+  static const String deleteAddon = 'حذف الإضافة';
+  static const String addonName = 'اسم الإضافة';
+  static const String addonDescription = 'وصف الإضافة';
+  static const String addonPrice = 'سعر الإضافة';
+  static const String unitType = 'نوع الوحدة';
+  static const String chooseUnitType = 'اختر نوع الوحدة';
+  static const String piece = 'قطعة';
+  static const String kilogram = 'كيلو';
+  static const String gram = 'جرام';
+  static const String noAddonsYet = 'لا توجد إضافات بعد';
+  static const String noAddonsMessage = 'أضف أول إضافة لبدء عرض قائمتك هنا.';
+  static const String addonCreated = 'تم إنشاء الإضافة بنجاح';
+  static const String addonUpdated = 'تم تحديث الإضافة بنجاح';
+  static const String addonDeleted = 'تم حذف الإضافة بنجاح';
+  static const String deleteAddonConfirm = 'حذف الإضافة؟';
+  static const String deleteAddonMessage =
+      'هل أنت متأكد أنك تريد حذف هذه الإضافة؟ لا يمكن التراجع.';
+  static const String enterAddonName = 'يرجى إدخال اسم الإضافة';
+  static const String enterAddonDescription = 'يرجى إدخال وصف الإضافة';
+  static const String enterAddonPrice = 'يرجى إدخال سعر الإضافة';
+  static const String chooseAddonUnitType = 'يرجى اختيار نوع الوحدة';
 }
