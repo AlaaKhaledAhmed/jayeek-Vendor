@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -18,14 +19,20 @@ import 'package:jayeek_vendor/core/widgets/app_text.dart';
 import 'package:jayeek_vendor/core/widgets/app_text_fields.dart';
 import 'package:jayeek_vendor/core/widgets/scroll_list.dart';
 
+import '../../../../../core/error/handel_post_response.dart';
 import '../../../domain/models/custom_addon_model.dart';
 import '../../../providers/custom_addon/custom_addon_provider.dart';
 import '../../../providers/custom_addon/custom_addon_state.dart';
 
 class UpdateAddon extends ConsumerStatefulWidget {
-  final CustomAddonModel? addon;
+  final AddonsData? addon;
+  final bool fromUpdate;
 
-  const UpdateAddon({super.key, this.addon});
+  const UpdateAddon({
+    super.key,
+    this.addon,
+    required this.fromUpdate,
+  });
 
   @override
   ConsumerState<UpdateAddon> createState() => _AddEditAddonScreenState();
@@ -35,13 +42,13 @@ class _AddEditAddonScreenState extends ConsumerState<UpdateAddon> {
   @override
   void initState() {
     super.initState();
-    // Load addon data for editing if provided, otherwise prepare for new addon
+
+    /// Load addon data for editing if provided, otherwise prepare for new addon
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final notifier = ref.read(customAddonProvider.notifier);
-      if (widget.addon != null && widget.addon!.id != 0) {
-        notifier.loadAddonForEdit(widget.addon!);
+      if (widget.fromUpdate) {
+        ref.read(customAddonProvider.notifier).loadAddonForEdit(widget.addon!);
       } else {
-        notifier.prepareForNewAddon();
+        ref.read(customAddonProvider.notifier).prepareForNewAddon();
       }
     });
   }
@@ -55,8 +62,7 @@ class _AddEditAddonScreenState extends ConsumerState<UpdateAddon> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBarWidget(
-          text:
-              widget.addon != null ? AppMessage.editAddon : AppMessage.addAddon,
+          text: widget.fromUpdate ? AppMessage.editAddon : AppMessage.addAddon,
           hideBackButton: false,
         ),
         body: SafeArea(
@@ -70,7 +76,7 @@ class _AddEditAddonScreenState extends ConsumerState<UpdateAddon> {
               child: ScrollList(
                 children: [
                   // Addon Name
-                  AppText(
+                  const AppText(
                     text: AppMessage.addonName,
                     fontWeight: FontWeight.bold,
                   ),
@@ -84,7 +90,7 @@ class _AddEditAddonScreenState extends ConsumerState<UpdateAddon> {
                   SizedBox(height: 10.h),
 
                   // Addon Description
-                  AppText(
+                  const AppText(
                     text: AppMessage.addonDescription,
                     fontWeight: FontWeight.bold,
                   ),
@@ -100,7 +106,7 @@ class _AddEditAddonScreenState extends ConsumerState<UpdateAddon> {
                   SizedBox(height: 20.h),
 
                   // Addon Image
-                  AppText(
+                  const AppText(
                     text: 'صورة الإضافة',
                     fontWeight: FontWeight.bold,
                   ),
@@ -109,7 +115,7 @@ class _AddEditAddonScreenState extends ConsumerState<UpdateAddon> {
                   SizedBox(height: 20.h),
 
                   // Addon Price
-                  AppText(
+                  const AppText(
                     text: AppMessage.addonPrice,
                     fontWeight: FontWeight.bold,
                   ),
@@ -119,19 +125,24 @@ class _AddEditAddonScreenState extends ConsumerState<UpdateAddon> {
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
                     controller: notifier.priceController,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                    ],
                     validator: (v) {
                       if (v!.isEmpty) return AppMessage.enterAddonPrice;
-                      if (double.tryParse(v) == null)
+                      if (double.tryParse(v) == null) {
                         return 'يرجى إدخال رقم صحيح';
-                      if (double.parse(v) <= 0)
+                      }
+                      if (double.parse(v) <= 0) {
                         return 'السعر يجب أن يكون أكبر من صفر';
+                      }
                       return null;
                     },
                   ),
                   SizedBox(height: 10.h),
 
                   // Unit Type
-                  AppText(
+                  const AppText(
                     text: AppMessage.unitType,
                     fontWeight: FontWeight.bold,
                   ),
@@ -148,46 +159,22 @@ class _AddEditAddonScreenState extends ConsumerState<UpdateAddon> {
                   // Save Button
                   AppButtons(
                     text: AppMessage.save,
-                    onPressed: () async {
-                      if (!notifier.canSave()) {
-                        AppSnackBar.show(
-                          message: 'لا توجد تغييرات لحفظها',
-                          type: ToastType.info,
-                        );
-                        return;
-                      }
-
-                      if (widget.addon != null) {
-                        await notifier.updateAddon(widget.addon!);
-                        if (state.error == null && context.mounted) {
-                          AppSnackBar.show(
-                            message: AppMessage.addonUpdated,
-                            type: ToastType.success,
-                          );
-                          Navigator.pop(context,
-                              true); // Return true for successful update
-                        }
-                      } else {
-                        await notifier.createAddon();
-                        if (state.error == null && context.mounted) {
-                          AppSnackBar.show(
-                            message: AppMessage.addonCreated,
-                            type: ToastType.success,
-                          );
-                          Navigator.pop(context,
-                              true); // Return true for successful creation
-                        }
-                      }
-
-                      if (state.error != null && context.mounted) {
-                        AppSnackBar.show(
-                          message: state.error!,
-                          type: ToastType.error,
-                        );
-                      }
+                    showLoader: state.isLoading,
+                    onPressed: () {
+                      ///handel result
+                      HandelPostRequest.handlePostRequest(
+                        context: context,
+                        formKey: notifier.formKey,
+                        request: widget.fromUpdate
+                            ? () => notifier.updateAddon(widget.addon!.id!)
+                            : notifier.createAddon,
+                        onSuccess: (data) {
+                          notifier.loadData(refresh: true);
+                          Navigator.pop(context);
+                        },
+                      );
                     },
                     backgroundColor: AppColor.mainColor,
-                    showLoader: state.isCreating || state.isUpdating,
                   ),
                   SizedBox(height: 15.h),
                 ],
@@ -229,7 +216,7 @@ class _AddEditAddonScreenState extends ConsumerState<UpdateAddon> {
                             },
                             loadingBuilder: (context, child, loadingProgress) {
                               if (loadingProgress == null) return child;
-                              return Center(
+                              return const Center(
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
                                   valueColor: AlwaysStoppedAnimation<Color>(

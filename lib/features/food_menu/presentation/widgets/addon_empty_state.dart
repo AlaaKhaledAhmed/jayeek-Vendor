@@ -6,6 +6,7 @@ import 'package:jayeek_vendor/core/constants/app_color.dart';
 import 'package:jayeek_vendor/core/constants/app_icons.dart';
 import 'package:jayeek_vendor/core/constants/app_size.dart';
 import 'package:jayeek_vendor/core/constants/app_string.dart';
+import 'package:jayeek_vendor/core/routing/app_routes_methods.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
 import 'package:jayeek_vendor/core/widgets/app_buttons.dart';
 
@@ -45,18 +46,8 @@ class AddonEmptyState extends ConsumerWidget {
             AppButtons(
               text: AppMessage.addAddon,
               onPressed: () async {
-                // Prepare for new addon before navigation
-                ref.read(customAddonProvider.notifier).prepareForNewAddon();
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const UpdateAddon(),
-                  ),
-                );
-                // Refresh addons list if addon was created successfully
-                if (result == true) {
-                  ref.read(customAddonProvider.notifier).getCustomAddons();
-                }
+                AppRoutes.pushTo(context, const UpdateAddon(fromUpdate: false));
+
               },
               backgroundColor: AppColor.mainColor,
             ),

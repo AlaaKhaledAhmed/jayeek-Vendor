@@ -5,53 +5,36 @@ import '../../../../core/model/data_handel.dart';
 import '../../../../core/constants/app_flow_sate.dart';
 
 class CustomAddonState extends Equatable {
-  final DataHandle<List<CustomAddonModel>> addonsData;
-  final bool isCreating;
-  final bool isUpdating;
-  final bool isDeleting;
-  final String? error;
+  final DataHandle<CustomAddonsModels> addonsData;
+  final bool isLoading;
+
   final String? selectedImagePath;
 
   const CustomAddonState({
-    this.addonsData = const DataHandle<List<CustomAddonModel>>(),
-    this.isCreating = false,
-    this.isUpdating = false,
-    this.isDeleting = false,
-    this.error,
+    this.addonsData = const DataHandle<CustomAddonsModels>(),
+    this.isLoading = false,
     this.selectedImagePath,
   });
 
   CustomAddonState copyWith({
-    DataHandle<List<CustomAddonModel>>? addonsData,
-    bool? isCreating,
-    bool? isUpdating,
-    bool? isDeleting,
-    String? error,
+    DataHandle<CustomAddonsModels>? addonsData,
+    bool? isLoading,
     String? selectedImagePath,
   }) {
     return CustomAddonState(
       addonsData: addonsData ?? this.addonsData,
-      isCreating: isCreating ?? this.isCreating,
-      isUpdating: isUpdating ?? this.isUpdating,
-      isDeleting: isDeleting ?? this.isDeleting,
-      error: error ?? this.error,
+      isLoading: isLoading ?? this.isLoading,
       selectedImagePath: selectedImagePath ?? this.selectedImagePath,
     );
   }
 
-  // Helper getter for easy access to addons list
-  List<CustomAddonModel> get addons => addonsData.data ?? [];
-
-  // Helper getter for loading state
-  bool get isLoading => addonsData.result == AppFlowState.loading;
+  /// Helper getter for easy access to addons list
+  List<AddonsData> get addons => addonsData.data?.data ?? [];
 
   @override
   List<Object?> get props => [
         addonsData,
-        isCreating,
-        isUpdating,
-        isDeleting,
-        error,
+        isLoading,
         selectedImagePath,
       ];
 }

@@ -3,18 +3,18 @@ import '../../../../core/model/data_handel.dart';
 
 abstract interface class CustomAddonRepository {
   /// Get all custom add-ons
-  Future<PostDataHandle<List<CustomAddonModel>>> getCustomAddons();
+  Future<PostDataHandle<CustomAddonsModels>> getCustomAddons();
 
   /// Get a specific custom add-on by ID
-  Future<PostDataHandle<CustomAddonModel>> getCustomAddonById(int addonId);
+  Future<PostDataHandle<CustomAddonsModels>> getCustomAddonById(int addonId);
 
   /// Create a new custom add-on
-  Future<PostDataHandle<CustomAddonModel>> createCustomAddon(
-      CreateAddonDto addonDto);
+  Future<PostDataHandle<CustomAddonsModels>> createCustomAddon(
+      AddonsData addonDto);
 
   /// Update an existing custom add-on
-  Future<PostDataHandle<CustomAddonModel>> updateCustomAddon(
-      UpdateAddonDto addonDto);
+  Future<PostDataHandle<CustomAddonsModels>> updateCustomAddon(
+      AddonsData addonDto);
 
   /// Delete a custom add-on
   Future<PostDataHandle<void>> deleteCustomAddon(int addonId);

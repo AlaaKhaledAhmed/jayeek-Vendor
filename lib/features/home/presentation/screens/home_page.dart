@@ -5,7 +5,7 @@ import '../../../../core/constants/app_color.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_size.dart';
 import '../../../../core/constants/app_string.dart';
-import '../../../food_menu/presentation/screens/food_menu.dart';
+import '../../../food_menu/presentation/screens/food/food_menu.dart';
 import '../../../orders/presentation/screens/orders_list_screen.dart';
 import '../../../profile/presentation/screens/profile.dart';
 

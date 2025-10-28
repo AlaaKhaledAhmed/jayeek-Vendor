@@ -11,82 +11,46 @@ class CustomAddonRepositoryImpl implements CustomAddonRepository {
   CustomAddonRepositoryImpl({required this.networkService});
 
   @override
-  Future<PostDataHandle<List<CustomAddonModel>>> getCustomAddons() {
-    return networkService.get<List<CustomAddonModel>>(
-      url: ApiEndPoints.getCustomAddonsUrl,
-      requiresToken: true,
-      fromJson: (json) {
-        if (json['success'] == true && json['data'] != null) {
-          return (json['data'] as List)
-              .map((item) => CustomAddonModel.fromJson(item))
-              .toList();
-        }
-        return <CustomAddonModel>[];
-      },
-    );
+  Future<PostDataHandle<CustomAddonsModels>> getCustomAddons() {
+    return networkService.get<CustomAddonsModels>(
+        url: ApiEndPoints.getCustomAddonsUrl,
+        fromJson: CustomAddonsModels.fromJson);
   }
 
   @override
-  Future<PostDataHandle<CustomAddonModel>> getCustomAddonById(int addonId) {
-    return networkService.get<CustomAddonModel>(
-      url: '${ApiEndPoints.getCustomAddonByIdUrl}/$addonId',
-      requiresToken: true,
-      fromJson: (json) {
-        if (json['success'] == true && json['data'] != null) {
-          return CustomAddonModel.fromJson(json['data']);
-        }
-        throw Exception('Add-on not found');
-      },
-    );
+  Future<PostDataHandle<CustomAddonsModels>> getCustomAddonById(int addonId) {
+    return networkService.get<CustomAddonsModels>(
+        url: '${ApiEndPoints.getCustomAddonByIdUrl}/$addonId',
+        requiresToken: true,
+        fromJson: CustomAddonsModels.fromJson);
   }
 
   @override
-  Future<PostDataHandle<CustomAddonModel>> createCustomAddon(
-      CreateAddonDto addonDto) {
-    // For now, use regular POST without multipart
-    // You can implement multipart upload later
-    return networkService.post<CustomAddonModel>(
+  Future<PostDataHandle<CustomAddonsModels>> createCustomAddon(
+      AddonsData addonDto) {
+    return networkService.post<CustomAddonsModels>(
       url: ApiEndPoints.createCustomAddonUrl,
-      requiresToken: true,
       body: addonDto.toJson(),
-      fromJson: (json) {
-        if (json['success'] == true && json['data'] != null) {
-          return CustomAddonModel.fromJson(json['data']);
-        }
-        throw Exception('Failed to create add-on');
-      },
+      fromJson: CustomAddonsModels.fromJson,
     );
   }
 
   @override
-  Future<PostDataHandle<CustomAddonModel>> updateCustomAddon(
-      UpdateAddonDto addonDto) {
+  Future<PostDataHandle<CustomAddonsModels>> updateCustomAddon(
+      AddonsData addon) {
     // For now, use regular POST without multipart
     // You can implement multipart upload later
-    return networkService.post<CustomAddonModel>(
-      url: ApiEndPoints.updateCustomAddonUrl,
-      requiresToken: true,
-      body: addonDto.toJson(),
-      fromJson: (json) {
-        if (json['success'] == true && json['data'] != null) {
-          return CustomAddonModel.fromJson(json['data']);
-        }
-        throw Exception('Failed to update add-on');
-      },
-    );
+    return networkService.post<CustomAddonsModels>(
+        url: ApiEndPoints.updateCustomAddonUrl,
+        body: addon.toJson(),
+        fromJson: CustomAddonsModels.fromJson);
   }
 
   @override
   Future<PostDataHandle<void>> deleteCustomAddon(int addonId) {
     return networkService.post<void>(
       url: '${ApiEndPoints.deleteCustomAddonUrl}/$addonId',
-      requiresToken: true,
-      fromJson: (json) {
-        if (json['success'] == true) {
-          return null;
-        }
-        throw Exception('Failed to delete add-on');
-      },
+      fromJson: CustomAddonsModels.fromJson,
     );
   }
 }

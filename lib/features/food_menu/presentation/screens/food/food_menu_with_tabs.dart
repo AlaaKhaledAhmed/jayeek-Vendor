@@ -6,21 +6,21 @@ import 'package:jayeek_vendor/core/constants/app_color.dart';
 import 'package:jayeek_vendor/core/constants/app_icons.dart';
 import 'package:jayeek_vendor/core/constants/app_size.dart';
 import 'package:jayeek_vendor/core/constants/app_string.dart';
-import 'package:jayeek_vendor/core/util/print_info.dart';
+import 'package:jayeek_vendor/core/routing/app_routes_methods.dart';
+import 'package:jayeek_vendor/core/theme/app_them.dart';
 import 'package:jayeek_vendor/core/widgets/app_bar.dart';
 import 'package:jayeek_vendor/core/widgets/app_refresh_indicator.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
+import 'package:jayeek_vendor/features/food_menu/presentation/screens/food/add_food.dart';
 
-import '../../providers/menu/menu_provider.dart';
-import '../../providers/custom_addon/custom_addon_provider.dart';
-import '../widgets/add_meal_or_addon_dialog.dart';
-import '../widgets/empty_data.dart';
-import '../widgets/grid_list.dart';
-import '../widgets/loading_placeholder.dart';
-import '../widgets/search_and_chips.dart';
-import '../widgets/vertical_list.dart';
-import 'addons/addons_screen.dart';
-import 'addons/update_addon.dart';
+import '../../../providers/menu/menu_provider.dart';
+import '../../widgets/empty_data.dart';
+import '../../widgets/grid_list.dart';
+import '../../widgets/loading_placeholder.dart';
+import '../../widgets/search_and_chips.dart';
+import '../../widgets/vertical_list.dart';
+import '../addons/addons_screen.dart';
+import '../addons/update_addon.dart';
 
 /// FoodMenuScreen with tabs for meals and add-ons
 class FoodMenuScreenWithTabs extends ConsumerStatefulWidget {
@@ -70,24 +70,11 @@ class _FoodMenuScreenWithTabsState extends ConsumerState<FoodMenuScreenWithTabs>
     switch (_currentTabIndex) {
       case 0:
         return () {
-          printInfo('Show Add Meal Dialog');
-          AddMealOrAddonDialog.show(context);
+          AppRoutes.pushTo(context, const AddFoodPage());
         };
       case 1:
         return () async {
-          printInfo('Navigate to Add Addon');
-          // Prepare for new addon before navigation
-          ref.read(customAddonProvider.notifier).prepareForNewAddon();
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const UpdateAddon(),
-            ),
-          );
-          // Refresh addons list if addon was created successfully
-          if (result == true) {
-            ref.read(customAddonProvider.notifier).getCustomAddons();
-          }
+          AppRoutes.pushTo(context, const UpdateAddon(fromUpdate: false));
         };
       default:
         return () {};
@@ -140,13 +127,13 @@ class _FoodMenuScreenWithTabsState extends ConsumerState<FoodMenuScreenWithTabs>
                 labelColor: AppColor.subtextColor,
                 unselectedLabelColor: AppColor.mediumGray,
                 labelStyle: TextStyle(
-                  fontSize: AppSize.normalText,
-                  fontWeight: FontWeight.bold,
-                ),
+                    fontSize: AppSize.normalText,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: AppThem().fontFamily),
                 unselectedLabelStyle: TextStyle(
-                  fontSize: AppSize.normalText,
-                  fontWeight: FontWeight.normal,
-                ),
+                    fontSize: AppSize.normalText,
+                    fontWeight: FontWeight.normal,
+                    fontFamily: AppThem().fontFamily),
                 tabs: [
                   Tab(
                     child: Row(

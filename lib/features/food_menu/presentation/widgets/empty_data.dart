@@ -5,7 +5,7 @@ import 'package:jayeek_vendor/core/constants/app_string.dart';
 import 'package:jayeek_vendor/core/routing/app_routes_methods.dart';
 import 'package:jayeek_vendor/core/widgets/app_buttons.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
-import 'package:jayeek_vendor/features/food_menu/presentation/screens/add_food.dart';
+import 'package:jayeek_vendor/features/food_menu/presentation/screens/food/add_food.dart';
 
 class EmptyState extends StatelessWidget {
   const EmptyState({super.key});

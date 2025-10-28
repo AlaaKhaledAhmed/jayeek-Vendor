@@ -14,7 +14,7 @@ import 'package:jayeek_vendor/generated/assets.dart';
 import '../../domain/models/custom_addon_model.dart';
 
 class AddonItemCard extends StatelessWidget {
-  final CustomAddonModel addon;
+  final AddonsData addon;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
@@ -46,7 +46,7 @@ class AddonItemCard extends StatelessWidget {
           ),
           leading: _buildImageWidget(),
           title: AppText(
-            text: addon.name,
+            text: addon.name!,
             fontSize: AppSize.normalText,
             fontWeight: FontWeight.bold,
             color: AppColor.textColor,
@@ -56,14 +56,14 @@ class AddonItemCard extends StatelessWidget {
             children: [
               SizedBox(height: 4.h),
               AppText(
-                text: addon.description,
+                text: addon.description!,
                 fontSize: AppSize.captionText,
                 color: AppColor.subGrayText,
                 overflow: TextOverflow.ellipsis,
               ),
               SizedBox(height: 8.h),
               AppText(
-                text: '${addon.price.toStringAsFixed(0)} ${AppMessage.sar}',
+                text: '${addon.price!.toStringAsFixed(0)} ${AppMessage.sar}',
                 fontSize: AppSize.captionText,
                 fontWeight: FontWeight.bold,
                 color: AppColor.subtextColor,
@@ -94,7 +94,9 @@ class AddonItemCard extends StatelessWidget {
           radius: 8,
           image: addon.imageUrl != null && addon.imageUrl!.isNotEmpty
               ? NetworkImage(addon.imageUrl!)
-              : const AssetImage(Assets.imagesDefault,) as ImageProvider<Object>,
+              : const AssetImage(
+                  Assets.imagesDefault,
+                ) as ImageProvider<Object>,
           cover: addon.imageUrl != null && addon.imageUrl!.isNotEmpty
               ? true
               : false),

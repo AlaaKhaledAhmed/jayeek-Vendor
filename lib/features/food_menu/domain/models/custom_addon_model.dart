@@ -1,154 +1,126 @@
 import 'package:equatable/equatable.dart';
 
-/// Custom Addon Model for managing add-ons
-class CustomAddonModel extends Equatable {
-  final int id;
-  final String name;
-  final String description;
-  final double price;
-  final String unitType;
-  final String? imageUrl;
-  final bool deleteFlag;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-
-  const CustomAddonModel({
-    required this.id,
-    required this.name,
-    required this.description,
-    required this.price,
-    required this.unitType,
-    this.imageUrl,
-    required this.deleteFlag,
-    required this.createdAt,
-    required this.updatedAt,
+class CustomAddonsModels extends Equatable {
+  const CustomAddonsModels({
+    this.success,
+    this.data,
+    this.message,
   });
 
-  CustomAddonModel copyWith({
-    int? id,
-    String? name,
-    String? description,
-    double? price,
-    String? unitType,
-    String? imageUrl,
-    bool? deleteFlag,
-    DateTime? createdAt,
-    DateTime? updatedAt,
+  final bool? success;
+  final List<AddonsData>? data;
+  final String? message;
+
+  CustomAddonsModels copyWith({
+    bool? success,
+    List<AddonsData>? data,
+    String? message,
   }) {
-    return CustomAddonModel(
+    return CustomAddonsModels(
+      success: success ?? this.success,
+      data: data ?? this.data,
+      message: message ?? this.message,
+    );
+  }
+
+  factory CustomAddonsModels.fromJson(Map<String, dynamic> json) {
+    return CustomAddonsModels(
+      success: json["success"],
+      data: json["data"] == null
+          ? []
+          : List<AddonsData>.from(
+              json["data"]!.map((x) => AddonsData.fromJson(x))),
+      message: json["message"],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        "success": success,
+        "data": data?.map((x) => x.toJson()).toList(),
+        "message": message,
+      };
+
+  @override
+  List<Object?> get props => [
+        success,
+        data,
+        message,
+      ];
+}
+
+class AddonsData extends Equatable {
+  const AddonsData(
+      {this.id,
+      this.name,
+      this.price,
+      this.description,
+      this.deleteFlag,
+      this.createdAt,
+      this.updatedAt,
+      this.imageUrl});
+
+  final int? id;
+  final String? name;
+  final double? price;
+  final String? description;
+  final bool? deleteFlag;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final String? imageUrl;
+
+  AddonsData copyWith(
+      {int? id,
+      String? name,
+      double? price,
+      String? description,
+      bool? deleteFlag,
+      DateTime? createdAt,
+      DateTime? updatedAt,
+      String? imageUrl}) {
+    return AddonsData(
       id: id ?? this.id,
       name: name ?? this.name,
-      description: description ?? this.description,
       price: price ?? this.price,
-      unitType: unitType ?? this.unitType,
-      imageUrl: imageUrl ?? this.imageUrl,
+      description: description ?? this.description,
       deleteFlag: deleteFlag ?? this.deleteFlag,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      imageUrl: imageUrl ?? this.imageUrl,
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'description': description,
-      'price': price,
-      'unitType': unitType,
-      'imageUrl': imageUrl,
-      'deleteFlag': deleteFlag,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
-    };
-  }
-
-  factory CustomAddonModel.fromJson(Map<String, dynamic> json) {
-    return CustomAddonModel(
-      id: json['id'] as int,
-      name: json['name'] as String,
-      description: json['description'] as String,
-      price: (json['price'] as num).toDouble(),
-      unitType: json['unitType'] as String? ?? 'piece',
-      imageUrl: json['imageUrl'] as String?,
-      deleteFlag: json['deleteFlag'] as bool? ?? false,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+  factory AddonsData.fromJson(Map<String, dynamic> json) {
+    return AddonsData(
+      id: json["id"],
+      name: json["name"],
+      price: json["price"],
+      description: json["description"],
+      deleteFlag: json["deleteFlag"],
+      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+      updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
+      imageUrl: json["imageUrl"],
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "name": name,
+        "price": price,
+        "description": description,
+        "deleteFlag": deleteFlag,
+        "createdAt": createdAt?.toIso8601String(),
+        "updatedAt": updatedAt?.toIso8601String(),
+        "imageUrl": imageUrl,
+      };
 
   @override
   List<Object?> get props => [
         id,
         name,
-        description,
         price,
-        unitType,
-        imageUrl,
+        description,
         deleteFlag,
         createdAt,
         updatedAt,
       ];
-}
-
-/// DTO for creating a new addon
-class CreateAddonDto extends Equatable {
-  final String name;
-  final String description;
-  final double price;
-  final String unitType;
-  final String? imageUrl;
-
-  const CreateAddonDto({
-    required this.name,
-    required this.description,
-    required this.price,
-    required this.unitType,
-    this.imageUrl,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'description': description,
-      'price': price,
-      'unitType': unitType,
-      'imageUrl': imageUrl,
-    };
-  }
-
-  @override
-  List<Object?> get props => [name, description, price, unitType, imageUrl];
-}
-
-/// DTO for updating an existing addon
-class UpdateAddonDto extends Equatable {
-  final int id;
-  final String name;
-  final String description;
-  final double price;
-  final String unitType;
-  final String? imageUrl;
-
-  const UpdateAddonDto({
-    required this.id,
-    required this.name,
-    required this.description,
-    required this.price,
-    required this.unitType,
-    this.imageUrl,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'description': description,
-      'price': price,
-      'unitType': unitType,
-      'imageUrl': imageUrl,
-    };
-  }
-
-  @override
-  List<Object?> get props => [id, name, description, price, unitType, imageUrl];
 }

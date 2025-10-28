@@ -12,11 +12,11 @@ import 'package:jayeek_vendor/core/widgets/app_text.dart';
 import 'package:jayeek_vendor/core/widgets/app_text_fields.dart';
 import 'package:jayeek_vendor/core/widgets/custom_load.dart';
 import 'package:jayeek_vendor/core/widgets/scroll_list.dart';
-import '../../providers/add_item_provider.dart';
-import '../../providers/menu/menu_provider.dart';
-import '../widgets/food_menu_bottom_sheets.dart';
-import '../widgets/meal_image_picker.dart';
-import '../widgets/switch_row.dart';
+import '../../../providers/add_item_provider.dart';
+import '../../../providers/menu/menu_provider.dart';
+import '../../widgets/food_menu_bottom_sheets.dart';
+import '../../widgets/meal_image_picker.dart';
+import '../../widgets/switch_row.dart';
 
 /// AddItemPage - Refactored with clean architecture
 /// All widgets extracted to separate files in widgets folder

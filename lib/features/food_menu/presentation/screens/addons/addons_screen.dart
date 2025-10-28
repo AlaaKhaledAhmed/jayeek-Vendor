@@ -27,6 +27,7 @@ class _AddonsListScreenState extends ConsumerState<AddonsScreen> {
   @override
   void initState() {
     super.initState();
+
     /// Load addons when screen is initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(customAddonProvider.notifier).loadData();
@@ -43,7 +44,7 @@ class _AddonsListScreenState extends ConsumerState<AddonsScreen> {
       emptyBuilder: () => const AddonEmptyState(),
       onReload: () async => notifier.loadData(refresh: true),
       loadingBuilder: () => CustomLoad().loadVerticalList(context: context),
-      isDataEmpty: () => state.addonsData.data!.isEmpty,
+      isDataEmpty: () => state.addonsData.data!.data!.isEmpty,
       successBuilder: (addons) => Padding(
         padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
         child: ListView.separated(
@@ -51,12 +52,17 @@ class _AddonsListScreenState extends ConsumerState<AddonsScreen> {
           itemCount: state.addons.length,
           separatorBuilder: (context, index) => SizedBox(height: 12.h),
           itemBuilder: (context, index) {
-            final addon = addons[index];
+            final addon = addons.data![index];
             return AddonItemCard(
               addon: addon,
               onEdit: () async {
                 notifier.loadAddonForEdit(addon);
-                AppRoutes.pushTo(context, UpdateAddon(addon: addon));
+                AppRoutes.pushTo(
+                    context,
+                    UpdateAddon(
+                      addon: addon,
+                      fromUpdate: true,
+                    ));
               },
               onDelete: () => _showDeleteDialog(
                 context,
