@@ -169,8 +169,15 @@ class _AddEditAddonScreenState extends ConsumerState<UpdateAddon> {
                             ? () => notifier.updateAddon(widget.addon!.id!)
                             : notifier.createAddon,
                         onSuccess: (data) {
-                          // notifier.loadData(refresh: true);
-                          // Navigator.pop(context);
+                          // Show success message
+                          AppSnackBar.show(
+                            message: widget.fromUpdate
+                                ? AppMessage.addonUpdated
+                                : AppMessage.addonCreated,
+                            type: ToastType.success,
+                          );
+                          notifier.loadData(refresh: true);
+                          Navigator.pop(context);
                         },
                       );
                     },

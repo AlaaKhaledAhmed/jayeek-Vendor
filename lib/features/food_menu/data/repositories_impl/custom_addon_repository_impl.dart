@@ -40,7 +40,7 @@ class CustomAddonRepositoryImpl implements CustomAddonRepository {
 
   @override
   Future<PostDataHandle<SingleAddon>> updateCustomAddon(AddonsData addon) {
-    return networkService.post<SingleAddon>(
+    return networkService.put<SingleAddon>(
         url: ApiEndPoints.updateCustomAddonUrl,
         body: {
           'id': addon.id,

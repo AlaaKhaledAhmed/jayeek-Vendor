@@ -11,6 +11,8 @@ class ExceptionsHandler {
     String message;
 
     final code = e.response?.statusCode;
+    printInfo(
+        'status: ${e.response?.statusCode} - response.message : ${e.response?.statusMessage}');
 
     ///unAuthorized error
     if (code == 401) {

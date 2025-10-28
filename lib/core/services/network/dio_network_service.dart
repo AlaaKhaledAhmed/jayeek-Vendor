@@ -46,6 +46,22 @@ class DioNetworkService implements INetworkServices {
   }
 
   @override
+  Future<PostDataHandle<T>> put<T>({
+    required String url,
+    Map<String, dynamic>? body,
+    bool requiresToken = true,
+    T Function(Map<String, dynamic>)? fromJson,
+  }) {
+    return _sendRequest<T>(
+      requiresToken: requiresToken,
+      url: url,
+      method: 'PUT',
+      body: body,
+      fromJson: fromJson,
+    );
+  }
+
+  @override
   Future<PostDataHandle<T>> uploadFile<T>({
     required String url,
     Map<String, dynamic>? body,
@@ -116,7 +132,6 @@ class DioNetworkService implements INetworkServices {
             options: Options(method: method, headers: headers),
           )
           .timeout(AppConstants.timeOut);
-
       printInfo(
         status: response.statusCode,
         url: url,
@@ -139,7 +154,6 @@ class DioNetworkService implements INetworkServices {
         );
       }
     } on DioException catch (e) {
-
       return ExceptionsHandler.onDioException(e);
     } catch (e) {
       return PostDataHandle(
