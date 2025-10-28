@@ -135,9 +135,9 @@ class CustomAddonNotifier extends StateNotifier<CustomAddonState>
   }
 
   ///delete addons===========================================================================================================================
-  Future<PostDataHandle<bool>> deleteAddon(int addonId) async {
+  Future<PostDataHandle> deleteAddon(int addonId) async {
     state = state.copyWith(isLoading: true);
-    final PostDataHandle<bool> apiResponse =
+    final PostDataHandle apiResponse =
         await _repository.deleteCustomAddon(addonId);
     state = state.copyWith(isLoading: false);
 

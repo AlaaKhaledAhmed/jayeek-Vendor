@@ -6,6 +6,7 @@ import 'package:jayeek_vendor/core/constants/app_color.dart';
 import 'package:jayeek_vendor/core/constants/app_size.dart';
 import 'package:jayeek_vendor/core/constants/app_string.dart';
 import 'package:jayeek_vendor/core/routing/app_routes_methods.dart';
+import 'package:jayeek_vendor/core/widgets/app_buttons.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
 import 'package:jayeek_vendor/core/widgets/custom_load.dart';
 import 'package:jayeek_vendor/core/widgets/data_view_builder.dart';
@@ -66,9 +67,10 @@ class _AddonsListScreenState extends ConsumerState<AddonsScreen> {
                     ));
               },
               onDelete: () => _showDeleteDialog(
-                context,
-                ref,
-                addon.id!,
+                context: context,
+                notifier: notifier,
+                state: state,
+                id: addon.id!,
               ),
             );
           },
@@ -78,55 +80,54 @@ class _AddonsListScreenState extends ConsumerState<AddonsScreen> {
   }
 }
 
-void _showDeleteDialog(
-  BuildContext context,
-  WidgetRef ref,
-  int id,
-) {
+void _showDeleteDialog({
+  required BuildContext context,
+  required notifier,
+  required state,
+  required int id,
+}) {
   showDialog(
     context: context,
-    builder: (context) => AlertDialog(
-      title: AppText(
-        text: AppMessage.deleteAddonConfirm,
-        fontSize: AppSize.heading3,
-        fontWeight: FontWeight.bold,
-      ),
-      content: AppText(
-        text: AppMessage.deleteAddonMessage,
-        fontSize: AppSize.normalText,
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const AppText(
+    builder: (context) => StatefulBuilder(builder: (context, set) {
+      return AlertDialog(
+        title: AppText(
+          text: AppMessage.deleteAddonConfirm,
+          fontSize: AppSize.heading3,
+          fontWeight: FontWeight.bold,
+        ),
+        content: AppText(
+          text: AppMessage.deleteAddonMessage,
+          fontSize: AppSize.normalText,
+        ),
+        actions: [
+          AppButtons(
             text: AppMessage.cancel,
-            color: AppColor.mediumGray,
+            onPressed: () => Navigator.pop(context),
           ),
-        ),
-        TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-            // Use HandelPostRequest to handle the delete operation
-            HandelPostRequest.handlePostRequest(
-              context: context,
-              formKey: null,
-              request: () =>
-                  ref.read(customAddonProvider.notifier).deleteAddon(id),
-              onSuccess: (data) {
-                // Show success message
-                AppSnackBar.show(
-                  message: AppMessage.addonDeleted,
-                  type: ToastType.success,
-                );
-              },
-            );
-          },
-          child: AppText(
+          AppButtons(
+            showLoader: state.isLoading,
             text: AppMessage.delete,
-            color: AppColor.red,
+            onPressed: () {
+              set(() => state = state.copyWith(isLoading: true));
+              HandelPostRequest.handlePostRequest(
+                  context: context,
+                  formKey: null,
+                  request: () => notifier.deleteAddon(id),
+                  onSuccess: (data) {
+                    /// Show success message
+                    Navigator.pop(context);
+                    AppSnackBar.show(
+                      message: AppMessage.addonDeleted,
+                      type: ToastType.success,
+                    );
+                  },
+                  onFailure: (v) {
+                    Navigator.pop(context);
+                  });
+            },
           ),
-        ),
-      ],
-    ),
+        ],
+      );
+    }),
   );
 }
