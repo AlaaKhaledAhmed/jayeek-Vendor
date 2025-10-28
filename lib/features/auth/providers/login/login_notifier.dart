@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jayeek_vendor/core/services/shared_preferences_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../../core/model/data_handel.dart';
 import '../../../../../core/util/print_info.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -23,14 +25,25 @@ class LoginNotifier extends StateNotifier<LoginState> {
     super.dispose();
   }
 
-  Future<PostDataHandle> login() async {
+  Future<PostDataHandle<Map<String, dynamic>>> login() async {
     ///show loading
     state = state.copyWith(isLoading: true);
-    final PostDataHandle result = await _repository.login(
+    final PostDataHandle<Map<String, dynamic>> result = await _repository.login(
       phone: _phoneController.text,
       password: _passwordController.text,
     );
     state = state.copyWith(isLoading: false);
+
+    ///save token
+    if (!result.hasError) {
+      SharedPreferencesService.saveToken(token: result.data!['token']);
+    }
+
     return result;
+  }
+
+  ///logout function
+  Future<void> logout() async {
+    await SharedPreferencesService.clearCache();
   }
 }

@@ -16,16 +16,19 @@ class ExceptionsHandler {
     if (code == 401) {
       message = AppErrorState.unAuthorized;
     }
+
     ///validation error
     else if (code == 422 || code == 404) {
-      message = AppErrorState.formatException; //e.response?.data['message'];
+      message = e.response?.data['message'];
     }
+
     ///timeout error
     else if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.sendTimeout ||
         e.type == DioExceptionType.receiveTimeout) {
       message = AppErrorState.timeoutException;
     }
+
     ///socket error
     else if (e.error is SocketException) {
       message = AppErrorState.socketException;
@@ -37,7 +40,7 @@ class ExceptionsHandler {
 
     return PostDataHandle<T>(
       hasError: true,
-      message: AppErrorMessage.getMessage(message),
+      message: message,
       statusCode: code,
     );
   }

@@ -38,4 +38,10 @@ class SharedPreferencesService {
     final prefs = await SharedPreferences.getInstance();
     prefs.remove(AppConstants.saveLogin);
   }
+
+  ///clear all cache
+  static Future<void> clearCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.clear();
+  }
 }

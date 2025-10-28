@@ -81,9 +81,8 @@ class DioNetworkService implements INetworkServices {
 
       final headers = <String, String>{
         'Accept': 'application/json',
-        'Content-Type': isMultiData
-            ? 'multipart/form-data'
-            : 'application/json',
+        'Content-Type':
+            isMultiData ? 'multipart/form-data' : 'application/json',
         if (requiresToken && token != null) 'Authorization': 'Bearer $token',
       };
 
@@ -145,7 +144,7 @@ class DioNetworkService implements INetworkServices {
     } catch (e) {
       return PostDataHandle(
         hasError: true,
-        message: AppErrorMessage.getMessage(AppErrorState.serverExceptions),
+        message: AppErrorState.serverExceptions,
         statusCode: 500,
       );
     }

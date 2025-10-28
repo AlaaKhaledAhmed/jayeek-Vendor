@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:jayeek_vendor/features/auth/presentation/screens/login_page.dart';
 import '../../../../core/constants/app_color.dart';
 import '../../../../core/constants/app_size.dart';
 import '../../../../core/constants/app_string.dart';
 import '../../../../core/routing/app_routes_methods.dart';
+import '../../../../core/services/shared_preferences_service.dart';
 import '../../../../core/widgets/app_snack_bar.dart';
 import '../../../../core/widgets/app_text.dart';
 import '../../data/mock/mock_vendor_data.dart';
@@ -377,12 +379,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: const Text('إلغاء'),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
-              AppSnackBar.show(
-                message: 'قريباً',
-                type: ToastType.info,
-              );
+              await SharedPreferencesService.clearCache();
+              AppRoutes.pushAndRemoveAllPageTo(context, const LoginScreen());
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColor.red,

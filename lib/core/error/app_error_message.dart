@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:jayeek_vendor/core/constants/app_string.dart';
 
 import '../localization/locale_keys.g.dart';
 import 'app_error_state.dart';
@@ -8,15 +9,15 @@ class AppErrorMessage {
   static String getMessage(String message) {
     switch (message) {
       case AppErrorState.serverExceptions:
-        return LocaleKeys.serverText.tr();
+        return AppMessage.serverText;
       case AppErrorState.socketException:
-        return LocaleKeys.socketText.tr();
+        return AppMessage.socketText;
       case AppErrorState.timeoutException:
-        return LocaleKeys.timeoutText.tr();
+        return AppMessage.timeoutText;
       case AppErrorState.formatException:
-        return LocaleKeys.formatText.tr();
+        return AppMessage.formatText;
       case AppErrorState.unAuthorized:
-        return LocaleKeys.unAuthorizedText.tr();
+        return AppMessage.unAuthorizedText;
       default:
         return message;
     }

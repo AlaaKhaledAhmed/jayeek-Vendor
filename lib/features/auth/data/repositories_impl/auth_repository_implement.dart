@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../../../../core/constants/app_end_points.dart';
 import '../../../../../core/model/data_handel.dart';
 import '../../../../../core/services/network/inetwork_services.dart';
@@ -9,14 +11,15 @@ class AuthRepositoryImplementing implements AuthRepository {
 
   ///Example of post data
   @override
-  Future<PostDataHandle<bool>> login({
+  Future<PostDataHandle<Map<String, dynamic>>> login({
     required String phone,
     required String password,
   }) {
-    return networkService.post<bool>(
+    return networkService.post<Map<String, dynamic>>(
       url: ApiEndPoints.loginUrl,
       requiresToken: false,
-      body: {'mobile': phone, 'password': password},
+      body: {'userName': phone, 'password': password},
+      fromJson: (json)=>json,
     );
   }
 

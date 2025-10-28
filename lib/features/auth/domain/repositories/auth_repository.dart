@@ -2,7 +2,7 @@ import '../../../../../core/model/data_handel.dart';
 
 abstract interface class AuthRepository {
   ///we add all authentication function here
-  Future<PostDataHandle<bool>> login({
+  Future<PostDataHandle<Map<String, dynamic>>> login({
     required String phone,
     required String password,
   });

@@ -128,18 +128,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ),
             SizedBox(height: 15.h),
 
-            ///login text
-            InkWell(
-              onTap: () {
-                AppRoutes.pushReplacementTo(context, const SingUp());
-              },
-              child: AppText(
-                text: AppMessage.noHaveAccount,
-                fontWeight: AppThem().bold,
-                fontSize: AppSize.smallText,
-                color: AppColor.accentColor,
-              ),
-            ),
+            // ///login text
+            // InkWell(
+            //   onTap: () {
+            //     AppRoutes.pushReplacementTo(context, const SingUp());
+            //   },
+            //   child: AppText(
+            //     text: AppMessage.noHaveAccount,
+            //     fontWeight: AppThem().bold,
+            //     fontSize: AppSize.smallText,
+            //     color: AppColor.accentColor,
+            //   ),
+            // ),
           ],
         ),
       ),
