@@ -88,7 +88,7 @@ class FoodMenuBottomSheets {
               onPressed: () {
                 if (nameCtrl.text.trim().isEmpty) return;
                 final group = AddonGroup(
-                  name: nameCtrl.text.trim(),
+                  title: nameCtrl.text.trim(),
                   isRequired: required,
                   maxSelectable: required
                       ? null

@@ -20,6 +20,7 @@ import '../../providers/update_item/update_item_provider.dart';
 import '../../providers/update_item/update_item_notifier.dart';
 import '../../providers/update_item/update_item_state.dart';
 import '../../domain/models/food_category_model.dart';
+import '../widgets/addon_groups_manager.dart';
 
 /// Modern Update Food Page with innovative design
 class UpdateFoodPage extends ConsumerWidget {
@@ -168,6 +169,13 @@ class UpdateFoodPage extends ConsumerWidget {
                       // Modern Toggle Switches Card
                       _buildToggleCard(
                         context: context,
+                        notifier: notifier,
+                        state: state,
+                      ),
+                      SizedBox(height: 24.h),
+
+                      // Addon Groups Manager (only if customizable)
+                      AddonGroupsManager(
                         notifier: notifier,
                         state: state,
                       ),

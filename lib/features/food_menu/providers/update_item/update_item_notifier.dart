@@ -132,6 +132,33 @@ class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
     state = state.copyWith(addonGroups: list);
   }
 
+  void editAddonItem(int groupIndex, int itemIndex, AddonItem updatedItem) {
+    final list = [...state.addonGroups];
+    list[groupIndex].items[itemIndex] = updatedItem;
+    state = state.copyWith(addonGroups: list);
+  }
+
+  void editAddonGroupTitle(int index, String title) {
+    final list = [...state.addonGroups];
+    list[index].title = title;
+    state = state.copyWith(addonGroups: list);
+  }
+
+  void setGroupSelectionType(int index, bool isSingle) {
+    final list = [...state.addonGroups];
+    list[index].isSingleSelection = isSingle;
+    if (isSingle) {
+      list[index].maxSelectable = null;
+    }
+    state = state.copyWith(addonGroups: list);
+  }
+
+  void setGroupAllowQuantity(int index, bool allow) {
+    final list = [...state.addonGroups];
+    list[index].allowQuantity = allow;
+    state = state.copyWith(addonGroups: list);
+  }
+
   Future<void> pickMealImage(BuildContext context) async {
     final path = await AppImagePicker.pickImageWithSource(
       context: context,
@@ -185,14 +212,18 @@ class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
       payload['addons'] = state.addonGroups
           .map(
             (g) => {
-              "name": g.name,
+              "name": g.title,
+              "isSingleSelection": g.isSingleSelection,
               "required": g.isRequired,
               "maxSelectable": g.maxSelectable,
+              "allowQuantity": g.allowQuantity,
               "items": g.items
                   .map(
                     (i) => {
                       "name": i.name,
                       "price": i.price,
+                      "description": i.description,
+                      "image": i.image,
                       "quantity": i.quantity,
                     },
                   )

@@ -75,22 +75,42 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     state = state.copyWith(addonGroups: list);
   }
 
-  void editAddonGroupName(int index, String name) {
+  void editAddonGroupTitle(int index, String title) {
     final list = [...state.addonGroups];
-    list[index].name = name;
+    list[index].title = title;
+    state = state.copyWith(addonGroups: list);
+  }
+
+  void setGroupSelectionType(int index, bool isSingle) {
+    final list = [...state.addonGroups];
+    list[index].isSingleSelection = isSingle;
+    if (isSingle) {
+      list[index].maxSelectable = null;
+    }
     state = state.copyWith(addonGroups: list);
   }
 
   void setGroupRequired(int index, bool required) {
     final list = [...state.addonGroups];
     list[index].isRequired = required;
-    if (required) list[index].maxSelectable = null;
     state = state.copyWith(addonGroups: list);
   }
 
   void setGroupMaxSelectable(int index, int? max) {
     final list = [...state.addonGroups];
     list[index].maxSelectable = max;
+    state = state.copyWith(addonGroups: list);
+  }
+
+  void setGroupAllowQuantity(int index, bool allow) {
+    final list = [...state.addonGroups];
+    list[index].allowQuantity = allow;
+    state = state.copyWith(addonGroups: list);
+  }
+
+  void editAddonItem(int groupIndex, int itemIndex, AddonItem updatedItem) {
+    final list = [...state.addonGroups];
+    list[groupIndex].items[itemIndex] = updatedItem;
     state = state.copyWith(addonGroups: list);
   }
 
@@ -163,14 +183,18 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     payload['addons'] = state.addonGroups
         .map(
           (g) => {
-            "name": g.name,
+            "name": g.title,
+            "isSingleSelection": g.isSingleSelection,
             "required": g.isRequired,
             "maxSelectable": g.maxSelectable,
+            "allowQuantity": g.allowQuantity,
             "items": g.items
                 .map(
                   (i) => {
                     "name": i.name,
                     "price": i.price,
+                    "description": i.description,
+                    "image": i.image,
                     "quantity": i.quantity,
                   },
                 )

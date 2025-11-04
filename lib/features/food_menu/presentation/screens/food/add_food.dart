@@ -20,6 +20,7 @@ import '../../../providers/add_item_notifier.dart';
 import '../../../providers/add_item_state.dart';
 import '../../../providers/menu/menu_provider.dart';
 import '../../../domain/models/food_category_model.dart';
+import '../../widgets/addon_groups_manager.dart';
 
 /// Modern Add Food Page with innovative design
 class AddFoodPage extends ConsumerWidget {
@@ -165,6 +166,13 @@ class AddFoodPage extends ConsumerWidget {
                       // Modern Toggle Switches Card
                       _buildToggleCard(
                         context: context,
+                        notifier: notifier,
+                        state: state,
+                      ),
+                      SizedBox(height: 24.h),
+
+                      // Addon Groups Manager (only if customizable)
+                      AddonGroupsManager(
                         notifier: notifier,
                         state: state,
                       ),

@@ -4,20 +4,33 @@ import '../domain/models/food_category_model.dart';
 class AddonItem {
   String name;
   String price; // نصي لتناسق مع TextField
-  String quantity;
-  AddonItem({required this.name, required this.price, required this.quantity});
+  String? description;
+  String? image; // يمكن أن يكون URL أو base64
+  String quantity; // الكمية (يستخدم فقط إذا كان allowQuantity = true)
+  
+  AddonItem({
+    required this.name,
+    required this.price,
+    this.description,
+    this.image,
+    this.quantity = '1',
+  });
 }
 
 class AddonGroup {
-  String name;
+  String title; // عنوان المجموعة (مثل "صوصات")
+  bool isSingleSelection; // true = اختيار واحد، false = اختيار متعدد
+  int? maxSelectable; // الحد الأقصى للاختيارات (اختياري، فقط إذا كان متعدد)
+  bool allowQuantity; // هل يمكن اختيار كمية من كل خيار (افتراضي: false)
   bool isRequired; // true = إجباري
-  int? maxSelectable; // مستخدم فقط إن كانت اختيارية
   final List<AddonItem> items;
 
   AddonGroup({
-    required this.name,
-    required this.isRequired,
+    required this.title,
+    this.isSingleSelection = false, // افتراضي: اختيار متعدد
     this.maxSelectable,
+    this.allowQuantity = false, // افتراضي: لا يمكن اختيار كمية
+    this.isRequired = false,
     List<AddonItem>? items,
   }) : items = items ?? [];
 }
