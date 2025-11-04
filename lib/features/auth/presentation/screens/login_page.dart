@@ -123,13 +123,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     final responseData = data.data?['data'];
                     final branchId = responseData?['branchId'];
                     final organizationId = responseData?['organizationId'];
-                    
+
                     if (branchId == null || organizationId == null) {
                       // Show error dialog
                       _showNoBranchAssignedDialog(context);
                       return;
                     }
-                    
+
                     // If both are present, proceed to home page
                     AppRoutes.pushReplacementTo(context, const HomePage());
                   },

@@ -258,7 +258,9 @@ class CategoriesNotifier extends StateNotifier<CategoriesState>
 
   Future<void> pickCategoryImage(BuildContext context,
       {bool isEdit = false}) async {
-    final imagePath = await AppImagePicker.pickFromGallery();
+    final imagePath = await AppImagePicker.pickImageWithSource(
+      context: context,
+    );
 
     if (imagePath != null) {
       // Check file size (1 MB = 1024 * 1024 bytes)

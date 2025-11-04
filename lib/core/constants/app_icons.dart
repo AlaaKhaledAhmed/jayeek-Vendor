@@ -32,4 +32,8 @@ class AppIcons {
   // Add-on Icons
   static IconData addon = Icons.add_circle;
   static IconData addonEdit = Icons.edit_rounded;
-  }
+
+  // Image Picker Icons
+  static IconData image = Icons.image;
+  static IconData folder = Icons.folder;
+}
