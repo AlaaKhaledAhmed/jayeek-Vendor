@@ -3,14 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:jayeek_vendor/core/constants/app_color.dart';
-import 'package:jayeek_vendor/core/constants/app_size.dart';
 import 'package:jayeek_vendor/core/constants/app_string.dart';
 import 'package:jayeek_vendor/core/routing/app_routes_methods.dart';
-import 'package:jayeek_vendor/core/widgets/app_buttons.dart';
-import 'package:jayeek_vendor/core/widgets/app_text.dart';
 import 'package:jayeek_vendor/core/widgets/custom_load.dart';
 import 'package:jayeek_vendor/core/widgets/data_view_builder.dart';
 import 'package:jayeek_vendor/core/widgets/app_snack_bar.dart';
+import 'package:jayeek_vendor/core/widgets/unified_bottom_sheet.dart';
 import 'package:jayeek_vendor/core/error/handel_post_response.dart';
 
 import '../../../providers/custom_addon/custom_addon_provider.dart';
@@ -85,49 +83,27 @@ void _showDeleteDialog({
   required notifier,
   required state,
   required int id,
-}) {
-  showDialog(
+}) async {
+  final confirmed = await UnifiedBottomSheet.showConfirmation(
     context: context,
-    builder: (context) => StatefulBuilder(builder: (context, set) {
-      return AlertDialog(
-        title: AppText(
-          text: AppMessage.deleteAddonConfirm,
-          fontSize: AppSize.heading3,
-          fontWeight: FontWeight.bold,
-        ),
-        content: AppText(
-          text: AppMessage.deleteAddonMessage,
-          fontSize: AppSize.normalText,
-        ),
-        actions: [
-          AppButtons(
-            text: AppMessage.cancel,
-            onPressed: () => Navigator.pop(context),
-          ),
-          AppButtons(
-            showLoader: state.isLoading,
-            text: AppMessage.delete,
-            onPressed: () {
-              set(() => state = state.copyWith(isLoading: true));
-              HandelPostRequest.handlePostRequest(
-                  context: context,
-                  formKey: null,
-                  request: () => notifier.deleteAddon(id),
-                  onSuccess: (data) {
-                    /// Show success message
-                    Navigator.pop(context);
-                    AppSnackBar.show(
-                      message: AppMessage.addonDeleted,
-                      type: ToastType.success,
-                    );
-                  },
-                  onFailure: (v) {
-                    Navigator.pop(context);
-                  });
-            },
-          ),
-        ],
-      );
-    }),
+    title: AppMessage.deleteAddonConfirm,
+    message: AppMessage.deleteAddonMessage,
+    confirmText: AppMessage.delete,
+    confirmColor: AppColor.red,
+    barrierDismissible: !state.isLoading,
   );
+
+  if (confirmed == true) {
+    HandelPostRequest.handlePostRequest(
+      context: context,
+      formKey: null,
+      request: () => notifier.deleteAddon(id),
+      onSuccess: (data) {
+        AppSnackBar.show(
+          message: AppMessage.addonDeleted,
+          type: ToastType.success,
+        );
+      },
+    );
+  }
 }

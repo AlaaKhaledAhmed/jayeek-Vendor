@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/image_picker_service.dart';
-import '../../../../core/services/photo_permission_service.dart';
+import '../../../../core/widgets/app_snack_bar.dart';
+import '../../../../core/constants/app_string.dart';
 import '../../domain/models/menu_item_model.dart';
 import '../../domain/repositories/food_repository.dart';
 import '../add_item_state.dart';
@@ -119,23 +121,34 @@ class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
   }
 
   Future<void> pickMealImage(BuildContext context) async {
-    final bool granted = await AppPermissions.photoPermission(
+    final path = await AppImagePicker.pickImageWithSource(
       context: context,
+      imageQuality: 85,
     );
 
-    if (!granted) {
-      debugPrint('❌ Permission not granted, returning');
-      return;
-    }
-
-    final path = await AppImagePicker.pickFromGallery(imageQuality: 85);
-    debugPrint('📷 Selected image path: $path');
-
     if (path != null) {
-      setMealImagePath(path);
-      debugPrint('✅ Image path set successfully');
-    } else {
-      debugPrint('ℹ️ No image selected (user cancelled)');
+      // Check file size (1 MB = 1024 * 1024 bytes)
+      try {
+        final file = File(path);
+        final fileSize = await file.length();
+        const maxSize = 1024 * 1024; // 1 MB in bytes
+
+        if (fileSize > maxSize) {
+          AppSnackBar.show(
+            message: AppMessage.imageSizeExceedsLimit,
+            type: ToastType.error,
+          );
+          return;
+        }
+
+        // If file size is OK, save the path
+        setMealImagePath(path);
+      } catch (e) {
+        AppSnackBar.show(
+          message: AppMessage.errorCheckingImageSize,
+          type: ToastType.error,
+        );
+      }
     }
   }
 

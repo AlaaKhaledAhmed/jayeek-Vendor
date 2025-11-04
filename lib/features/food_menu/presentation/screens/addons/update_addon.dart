@@ -1,28 +1,22 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:jayeek_vendor/core/constants/app_color.dart';
-import 'package:jayeek_vendor/core/constants/app_icons.dart';
-import 'package:jayeek_vendor/core/constants/app_size.dart';
 import 'package:jayeek_vendor/core/constants/app_string.dart';
-import 'package:jayeek_vendor/core/util/print_info.dart';
 import 'package:jayeek_vendor/core/widgets/app_bar.dart';
 import 'package:jayeek_vendor/core/widgets/app_buttons.dart';
-import 'package:jayeek_vendor/core/widgets/app_decoration.dart';
 import 'package:jayeek_vendor/core/widgets/app_drop_list.dart';
 import 'package:jayeek_vendor/core/widgets/app_snack_bar.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
 import 'package:jayeek_vendor/core/widgets/app_text_fields.dart';
 import 'package:jayeek_vendor/core/widgets/scroll_list.dart';
+import 'package:jayeek_vendor/core/widgets/shared_image_picker.dart';
 
 import '../../../../../core/error/handel_post_response.dart';
 import '../../../domain/models/custom_addon_model.dart';
 import '../../../providers/custom_addon/custom_addon_provider.dart';
-import '../../../providers/custom_addon/custom_addon_state.dart';
 
 class UpdateAddon extends ConsumerStatefulWidget {
   final AddonsData? addon;
@@ -111,7 +105,14 @@ class _AddEditAddonScreenState extends ConsumerState<UpdateAddon> {
                     fontWeight: FontWeight.bold,
                   ),
                   SizedBox(height: 10.h),
-                  _buildImageSection(context, notifier, state),
+                  SharedImagePicker(
+                    imagePath: state.selectedImagePath,
+                    onPickImage: () async {
+                      await notifier.pickImage(context);
+                    },
+                    height: 200.h,
+                    placeholderText: AppMessage.selectImage,
+                  ),
                   SizedBox(height: 20.h),
 
                   // Addon Price
@@ -193,112 +194,4 @@ class _AddEditAddonScreenState extends ConsumerState<UpdateAddon> {
     );
   }
 
-  Widget _buildImageSection(
-      BuildContext context, dynamic notifier, CustomAddonState state) {
-    return Container(
-      width: double.infinity,
-      height: 200.h,
-      decoration: AppDecoration.decoration(
-        color: AppColor.lightGray,
-        radius: 12,
-        showBorder: true,
-        borderColor: AppColor.borderColor,
-      ),
-      child: InkWell(
-        onTap: () => notifier.pickImage(context),
-        borderRadius: BorderRadius.circular(12.r),
-        child: state.selectedImagePath != null
-            ? Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12.r),
-                    child: state.selectedImagePath!.startsWith('http')
-                        ? Image.network(
-                            state.selectedImagePath!,
-                            width: double.infinity,
-                            height: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return _buildImagePlaceholder(notifier);
-                            },
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return const Center(
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    AppColor.mainColor,
-                                  ),
-                                ),
-                              );
-                            },
-                          )
-                        : Image.file(
-                            File(state.selectedImagePath!),
-                            width: double.infinity,
-                            height: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return _buildImagePlaceholder(notifier);
-                            },
-                          ),
-                  ),
-                  Positioned(
-                    top: 8.h,
-                    right: 8.w,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppColor.red.withOpacity(0.9),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColor.black.withOpacity(0.2),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: IconButton(
-                        onPressed: () {
-                          notifier.setImagePath(null);
-                          printInfo('Image removed');
-                        },
-                        icon: Icon(
-                          Icons.close,
-                          color: AppColor.white,
-                          size: AppSize.smallIconSize,
-                        ),
-                        padding: EdgeInsets.all(4.w),
-                        constraints: BoxConstraints(
-                          minWidth: 32.w,
-                          minHeight: 32.h,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              )
-            : _buildImagePlaceholder(notifier),
-      ),
-    );
-  }
-
-  Widget _buildImagePlaceholder(dynamic notifier) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          AppIcons.addon,
-          size: AppSize.largeIconSize,
-          color: AppColor.mediumGray,
-        ),
-        SizedBox(height: 8.h),
-        AppText(
-          text: 'اضغط لاختيار صورة',
-          fontSize: AppSize.normalText,
-          color: AppColor.mediumGray,
-        ),
-      ],
-    );
-  }
 }

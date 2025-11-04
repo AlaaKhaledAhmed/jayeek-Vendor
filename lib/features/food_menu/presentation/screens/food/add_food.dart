@@ -15,7 +15,7 @@ import 'package:jayeek_vendor/core/widgets/scroll_list.dart';
 import '../../../providers/add_item_provider.dart';
 import '../../../providers/menu/menu_provider.dart';
 import '../../widgets/food_menu_bottom_sheets.dart';
-import '../../widgets/meal_image_picker.dart';
+import 'package:jayeek_vendor/core/widgets/shared_image_picker.dart';
 import '../../widgets/switch_row.dart';
 
 /// AddItemPage - Refactored with clean architecture
@@ -62,9 +62,13 @@ class AddFoodPage extends ConsumerWidget {
                       SizedBox(height: 8.h),
 
                       // صورة الوجبة
-                      MealImagePicker(
-                        path: state.mealImagePath,
-                        onTap: () => notifier.pickMealImage(context),
+                      SharedImagePicker(
+                        imagePath: state.mealImagePath,
+                        onPickImage: () async {
+                          await notifier.pickMealImage(context);
+                        },
+                        height: 160.h,
+                        placeholderText: AppMessage.mealPhoto,
                       ),
                       SizedBox(height: 12.h),
 

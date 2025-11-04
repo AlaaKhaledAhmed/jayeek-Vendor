@@ -278,12 +278,7 @@ class CategoriesNotifier extends StateNotifier<CategoriesState>
         }
 
         // If file size is OK, save the path
-        if (isEdit) {
-          _editSelectedImagePath = imagePath;
-        } else {
-          _addSelectedImagePath = imagePath;
-        }
-        state = state.copyWith(selectedImagePath: imagePath);
+        setImagePath(imagePath, isEdit: isEdit);
       } catch (e) {
         AppSnackBar.show(
           message: AppMessage.errorCheckingImageSize,
@@ -291,5 +286,14 @@ class CategoriesNotifier extends StateNotifier<CategoriesState>
         );
       }
     }
+  }
+
+  void setImagePath(String? imagePath, {bool isEdit = false}) {
+    if (isEdit) {
+      _editSelectedImagePath = imagePath;
+    } else {
+      _addSelectedImagePath = imagePath;
+    }
+    state = state.copyWith(selectedImagePath: imagePath);
   }
 }

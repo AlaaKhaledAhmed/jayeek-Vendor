@@ -20,6 +20,7 @@ class AppMessage {
   static const String price = "السعر";
   static const String cansel = "الغاء";
   static const String cancel = "إلغاء";
+  static const String confirm = "تأكيد";
   static const String settings = "الإعدادات";
   static const String ok = "حسنا";
   static const String wrong = "حدث خطا ما";
@@ -221,15 +222,15 @@ class AppMessage {
   static const String enterCategoryName = 'يرجى إدخال اسم الفئة';
   static const String enterCategoryNameAr = 'يرجى إدخال اسم الفئة بالعربية';
   static const String editCategory = 'تعديل الفئة';
-    static const String selectImage = 'اختر صورة';
-    static const String changeImage = 'تغيير الصورة';
-    static const String imageSizeExceedsLimit =
-        'حجم الصورة يتجاوز 1 ميجابايت. الرجاء اختيار صورة أصغر';
-    static const String errorCheckingImageSize =
-        'حدث خطأ أثناء التحقق من حجم الصورة';
-    static const String selectImageSource = 'اختر مصدر الصورة';
-    static const String photoLibrary = 'مكتبة الصور';
-    static const String files = 'الملفات';
+  static const String selectImage = 'اختر صورة';
+  static const String changeImage = 'تغيير الصورة';
+  static const String imageSizeExceedsLimit =
+      'حجم الصورة يتجاوز 1 ميجابايت. الرجاء اختيار صورة أصغر';
+  static const String errorCheckingImageSize =
+      'حدث خطأ أثناء التحقق من حجم الصورة';
+  static const String selectImageSource = 'اختر مصدر الصورة';
+  static const String photoLibrary = 'مكتبة الصور';
+  static const String files = 'الملفات';
 
   // Login Validation Messages
   static const String noBranchAssigned = 'لم يتم إسناد فرع لهذا المستخدم';

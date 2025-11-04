@@ -1,9 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:jayeek_vendor/core/util/print_info.dart';
 import 'package:jayeek_vendor/core/services/image_picker_service.dart';
-import 'package:jayeek_vendor/core/services/photo_permission_service.dart';
+import 'package:jayeek_vendor/core/widgets/app_snack_bar.dart';
+import 'package:jayeek_vendor/core/constants/app_string.dart';
 
 import '../../domain/models/custom_addon_model.dart';
 import '../../domain/repositories/custom_addon_repository.dart';
@@ -164,18 +166,35 @@ class CustomAddonNotifier extends StateNotifier<CustomAddonState>
 
   Future<void> pickImage(BuildContext context) async {
     try {
-      // Check photo permission first
-      final granted = await AppPermissions.photoPermission(context: context);
-      if (!granted) {
-        printInfo('Photo permission denied');
-        return;
-      }
+      // Pick image with source selection (gallery or files)
+      final imagePath = await AppImagePicker.pickImageWithSource(
+        context: context,
+        imageQuality: 85,
+      );
 
-      // Pick image from gallery
-      final imagePath = await AppImagePicker.pickFromGallery(imageQuality: 85);
       if (imagePath != null) {
-        setImagePath(imagePath);
-        printInfo('Image selected: $imagePath');
+        // Check file size (1 MB = 1024 * 1024 bytes)
+        try {
+          final file = File(imagePath);
+          final fileSize = await file.length();
+          const maxSize = 1024 * 1024; // 1 MB in bytes
+
+          if (fileSize > maxSize) {
+            AppSnackBar.show(
+              message: AppMessage.imageSizeExceedsLimit,
+              type: ToastType.error,
+            );
+            return;
+          }
+
+          // If file size is OK, save the path
+          setImagePath(imagePath);
+        } catch (e) {
+          AppSnackBar.show(
+            message: AppMessage.errorCheckingImageSize,
+            type: ToastType.error,
+          );
+        }
       }
     } catch (e) {
       printInfo('Error picking image: $e');
