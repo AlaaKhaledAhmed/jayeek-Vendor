@@ -5,6 +5,7 @@ import '../../../core/services/image_picker_service.dart';
 import '../../../core/widgets/app_snack_bar.dart';
 import '../../../core/constants/app_string.dart';
 import '../domain/models/menu_item_model.dart';
+import '../domain/models/food_category_model.dart';
 import '../domain/repositories/food_repository.dart';
 import 'add_item_state.dart';
 
@@ -18,8 +19,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   final descriptionController = TextEditingController();
   final priceController = TextEditingController();
 
-  String? selectedCategory;
-  String? selectedBranch;
+  FoodCategoryModel? selectedCategory;
 
   AddItemNotifier(this.repository) : super(const AddItemState()) {
     _init();
@@ -27,9 +27,15 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
 
   Future<void> _init() async {
     state = state.copyWith(isLoading: true);
-    final cats = await repository.getCategories();
-    final brs = await repository.getBranches();
-    state = state.copyWith(isLoading: false, categories: cats, branches: brs);
+    final response = await repository.getFoodCategories();
+    if (!response.hasError && response.data != null) {
+      final categories = response.data!.data ?? [];
+      // Filter out deleted categories
+      final activeCategories = categories.where((cat) => cat.deleteFlag != true).toList();
+      state = state.copyWith(isLoading: false, categories: activeCategories);
+    } else {
+      state = state.copyWith(isLoading: false, categories: []);
+    }
   }
 
   // صورة (placeholder – اربطه لاحقًا مع ImagePicker)
@@ -37,8 +43,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     state = state.copyWith(mealImagePath: path);
   }
 
-  void selectCategory(String? v) => selectedCategory = v;
-  void selectBranch(String? v) => selectedBranch = v;
+  void selectCategory(FoodCategoryModel? v) => selectedCategory = v;
 
   void toggleCustomizable(bool v) {
     state = state.copyWith(isCustomizable: v);
@@ -48,12 +53,15 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     state = state.copyWith(isAvailable: v);
   }
 
-  // فئات
-  Future<void> addNewCategory(String name) async {
-    await repository.addCategory(name);
-    final updated = [...state.categories, name];
-    state = state.copyWith(categories: updated);
-    selectedCategory = name;
+  // Refresh categories from API
+  Future<void> refreshCategories() async {
+    final response = await repository.getFoodCategories();
+    if (!response.hasError && response.data != null) {
+      final categories = response.data!.data ?? [];
+      final activeCategories = categories.where((cat) => cat.deleteFlag != true).toList();
+      state = state.copyWith(categories: activeCategories);
+
+    }
   }
 
   // إدارة الإضافات
@@ -147,8 +155,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
       price: double.tryParse(priceController.text) ?? 0.0,
       isAvailable: state.isAvailable,
       isFeatured: false,
-      category: selectedCategory ?? '',
-      branch: selectedBranch,
+      category: selectedCategory?.name ?? '',
       isCustomizable: state.isCustomizable,
     );
 

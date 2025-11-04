@@ -1,23 +1,27 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jayeek_vendor/core/constants/app_color.dart';
 import 'package:jayeek_vendor/core/constants/app_string.dart';
-import 'package:jayeek_vendor/core/theme/app_them.dart';
+import 'package:jayeek_vendor/core/constants/app_size.dart';
 import 'package:jayeek_vendor/core/widgets/app_bar.dart';
 import 'package:jayeek_vendor/core/widgets/app_buttons.dart';
 import 'package:jayeek_vendor/core/widgets/app_drop_list.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
 import 'package:jayeek_vendor/core/widgets/app_text_fields.dart';
 import 'package:jayeek_vendor/core/widgets/custom_load.dart';
-import 'package:jayeek_vendor/core/widgets/scroll_list.dart';
+import 'package:jayeek_vendor/core/widgets/shared_image_picker.dart';
+import 'package:jayeek_vendor/core/widgets/app_decoration.dart';
 import '../../domain/models/menu_item_model.dart';
 import '../../providers/menu/menu_provider.dart';
 import '../../providers/update_item/update_item_provider.dart';
-import '../widgets/food_menu_bottom_sheets.dart';
-import 'package:jayeek_vendor/core/widgets/shared_image_picker.dart';
-import '../widgets/switch_row.dart';
+import '../../providers/update_item/update_item_notifier.dart';
+import '../../providers/update_item/update_item_state.dart';
+import '../../domain/models/food_category_model.dart';
 
+/// Modern Update Food Page with innovative design
 class UpdateFoodPage extends ConsumerWidget {
   final MenuItemModel item;
 
@@ -30,7 +34,8 @@ class UpdateFoodPage extends ConsumerWidget {
     final state = ref.watch(provider);
 
     return Scaffold(
-      appBar: const AppBarWidget(
+      backgroundColor: AppColor.backgroundColor,
+      appBar: AppBarWidget(
         text: AppMessage.editMeal,
         hideBackButton: false,
       ),
@@ -39,144 +44,377 @@ class UpdateFoodPage extends ConsumerWidget {
           : SafeArea(
               child: Form(
                 key: notifier.formKey,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w),
-                  child: ScrollList(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // صورة الوجبة
-                      SharedImagePicker(
-                        imagePath: state.mealImagePath,
-                        onPickImage: () async {
-                          await notifier.pickMealImage(context);
-                        },
-                        height: 160.h,
-                        placeholderText: AppMessage.mealPhoto,
-                      ),
-                      SizedBox(height: 12.h),
+                      // Modern Image Section with Card
+                      _buildImageSection(context, notifier, state),
+                      SizedBox(height: 24.h),
 
-                      // اسم الوجبة
-                      AppText(
-                        text: AppMessage.mealName,
-                        fontWeight: AppThem().bold,
+                      // Modern Input Fields in Cards
+                      _buildInputCard(
+                        title: '${AppMessage.mealName} *',
+                        child: AppTextFields(
+                          hintText: AppMessage.mealName,
+                          controller: notifier.nameController,
+                          validator: (v) =>
+                              v!.isEmpty ? AppMessage.enterMealName : null,
+                        ),
                       ),
-                      SizedBox(height: 5.h),
-                      AppTextFields(
-                        hintText: AppMessage.mealName,
-                        controller: notifier.nameController,
-                        validator: (v) =>
-                            v!.isEmpty ? AppMessage.enterMealName : null,
-                      ),
-                      SizedBox(height: 10.h),
+                      SizedBox(height: 16.h),
 
-                      // الوصف
-                      AppText(
-                        text: AppMessage.description,
-                        fontWeight: AppThem().bold,
+                      _buildInputCard(
+                        title: '${AppMessage.description} *',
+                        child: AppTextFields(
+                          hintText: AppMessage.description,
+                          controller: notifier.descriptionController,
+                          minLines: 3,
+                          maxLines: 4,
+                          validator: (v) =>
+                              v!.isEmpty ? AppMessage.enterDescription : null,
+                        ),
                       ),
-                      SizedBox(height: 5.h),
-                      AppTextFields(
-                        hintText: AppMessage.description,
-                        controller: notifier.descriptionController,
-                        minLines: 3,
-                        maxLines: 4,
-                        validator: (v) =>
-                            v!.isEmpty ? AppMessage.enterDescription : null,
-                      ),
-                      SizedBox(height: 10.h),
+                      SizedBox(height: 16.h),
 
-                      // السعر
-                      AppText(
-                        text: AppMessage.price,
-                        fontWeight: AppThem().bold,
-                      ),
-                      SizedBox(height: 5.h),
-                      AppTextFields(
-                        hintText: AppMessage.price,
-                        keyboardType: TextInputType.number,
-                        controller: notifier.priceController,
-                        validator: (v) =>
-                            v!.isEmpty ? AppMessage.enterMealPrice : null,
-                      ),
-                      SizedBox(height: 10.h),
-
-                      // الفئة
-                      AppText(
-                        text: AppMessage.category,
-                        fontWeight: AppThem().bold,
-                      ),
-                      SizedBox(height: 5.h),
-                      AppDropList(
-                        hintText: AppMessage.chooseCategory,
-                        items: state.categories,
-                        value: notifier.selectedCategory,
-                        onChanged: notifier.selectCategory,
-                      ),
-                      if (state.categories.isEmpty)
-                        Padding(
-                          padding: EdgeInsets.only(top: 6.h),
-                          child: InkWell(
-                            onTap: () => FoodMenuBottomSheets.showAddCategory(
-                              context,
-                              onAdd: notifier.addNewCategory,
-                            ),
-                            child: AppText(
-                              text: AppMessage.addNewCategory,
-                              color: AppColor.accentColor,
-                              fontWeight: AppThem().bold,
+                      // Price and Category in Row
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildInputCard(
+                              title: '${AppMessage.price} *',
+                              child: AppTextFields(
+                                hintText: AppMessage.price,
+                                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                                controller: notifier.priceController,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                                ],
+                                validator: (v) {
+                                  if (v!.isEmpty) return AppMessage.enterMealPrice;
+                                  if (double.tryParse(v) == null || double.parse(v) <= 0) {
+                                    return 'السعر يجب أن يكون أكبر من صفر';
+                                  }
+                                  return null;
+                                },
+                              ),
                             ),
                           ),
-                        ),
-                      SizedBox(height: 10.h),
+                          SizedBox(width: 12.w),
+                          Expanded(
+                            child: _buildInputCard(
+                              title: '${AppMessage.category} *',
+                              child: AppDropList<FoodCategoryModel>(
+                                hintText: AppMessage.chooseCategory,
+                                items: state.categories,
+                                value: notifier.selectedCategory,
+                                onChanged: notifier.selectCategory,
+                                customItem: state.categories
+                                    .map(
+                                      (category) => DropdownMenuItem<FoodCategoryModel>(
+                                        value: category,
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            if (category.image != null && category.image!.isNotEmpty)
+                                              Builder(
+                                                builder: (context) {
+                                                  try {
+                                                    final imageProvider = category.image!.startsWith('http')
+                                                        ? NetworkImage(category.image!) as ImageProvider
+                                                        : MemoryImage(base64Decode(
+                                                            category.image!.contains(',') 
+                                                                ? category.image!.split(',').last 
+                                                                : category.image!));
+                                                    return Container(
+                                                      width: 24.w,
+                                                      height: 24.h,
+                                                      margin: EdgeInsets.only(left: 8.w),
+                                                      decoration: BoxDecoration(
+                                                        borderRadius: BorderRadius.circular(6.r),
+                                                        image: DecorationImage(
+                                                          image: imageProvider,
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  } catch (e) {
+                                                    return SizedBox(width: 24.w, height: 24.h);
+                                                  }
+                                                },
+                                              ),
+                                            Flexible(
+                                              child: AppText(
+                                                text: category.nameAr ?? category.name ?? '',
+                                                fontSize: AppSize.captionText,
+                                                color: AppColor.textColor,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                                validator: (v) => v == null ? 'يرجى اختيار الفئة' : null,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 24.h),
 
-                      // الفرع
-                      AppText(
-                        text: AppMessage.branch,
-                        fontWeight: AppThem().bold,
+                      // Modern Toggle Switches Card
+                      _buildToggleCard(
+                        context: context,
+                        notifier: notifier,
+                        state: state,
                       ),
-                      SizedBox(height: 5.h),
-                      AppDropList(
-                        hintText: AppMessage.chooseBranch,
-                        items: state.branches,
-                        value: notifier.selectedBranch,
-                        onChanged: notifier.selectBranch,
-                      ),
-                      SizedBox(height: 10.h),
+                      SizedBox(height: 32.h),
 
-                      // السويتشات
-                      SwitchRow(
-                        label: AppMessage.canCustomize,
-                        value: state.isCustomizable,
-                        onChanged: notifier.toggleCustomizable,
-                      ),
-                      SwitchRow(
-                        label: AppMessage.available,
-                        value: state.isAvailable,
-                        onChanged: notifier.toggleAvailable,
-                      ),
+                      // Modern Save Button
+                      _buildSaveButton(context, notifier, state, ref),
                       SizedBox(height: 20.h),
-
-                      // زر الحفظ
-                      AppButtons(
-                        text: AppMessage.saveChanges,
-                        onPressed: () async {
-                          final updatedItem = await notifier.update();
-                          if (updatedItem != null && context.mounted) {
-                            // Update in menu list
-                            ref
-                                .read(menuProvider.notifier)
-                                .updateItem(updatedItem);
-                            Navigator.pop(context);
-                          }
-                        },
-                        backgroundColor: AppColor.mainColor,
-                        showLoader: state.isLoading,
-                      ),
-                      SizedBox(height: 15.h),
                     ],
                   ),
                 ),
               ),
             ),
+    );
+  }
+
+  Widget _buildImageSection(BuildContext context, UpdateItemNotifier notifier, UpdateItemState state) {
+    return Container(
+      decoration: AppDecoration.decoration(
+        radius: 20,
+        shadow: true,
+        color: AppColor.white,
+      ),
+      padding: EdgeInsets.all(20.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColor.mainColor.withOpacity(0.1),
+                      AppColor.mainColor.withOpacity(0.05),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.image,
+                      size: 16.sp,
+                      color: AppColor.mainColor,
+                    ),
+                    SizedBox(width: 6.w),
+                    AppText(
+                      text: AppMessage.mealPhoto,
+                      fontSize: AppSize.smallText,
+                      fontWeight: FontWeight.w600,
+                      color: AppColor.mainColor,
+                    ),
+                    AppText(
+                      text: ' *',
+                      fontSize: AppSize.smallText,
+                      color: AppColor.red,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16.h),
+          SharedImagePicker(
+            imagePath: state.mealImagePath,
+            onPickImage: () async {
+              await notifier.pickMealImage(context);
+            },
+            height: 200.h,
+            borderRadius: 16,
+            placeholderText: 'اضغط لاختيار صورة الطبق',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInputCard({required String title, required Widget child}) {
+    return Container(
+      decoration: AppDecoration.decoration(
+        radius: 16,
+        shadow: true,
+        color: AppColor.white,
+      ),
+      padding: EdgeInsets.all(16.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppText(
+            text: title,
+            fontSize: AppSize.bodyText,
+            fontWeight: FontWeight.w600,
+            color: AppColor.textColor,
+          ),
+          SizedBox(height: 12.h),
+          child,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildToggleCard({
+    required BuildContext context,
+    required UpdateItemNotifier notifier,
+    required UpdateItemState state,
+  }) {
+    return Container(
+      decoration: AppDecoration.decoration(
+        radius: 16,
+        shadow: true,
+        color: AppColor.white,
+      ),
+      padding: EdgeInsets.all(20.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.tune_rounded,
+                size: 20.sp,
+                color: AppColor.mainColor,
+              ),
+              SizedBox(width: 8.w),
+              AppText(
+                text: 'الإعدادات',
+                fontSize: AppSize.bodyText,
+                fontWeight: FontWeight.w600,
+                color: AppColor.textColor,
+              ),
+            ],
+          ),
+          SizedBox(height: 20.h),
+          _buildModernSwitch(
+            label: AppMessage.canCustomize,
+            value: state.isCustomizable,
+            onChanged: notifier.toggleCustomizable,
+            icon: Icons.build_circle_outlined,
+            color: Colors.purple,
+          ),
+          SizedBox(height: 16.h),
+          _buildModernSwitch(
+            label: AppMessage.available,
+            value: state.isAvailable,
+            onChanged: notifier.toggleAvailable,
+            icon: Icons.check_circle_outline,
+            color: AppColor.green,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModernSwitch({
+    required String label,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(
+          color: value ? color.withOpacity(0.3) : AppColor.lightGray,
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(8.w),
+            decoration: BoxDecoration(
+              color: value ? color.withOpacity(0.1) : AppColor.lightGray.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+            child: Icon(
+              icon,
+              size: 20.sp,
+              color: value ? color : AppColor.mediumGray,
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: AppText(
+              text: label,
+              fontSize: AppSize.normalText,
+              fontWeight: FontWeight.w500,
+              color: value ? AppColor.textColor : AppColor.subGrayText,
+            ),
+          ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeColor: color,
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSaveButton(
+    BuildContext context,
+    UpdateItemNotifier notifier,
+    UpdateItemState state,
+    WidgetRef ref,
+  ) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16.r),
+        gradient: LinearGradient(
+          colors: [
+            AppColor.mainColor,
+            AppColor.mainColor.withOpacity(0.8),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColor.mainColor.withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: AppButtons(
+        text: AppMessage.saveChanges,
+        onPressed: () async {
+          final updatedItem = await notifier.update();
+          if (updatedItem != null && context.mounted) {
+            // Update in menu list
+            ref.read(menuProvider.notifier).updateItem(updatedItem);
+            Navigator.pop(context);
+          }
+        },
+        backgroundColor: Colors.transparent,
+        showLoader: state.isLoading,
+        height: 56.h,
+      ),
     );
   }
 }

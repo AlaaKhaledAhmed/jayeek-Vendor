@@ -1,10 +1,10 @@
 import 'package:equatable/equatable.dart';
 import '../add_item_state.dart';
+import '../../domain/models/food_category_model.dart';
 
 class UpdateItemState extends Equatable {
   final bool isLoading;
-  final List<String> categories;
-  final List<String> branches;
+  final List<FoodCategoryModel> categories;
   final String? mealImagePath;
   final List<AddonGroup> addonGroups;
   final bool isCustomizable;
@@ -13,7 +13,6 @@ class UpdateItemState extends Equatable {
   const UpdateItemState({
     this.isLoading = false,
     this.categories = const [],
-    this.branches = const [],
     this.mealImagePath,
     this.addonGroups = const [],
     this.isCustomizable = false,
@@ -22,8 +21,7 @@ class UpdateItemState extends Equatable {
 
   UpdateItemState copyWith({
     bool? isLoading,
-    List<String>? categories,
-    List<String>? branches,
+    List<FoodCategoryModel>? categories,
     String? mealImagePath,
     List<AddonGroup>? addonGroups,
     bool? isCustomizable,
@@ -32,7 +30,6 @@ class UpdateItemState extends Equatable {
     return UpdateItemState(
       isLoading: isLoading ?? this.isLoading,
       categories: categories ?? this.categories,
-      branches: branches ?? this.branches,
       mealImagePath: mealImagePath ?? this.mealImagePath,
       addonGroups: addonGroups ?? this.addonGroups,
       isCustomizable: isCustomizable ?? this.isCustomizable,
@@ -44,7 +41,6 @@ class UpdateItemState extends Equatable {
   List<Object?> get props => [
     isLoading,
     categories,
-    branches,
     mealImagePath,
     addonGroups,
     isCustomizable,

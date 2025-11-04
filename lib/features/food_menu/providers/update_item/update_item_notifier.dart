@@ -5,6 +5,7 @@ import '../../../../core/services/image_picker_service.dart';
 import '../../../../core/widgets/app_snack_bar.dart';
 import '../../../../core/constants/app_string.dart';
 import '../../domain/models/menu_item_model.dart';
+import '../../domain/models/food_category_model.dart';
 import '../../domain/repositories/food_repository.dart';
 import '../add_item_state.dart';
 import 'update_item_state.dart';
@@ -20,8 +21,7 @@ class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
   late final TextEditingController priceController;
   late final TextEditingController descriptionController;
 
-  String? selectedCategory;
-  String? selectedBranch;
+  FoodCategoryModel? selectedCategory;
 
   UpdateItemNotifier(this.repository, this.item)
       : super(const UpdateItemState()) {
@@ -36,39 +36,48 @@ class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
     priceController = TextEditingController(text: item.price.toString());
     descriptionController = TextEditingController(text: item.description);
 
-    final cats = await repository.getCategories();
-    final brs = await repository.getBranches();
+    // Load categories from API
+    final response = await repository.getFoodCategories();
+    if (!response.hasError && response.data != null) {
+      final categories = response.data!.data ?? [];
+      // Filter out deleted categories
+      final activeCategories = categories.where((cat) => cat.deleteFlag != true).toList();
+      
+      // Find and set the selected category by matching name
+      if (item.category.isNotEmpty && activeCategories.isNotEmpty) {
+        try {
+          selectedCategory = activeCategories.firstWhere(
+            (cat) => cat.name == item.category || cat.nameAr == item.category,
+          );
+        } catch (e) {
+          // If category not found, select first category or null
+          selectedCategory = activeCategories.isNotEmpty ? activeCategories.first : null;
+        }
+      }
 
-    // Set category only if it exists in the list
-    if (cats.contains(item.category)) {
-      selectedCategory = item.category;
+      state = state.copyWith(
+        isLoading: false,
+        categories: activeCategories,
+        mealImagePath: item.imageUrl,
+        isAvailable: item.isAvailable,
+        isCustomizable: item.isCustomizable,
+      );
     } else {
-      selectedCategory = null;
+      state = state.copyWith(
+        isLoading: false,
+        categories: [],
+        mealImagePath: item.imageUrl,
+        isAvailable: item.isAvailable,
+        isCustomizable: item.isCustomizable,
+      );
     }
-
-    // Set branch only if it exists in the list
-    if (item.branch != null && brs.contains(item.branch)) {
-      selectedBranch = item.branch;
-    } else {
-      selectedBranch = null;
-    }
-
-    state = state.copyWith(
-      isLoading: false,
-      categories: cats,
-      branches: brs,
-      mealImagePath: item.imageUrl,
-      isAvailable: item.isAvailable,
-      isCustomizable: item.isCustomizable,
-    );
   }
 
   void setMealImagePath(String path) {
     state = state.copyWith(mealImagePath: path);
   }
 
-  void selectCategory(String? v) => selectedCategory = v;
-  void selectBranch(String? v) => selectedBranch = v;
+  void selectCategory(FoodCategoryModel? v) => selectedCategory = v;
 
   void toggleCustomizable(bool v) {
     state = state.copyWith(isCustomizable: v);
@@ -78,11 +87,14 @@ class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
     state = state.copyWith(isAvailable: v);
   }
 
-  Future<void> addNewCategory(String name) async {
-    await repository.addCategory(name);
-    final updated = [...state.categories, name];
-    state = state.copyWith(categories: updated);
-    selectedCategory = name;
+  // Refresh categories from API
+  Future<void> refreshCategories() async {
+    final response = await repository.getFoodCategories();
+    if (!response.hasError && response.data != null) {
+      final categories = response.data!.data ?? [];
+      final activeCategories = categories.where((cat) => cat.deleteFlag != true).toList();
+      state = state.copyWith(categories: activeCategories);
+    }
   }
 
   void addAddonGroup(AddonGroup group) {
@@ -164,8 +176,7 @@ class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
         description: descriptionController.text,
         price: double.tryParse(priceController.text) ?? item.price,
         imageUrl: state.mealImagePath ?? item.imageUrl,
-        category: selectedCategory,
-        branch: selectedBranch,
+        category: selectedCategory?.name ?? item.category,
         isAvailable: state.isAvailable,
         isCustomizable: state.isCustomizable,
       );
