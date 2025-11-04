@@ -237,19 +237,18 @@ class AppMessage {
   static const String noBranchAssignedMessage =
       'لم يتم إسناد فرع لهذا المستخدم. الرجاء التواصل مع الجهة المسؤولة.';
 
-  // Addon Groups Strings
+  // Addon Groups Strings (New)
   static const String addonGroups = 'مجموعات الإضافات';
-   static const String groupTitle = 'عنوان المجموعة';
+  static const String groupTitle = 'عنوان المجموعة';
   static const String enterGroupTitle = 'يرجى إدخال عنوان المجموعة';
   static const String selectionType = 'نوع الاختيار';
   static const String singleSelection = 'اختيار واحد';
   static const String multipleSelection = 'اختيار متعدد';
-  static const String maxSelectable = 'الحد الأقصى للاختيارات';
   static const String allowQuantity = 'السماح باختيار الكمية';
-   static const String optional = 'اختياري';
+  static const String optional = 'اختياري';
   static const String addonItems = 'خيارات الإضافة';
   static const String addItem = 'إضافة خيار';
-   static const String itemDescription = 'وصف الخيار (اختياري)';
+  static const String itemDescription = 'وصف الخيار (اختياري)';
   static const String itemPrice = 'سعر الخيار';
   static const String itemImage = 'صورة الخيار (اختياري)';
   static const String editGroup = 'تعديل المجموعة';

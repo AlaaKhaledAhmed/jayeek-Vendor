@@ -481,13 +481,13 @@ class AddonGroupsManager extends StatelessWidget {
               // Max Selectable (only if multiple)
               if (!isSingleSelection) ...[
                 AppText(
-                  text: '${AppMessage.maxSelectable} (${AppMessage.optional})',
+                  text: '${AppMessage.maxSelections} (${AppMessage.optional})',
                   fontSize: AppSize.bodyText,
                   fontWeight: FontWeight.w600,
                 ),
                 SizedBox(height: 8.h),
                 AppTextFields(
-                  hintText: AppMessage.maxSelectable,
+                  hintText: AppMessage.maxSelections,
                   controller: maxSelectableCtrl,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -690,13 +690,13 @@ class AddonGroupsManager extends StatelessWidget {
               // Max Selectable
               if (!isSingleSelection) ...[
                 AppText(
-                  text: '${AppMessage.maxSelectable} (${AppMessage.optional})',
+                  text: '${AppMessage.maxSelections} (${AppMessage.optional})',
                   fontSize: AppSize.bodyText,
                   fontWeight: FontWeight.w600,
                 ),
                 SizedBox(height: 8.h),
                 AppTextFields(
-                  hintText: AppMessage.maxSelectable,
+                  hintText: AppMessage.maxSelections,
                   controller: maxSelectableCtrl,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
