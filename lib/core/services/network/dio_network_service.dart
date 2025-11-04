@@ -67,6 +67,7 @@ class DioNetworkService implements INetworkServices {
     Map<String, dynamic>? body,
     bool requiresToken = true,
     T Function(Map<String, dynamic>)? fromJson,
+    Map<String, dynamic>? queryParams,
   }) {
     return _sendRequest<T>(
       requiresToken: requiresToken,
@@ -74,6 +75,7 @@ class DioNetworkService implements INetworkServices {
       method: 'DELETE',
       body: body,
       fromJson: fromJson,
+      queryParams: queryParams,
     );
   }
 

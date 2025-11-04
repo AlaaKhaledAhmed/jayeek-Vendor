@@ -205,4 +205,31 @@ class AppMessage {
   static const String enterAddonPrice = 'يرجى إدخال سعر الإضافة';
   static const String chooseAddonUnitType = 'يرجى اختيار نوع الوحدة';
   static const String done = 'تمت  العمليه بنجاح';
+
+  // Categories Strings
+  static const String categories = 'الفئات';
+  static const String meals = 'الأطباق';
+  static const String addCategory = 'إضافة فئة جديدة';
+  static const String noCategoriesYet = 'لا توجد فئات بعد';
+  static const String noCategoriesMessage = 'أضف أول فئة لبدء عرض قائمتك هنا.';
+  static const String categoryCreated = 'تم إنشاء الفئة بنجاح';
+  static const String categoryUpdated = 'تم تحديث الفئة بنجاح';
+  static const String categoryDeleted = 'تم حذف الفئة بنجاح';
+  static const String deleteCategoryConfirm = 'حذف الفئة؟';
+  static const String deleteCategoryMessage =
+      'هل أنت متأكد أنك تريد حذف هذه الفئة؟ لا يمكن التراجع.';
+  static const String enterCategoryName = 'يرجى إدخال اسم الفئة';
+  static const String enterCategoryNameAr = 'يرجى إدخال اسم الفئة بالعربية';
+  static const String editCategory = 'تعديل الفئة';
+  static const String selectImage = 'اختر صورة';
+  static const String changeImage = 'تغيير الصورة';
+  static const String imageSizeExceedsLimit =
+      'حجم الصورة يتجاوز 1 ميجابايت. الرجاء اختيار صورة أصغر';
+  static const String errorCheckingImageSize =
+      'حدث خطأ أثناء التحقق من حجم الصورة';
+
+  // Login Validation Messages
+  static const String noBranchAssigned = 'لم يتم إسناد فرع لهذا المستخدم';
+  static const String noBranchAssignedMessage =
+      'لم يتم إسناد فرع لهذا المستخدم. الرجاء التواصل مع الجهة المسؤولة.';
 }

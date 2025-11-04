@@ -43,4 +43,26 @@ class SharedPreferencesService {
     final prefs = await SharedPreferences.getInstance();
     prefs.clear();
   }
+
+  static Future<void> saveOrganizationId({required int organizationId}) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(AppConstants.organizationId, organizationId);
+    printInfo('organizationId saved: $organizationId');
+  }
+
+  static Future<int?> getOrganizationId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(AppConstants.organizationId);
+  }
+
+  static Future<void> saveBranchId({required int branchId}) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(AppConstants.branchId, branchId);
+    printInfo('branchId saved: $branchId');
+  }
+
+  static Future<int?> getBranchId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(AppConstants.branchId);
+  }
 }

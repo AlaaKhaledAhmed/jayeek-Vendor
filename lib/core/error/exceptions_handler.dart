@@ -12,7 +12,7 @@ class ExceptionsHandler {
 
     final code = e.response?.statusCode;
     printInfo(
-        'status: ${e.response?.statusCode} - response.message : ${e.response?.statusMessage}');
+        'status: ${e.response?.statusCode} -  message : ${e.response?.statusMessage} - data : ${e.response?.data}');
 
     ///unAuthorized error
     if (code == 401) {
@@ -22,7 +22,11 @@ class ExceptionsHandler {
     ///validation error
     else if (code == 422 || code == 404 || code == 400) {
       printInfo('value');
-      message = e.response?.data['message'] ?? AppErrorState.formatException;
+      if (e.response?.data != null && e.response?.data is Map) {
+        message = e.response?.data['message'] ?? AppErrorState.formatException;
+      } else {
+        message = e.response?.statusMessage ?? AppErrorState.formatException;
+      }
     }
 
     ///timeout error

@@ -9,16 +9,20 @@ import 'package:jayeek_vendor/core/constants/app_string.dart';
 import 'package:jayeek_vendor/core/routing/app_routes_methods.dart';
 import 'package:jayeek_vendor/core/theme/app_them.dart';
 import 'package:jayeek_vendor/core/widgets/app_bar.dart';
-import 'package:jayeek_vendor/core/widgets/app_refresh_indicator.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
+import 'package:jayeek_vendor/core/widgets/custom_load.dart';
+import 'package:jayeek_vendor/core/widgets/data_view_builder.dart';
 import 'package:jayeek_vendor/features/food_menu/presentation/screens/food/add_food.dart';
 
+import '../../../providers/menu/menu_notifier.dart';
 import '../../../providers/menu/menu_provider.dart';
+import '../../../providers/menu/menu_state.dart';
 import '../../widgets/empty_data.dart';
 import '../../widgets/grid_list.dart';
-import '../../widgets/loading_placeholder.dart';
+import '../../widgets/menu_item_card.dart';
 import '../../widgets/search_and_chips.dart';
-import '../../widgets/vertical_list.dart';
+import '../categories/categories_screen.dart';
+import '../categories/update_category.dart';
 import '../addons/addons_screen.dart';
 import '../addons/update_addon.dart';
 
@@ -39,7 +43,7 @@ class _FoodMenuScreenWithTabsState extends ConsumerState<FoodMenuScreenWithTabs>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) {
         setState(() {
@@ -60,6 +64,8 @@ class _FoodMenuScreenWithTabsState extends ConsumerState<FoodMenuScreenWithTabs>
       case 0:
         return AppMessage.foodMenu;
       case 1:
+        return AppMessage.categories;
+      case 2:
         return AppMessage.addons;
       default:
         return AppMessage.foodMenu;
@@ -73,6 +79,10 @@ class _FoodMenuScreenWithTabsState extends ConsumerState<FoodMenuScreenWithTabs>
           AppRoutes.pushTo(context, const AddFoodPage());
         };
       case 1:
+        return () async {
+          AppRoutes.pushTo(context, const UpdateCategory(fromUpdate: false));
+        };
+      case 2:
         return () async {
           AppRoutes.pushTo(context, const UpdateAddon(fromUpdate: false));
         };
@@ -88,15 +98,7 @@ class _FoodMenuScreenWithTabsState extends ConsumerState<FoodMenuScreenWithTabs>
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(menuProvider);
-
-    final filtered = state.items.where((e) {
-      final q = state.query.trim().toLowerCase();
-      final matchQuery = q.isEmpty ||
-          e.name.toLowerCase().contains(q) ||
-          e.description.toLowerCase().contains(q);
-      final matchCat = state.category == null || e.category == state.category;
-      return matchQuery && matchCat;
-    }).toList(growable: false);
+    final notifier = ref.read(menuProvider.notifier);
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -144,7 +146,20 @@ class _FoodMenuScreenWithTabsState extends ConsumerState<FoodMenuScreenWithTabs>
                           size: AppSize.mediumIconSize,
                         ),
                         SizedBox(width: 8.w),
-                        const AppText(text: AppMessage.all),
+                        const AppText(text: AppMessage.meals),
+                      ],
+                    ),
+                  ),
+                  Tab(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          AppIcons.food,
+                          size: AppSize.mediumIconSize,
+                        ),
+                        SizedBox(width: 8.w),
+                        const AppText(text: AppMessage.categories),
                       ],
                     ),
                   ),
@@ -175,28 +190,13 @@ class _FoodMenuScreenWithTabsState extends ConsumerState<FoodMenuScreenWithTabs>
                     children: [
                       const SearchAndChips(),
                       Expanded(
-                        child: state.isLoading
-                            ? const LoadingPlaceholder()
-                            : filtered.isEmpty
-                                ? const EmptyState()
-                                : Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 12.w,
-                                      vertical: 8.h,
-                                    ),
-                                    child: state.gridMode
-                                        ? GridList(items: filtered)
-                                        : AppRefreshIndicator(
-                                            onRefresh: ref
-                                                .read(menuProvider.notifier)
-                                                .refreshMenu,
-                                            child:
-                                                VerticalList(items: filtered),
-                                          ),
-                                  ),
+                        child: _buildMenuItemsList(state, notifier),
                       ),
                     ],
                   ),
+
+                  /// Categories Tab
+                  const CategoriesScreen(),
 
                   /// Add-ons Tab
                   const AddonsScreen(),
@@ -205,6 +205,40 @@ class _FoodMenuScreenWithTabsState extends ConsumerState<FoodMenuScreenWithTabs>
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildMenuItemsList(MenuState state, MenuNotifier notifier) {
+    // Get items from response
+    final items = state.items.data?.data ?? [];
+
+    // Filter items based on query
+    final filteredItems = items.where((item) {
+      final q = (state.query ?? '').trim().toLowerCase();
+      return q.isEmpty ||
+          item.name.toLowerCase().contains(q) ||
+          item.description.toLowerCase().contains(q);
+    }).toList(growable: false);
+
+    return DataViewBuilder(
+      dataHandle: state.items,
+      loadingBuilder: () => CustomLoad().loadVerticalList(context: context),
+      isDataEmpty: () => filteredItems.isEmpty,
+      onReload: () async => notifier.refreshMenu(),
+      emptyBuilder: () => const EmptyState(),
+      successBuilder: (response) => Padding(
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+        child: (state.gridMode ?? false)
+            ? GridList(items: filteredItems)
+            : ListView.separated(
+                itemCount: filteredItems.length,
+                separatorBuilder: (_, __) => SizedBox(height: 12.h),
+                itemBuilder: (_, i) {
+                  final item = filteredItems[i];
+                  return MenuItemCard(item: item);
+                },
+              ),
       ),
     );
   }

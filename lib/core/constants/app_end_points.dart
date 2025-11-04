@@ -20,4 +20,13 @@ class ApiEndPoints {
       '$_baseUrl/CustomAddon/update-custom-addon';
   static const String deleteCustomAddonUrl =
       '$_baseUrl/CustomAddon/delete-custom-addon';
+
+  // Food Category endpoints
+  static const String getFoodCategoriesUrl = '$_baseUrl/ItemCategory/get-all';
+  static const String createFoodCategoryUrl = '$_baseUrl/ItemCategory/create';
+  static const String updateFoodCategoryUrl = '$_baseUrl/ItemCategory/update';
+  static const String deleteFoodCategoryUrl = '$_baseUrl/ItemCategory/delete';
+
+  // Menu Items endpoints
+  static const String getMenuItemsUrl = '$_baseUrl/Item/get-all';
 }

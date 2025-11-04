@@ -49,12 +49,14 @@ class DataViewBuilder<T> extends StatelessWidget {
     if (result == AppFlowState.loading || result == AppFlowState.initial) {
       return loadingBuilder();
     }
+
     ///on token error=======================================================================================================================================
     else if (result == AppErrorState.unAuthorized) {
       ///use FutureBuilder if you wont using await inside build methods
       AppRoutes.pushAndRemoveAllPageTo(context, const LoginScreen());
       return const SizedBox();
     }
+
     ///on successful or pagination show data=============================================================================================================================================
     else if (result == AppFlowState.loaded ||
         result == AppFlowState.loadingMore) {
@@ -68,6 +70,35 @@ class DataViewBuilder<T> extends StatelessWidget {
     }
 
     ///on error show retry button=============================================================================================================================================
+    if (isSmallError) {
+      // Small error display - doesn't take full height
+      return Padding(
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 20.h),
+        child: Wrap(
+          runSpacing: 10.h,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          alignment: WrapAlignment.center,
+          children: [
+            AppText(
+              text: AppErrorMessage.getMessage(result),
+              fontWeight: FontWeight.bold,
+              align: TextAlign.center,
+              fontSize: AppSize.smallText,
+            ),
+            SizedBox(height: 10.h),
+            AppButtons(
+              text: AppMessage.tryAgain,
+              height: AppSize.inputFieldHeight,
+              onPressed: () async {
+                await onReload();
+              },
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Full error display
     return SizedBox(
       height: context.height,
       width: context.width,
@@ -85,7 +116,9 @@ class DataViewBuilder<T> extends StatelessWidget {
             AppButtons(
               text: AppMessage.tryAgain,
               height: AppSize.inputFieldHeight,
-              onPressed: onReload,
+              onPressed: () async {
+                await onReload();
+              },
             ),
           ],
         ),

@@ -13,6 +13,7 @@ import '../../../../../core/widgets/app_buttons.dart';
 import '../../../../../core/widgets/app_decoration.dart';
 import '../../../../../core/widgets/app_text.dart';
 import '../../../../../core/widgets/app_text_fields.dart';
+import '../../../../../core/widgets/app_dialog.dart';
 import '../../../../../generated/assets.dart';
 import '../../../../core/routing/app_routes_methods.dart';
 import '../../../home/presentation/screens/home_page.dart';
@@ -118,6 +119,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   formKey: notifier.formKey,
                   request: notifier.login,
                   onSuccess: (data) {
+                    // Check if branchId or organizationId is null
+                    final responseData = data.data?['data'];
+                    final branchId = responseData?['branchId'];
+                    final organizationId = responseData?['organizationId'];
+                    
+                    if (branchId == null || organizationId == null) {
+                      // Show error dialog
+                      _showNoBranchAssignedDialog(context);
+                      return;
+                    }
+                    
+                    // If both are present, proceed to home page
                     AppRoutes.pushReplacementTo(context, const HomePage());
                   },
                 );
@@ -140,6 +153,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showNoBranchAssignedDialog(BuildContext context) {
+    AppDialog.showAlertDialog(
+      context: context,
+      title: AppMessage.noBranchAssigned,
+      message: AppMessage.noBranchAssignedMessage,
+      onConfirm: () {
+        Navigator.of(context).pop();
+      },
     );
   }
 }

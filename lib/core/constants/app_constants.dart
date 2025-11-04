@@ -5,4 +5,6 @@ class AppConstants {
   static const Duration timeOut = Duration(seconds: 30);
   static const String token = 'token';
   static const String saveLogin = 'saveLogin';
+  static const String organizationId = 'organizationId';
+  static const String branchId = 'branchId';
 }

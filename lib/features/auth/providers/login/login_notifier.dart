@@ -33,9 +33,20 @@ class LoginNotifier extends StateNotifier<LoginState> {
     );
     state = state.copyWith(isLoading: false);
 
-    ///save token
+    ///save token, organizationId, and branchId
     if (!result.hasError) {
-      SharedPreferencesService.saveToken(token: result.data?['data']['token']);
+      final data = result.data?['data'];
+      SharedPreferencesService.saveToken(token: data?['token']);
+      if (data?['organizationId'] != null) {
+        SharedPreferencesService.saveOrganizationId(
+          organizationId: data['organizationId'],
+        );
+      }
+      if (data?['branchId'] != null) {
+        SharedPreferencesService.saveBranchId(
+          branchId: data['branchId'],
+        );
+      }
     }
 
     return result;

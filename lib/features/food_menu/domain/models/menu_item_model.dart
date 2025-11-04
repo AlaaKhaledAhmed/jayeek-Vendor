@@ -17,9 +17,10 @@ class AddonModel extends Equatable {
   factory AddonModel.fromJson(Map<String, dynamic> json) {
     return AddonModel(
       id: json['id']?.toString() ?? '',
-      name: json['name'] ?? '',
+      name: json['name']?.toString() ?? '',
       price: (json['price'] ?? 0).toDouble(),
-      isAvailable: json['is_available'] ?? true,
+      isAvailable:
+          json['is_available'] as bool? ?? json['isAvailable'] as bool? ?? true,
     );
   }
 
@@ -124,21 +125,29 @@ class MenuItemModel extends Equatable {
 
   factory MenuItemModel.fromJson(Map<String, dynamic> json) {
     return MenuItemModel(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      description: json['description'] as String,
-      imageUrl: json['imageUrl'] as String,
-      price: (json['price'] as num).toDouble(),
-      isAvailable: json['isAvailable'] as bool? ?? true,
+      id: json['id']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      description:
+          json['details']?.toString() ?? json['description']?.toString() ?? '',
+      imageUrl: json['image']?.toString() ?? json['imageUrl']?.toString() ?? '',
+      price: (json['price'] ?? 0).toDouble(),
+      isAvailable:
+          json['isActive'] as bool? ?? json['isAvailable'] as bool? ?? true,
       isFeatured: json['isFeatured'] as bool? ?? false,
-      category: json['category'] as String,
-      branch: json['branch'] as String?,
+      category: json['itemCategoryId']?.toString() ??
+          json['category']?.toString() ??
+          '',
+      branch: json['branch']?.toString(),
       isCustomizable: json['isCustomizable'] as bool? ?? false,
-      availableAddons: json['availableAddons'] != null
-          ? (json['availableAddons'] as List)
+      availableAddons: json['addons'] != null
+          ? (json['addons'] as List)
               .map((addon) => AddonModel.fromJson(addon))
               .toList()
-          : null,
+          : json['availableAddons'] != null
+              ? (json['availableAddons'] as List)
+                  .map((addon) => AddonModel.fromJson(addon))
+                  .toList()
+              : null,
     );
   }
 

@@ -5,17 +5,17 @@ import '../../domain/models/menu_item_model.dart';
 import 'menu_item_card.dart';
 
 class VerticalList extends ConsumerWidget {
-  final List<MenuItemModel> items;
-
-  const VerticalList({super.key, required this.items});
+  const VerticalList({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ListView.separated(
       physics: const AlwaysScrollableScrollPhysics(),
-      itemBuilder: (_, i) => MenuItemCard(item: items[i]),
-      separatorBuilder: (_, __) => SizedBox(height: 10.h),
-      itemCount: items.length,
+      itemBuilder: (_, i) => SizedBox(height: 20,),
+      separatorBuilder: (_, __) => SizedBox(height: 10.h,width: 20,), itemCount: 4,
+
     );
   }
 }

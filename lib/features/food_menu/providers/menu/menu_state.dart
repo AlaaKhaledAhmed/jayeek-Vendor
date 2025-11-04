@@ -1,37 +1,50 @@
 import 'package:equatable/equatable.dart';
-import '../../domain/models/menu_item_model.dart';
+import 'package:jayeek_vendor/core/model/data_handel.dart';
+import '../../domain/models/food_category_model.dart';
+import '../../domain/models/menu_items_response.dart';
 
 class MenuState extends Equatable {
-  final List<MenuItemModel> items;
-  final bool isLoading;
-  final String query;
+  final DataHandle<MenuItemsResponse> items;
+  final String? query;
   final String? category;
-  final bool gridMode;
+  final int? selectedCategoryId;
+  final bool? gridMode;
+  final DataHandle<FoodCategoriesResponse> categories;
 
   const MenuState({
-    required this.items,
-    required this.isLoading,
-    required this.query,
-    required this.category,
-    required this.gridMode,
+    this.items = const DataHandle(),
+    this.query,
+    this.category,
+    this.selectedCategoryId,
+    this.gridMode,
+    this.categories = const DataHandle(),
   });
 
   MenuState copyWith({
-    List<MenuItemModel>? items,
-    bool? isLoading,
+    DataHandle<MenuItemsResponse>? items,
     String? query,
     String? category,
+    int? selectedCategoryId,
     bool? gridMode,
+    DataHandle<FoodCategoriesResponse>? categories,
   }) {
     return MenuState(
       items: items ?? this.items,
-      isLoading: isLoading ?? this.isLoading,
       query: query ?? this.query,
       category: category == '' ? null : (category ?? this.category),
+      selectedCategoryId: selectedCategoryId ?? this.selectedCategoryId,
       gridMode: gridMode ?? this.gridMode,
+      categories: categories ?? this.categories,
     );
   }
 
   @override
-  List<Object?> get props => [items, isLoading, query, category, gridMode];
+  List<Object?> get props => [
+        items,
+        query,
+        category,
+        selectedCategoryId,
+        gridMode,
+        categories,
+      ];
 }

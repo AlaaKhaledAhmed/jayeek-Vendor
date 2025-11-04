@@ -185,4 +185,45 @@ class AppDialog {
       ),
     );
   }
+
+  static showAlertDialog({
+    required BuildContext context,
+    required String title,
+    required String message,
+    required VoidCallback onConfirm,
+  }) {
+    return showDialog(
+      barrierDismissible: false,
+      barrierColor: AppColor.black.withOpacity(0.3),
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.r),
+          ),
+          title: AppText(
+            text: title,
+            fontSize: AppSize.bodyText,
+            fontWeight: FontWeight.bold,
+            color: AppColor.black,
+          ),
+          content: AppText(
+            text: message,
+            fontSize: AppSize.normalText,
+            color: AppColor.black,
+            align: TextAlign.center,
+          ),
+          actions: [
+            AppButtons(
+              height: 40.h,
+              width: 130.w,
+              onPressed: onConfirm,
+              text: AppMessage.ok,
+              backgroundColor: AppColor.mainColor,
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

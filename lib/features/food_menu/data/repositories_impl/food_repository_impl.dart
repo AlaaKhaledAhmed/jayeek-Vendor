@@ -1,5 +1,9 @@
+import '../../../../core/constants/app_end_points.dart';
+import '../../../../core/model/data_handel.dart';
 import '../../../../core/services/network/inetwork_services.dart';
+import '../../domain/models/food_category_model.dart';
 import '../../domain/models/menu_item_model.dart';
+import '../../domain/models/menu_items_response.dart';
 import '../../domain/repositories/food_repository.dart';
 
 class FoodRepositoryImpl implements FoodRepository {
@@ -92,5 +96,78 @@ class FoodRepositoryImpl implements FoodRepository {
   Future<List<String>> getBranches() async {
     await Future.delayed(const Duration(milliseconds: 400));
     return ['فرع الرياض', 'فرع جدة'];
+  }
+
+  @override
+  Future<PostDataHandle<FoodCategoriesResponse>> getFoodCategories() {
+    return networkService.get<FoodCategoriesResponse>(
+      url: ApiEndPoints.getFoodCategoriesUrl,
+      fromJson: FoodCategoriesResponse.fromJson,
+    );
+  }
+
+  @override
+  Future<PostDataHandle<MenuItemsResponse>> getMenuItemsByCategoryId(
+      int categoryId) {
+    return networkService.get<MenuItemsResponse>(
+      url: ApiEndPoints.getMenuItemsUrl,
+      queryParams: {'categoryId': categoryId},
+      fromJson: MenuItemsResponse.fromJson,
+    );
+  }
+
+  @override
+  Future<PostDataHandle<FoodCategoryModel>> createCategory(
+      FoodCategoryModel category) {
+    // Prepare body with correct field names for API
+    final body = <String, dynamic>{
+      'name': category.name,
+      'nameAr': category.nameAr,
+      'organizationId': category.organizationId ?? 0,
+    };
+
+    // Add image as contentBase64 if available
+    if (category.image != null && category.image!.isNotEmpty) {
+      body['contentBase64'] = category.image;
+    }
+
+    return networkService.post<FoodCategoryModel>(
+      url: ApiEndPoints.createFoodCategoryUrl,
+      body: body,
+      fromJson: FoodCategoryModel.fromJson,
+    );
+  }
+
+  @override
+  Future<PostDataHandle<FoodCategoryModel>> updateCategory(
+      FoodCategoryModel category) {
+    // Prepare body with correct field names for API
+    final body = <String, dynamic>{
+      'id': category.id ?? 0,
+      'name': category.name,
+      'nameAr': category.nameAr,
+      'organizationId': category.organizationId ?? 0,
+      'removeImage': false,
+    };
+
+    // Add image as contentBase64 if available
+    if (category.image != null && category.image!.isNotEmpty) {
+      body['contentBase64'] = category.image;
+    }
+
+    return networkService.put<FoodCategoryModel>(
+      url: ApiEndPoints.updateFoodCategoryUrl,
+      body: body,
+      fromJson: FoodCategoryModel.fromJson,
+    );
+  }
+
+  @override
+  Future<PostDataHandle> deleteCategory(int categoryId) {
+    return networkService.delete(
+      url: ApiEndPoints.deleteFoodCategoryUrl,
+      queryParams: {'itemCategoryId': categoryId},
+      fromJson: (json) => json,
+    );
   }
 }

@@ -29,6 +29,7 @@ abstract class INetworkServices {
     Map<String, dynamic>? body,
     bool requiresToken = true,
     T Function(Map<String, dynamic>)? fromJson,
+    Map<String, dynamic>? queryParams,
   });
 
   Future<PostDataHandle<T>> uploadFile<T>({
