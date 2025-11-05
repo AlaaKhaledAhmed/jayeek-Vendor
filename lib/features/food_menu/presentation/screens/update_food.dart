@@ -46,7 +46,8 @@ class UpdateFoodPage extends ConsumerWidget {
               child: Form(
                 key: notifier.formKey,
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -87,14 +88,19 @@ class UpdateFoodPage extends ConsumerWidget {
                               title: '${AppMessage.price} *',
                               child: AppTextFields(
                                 hintText: AppMessage.price,
-                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                        decimal: true),
                                 controller: notifier.priceController,
                                 inputFormatters: [
-                                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d+\.?\d{0,2}')),
                                 ],
                                 validator: (v) {
-                                  if (v!.isEmpty) return AppMessage.enterMealPrice;
-                                  if (double.tryParse(v) == null || double.parse(v) <= 0) {
+                                  if (v!.isEmpty)
+                                    return AppMessage.enterMealPrice;
+                                  if (double.tryParse(v) == null ||
+                                      double.parse(v) <= 0) {
                                     return 'السعر يجب أن يكون أكبر من صفر';
                                   }
                                   return null;
@@ -114,37 +120,57 @@ class UpdateFoodPage extends ConsumerWidget {
                                 onChanged: notifier.selectCategory,
                                 customItem: state.categories
                                     .map(
-                                      (category) => DropdownMenuItem<FoodCategoryModel>(
+                                      (category) =>
+                                          DropdownMenuItem<FoodCategoryModel>(
                                         value: category,
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            if (category.image != null && category.image!.isNotEmpty)
+                                            if (category.image != null &&
+                                                category.image!.isNotEmpty)
                                               Builder(
                                                 builder: (context) {
                                                   try {
                                                     // Validate image is not empty or invalid
-                                                    if (category.image == null ||
-                                                        category.image!.isEmpty ||
-                                                        category.image == 'string' ||
-                                                        category.image!.length < 3) {
+                                                    if (category.image ==
+                                                            null ||
+                                                        category
+                                                            .image!.isEmpty ||
+                                                        category.image ==
+                                                            'string' ||
+                                                        category.image!.length <
+                                                            3) {
                                                       return SizedBox(
                                                           width: 24.w,
                                                           height: 24.h);
                                                     }
-                                                    
-                                                    final imageProvider = category.image!.startsWith('http')
-                                                        ? NetworkImage(category.image!) as ImageProvider
-                                                        : MemoryImage(base64Decode(
-                                                            category.image!.contains(',') 
-                                                                ? category.image!.split(',').last 
-                                                                : category.image!));
+
+                                                    final imageProvider = category
+                                                            .image!
+                                                            .startsWith('http')
+                                                        ? NetworkImage(
+                                                                category.image!)
+                                                            as ImageProvider
+                                                        : MemoryImage(
+                                                            base64Decode(category
+                                                                    .image!
+                                                                    .contains(
+                                                                        ',')
+                                                                ? category
+                                                                    .image!
+                                                                    .split(',')
+                                                                    .last
+                                                                : category
+                                                                    .image!));
                                                     return Container(
                                                       width: 24.w,
                                                       height: 24.h,
-                                                      margin: EdgeInsets.only(left: 8.w),
+                                                      margin: EdgeInsets.only(
+                                                          left: 8.w),
                                                       decoration: BoxDecoration(
-                                                        borderRadius: BorderRadius.circular(6.r),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(6.r),
                                                         image: DecorationImage(
                                                           image: imageProvider,
                                                           fit: BoxFit.cover,
@@ -152,13 +178,17 @@ class UpdateFoodPage extends ConsumerWidget {
                                                       ),
                                                     );
                                                   } catch (e) {
-                                                    return SizedBox(width: 24.w, height: 24.h);
+                                                    return SizedBox(
+                                                        width: 24.w,
+                                                        height: 24.h);
                                                   }
                                                 },
                                               ),
                                             Flexible(
                                               child: AppText(
-                                                text: category.nameAr ?? category.name ?? '',
+                                                text: category.nameAr ??
+                                                    category.name ??
+                                                    '',
                                                 fontSize: AppSize.captionText,
                                                 color: AppColor.textColor,
                                                 overflow: TextOverflow.ellipsis,
@@ -169,7 +199,8 @@ class UpdateFoodPage extends ConsumerWidget {
                                       ),
                                     )
                                     .toList(),
-                                validator: (v) => v == null ? 'يرجى اختيار الفئة' : null,
+                                validator: (v) =>
+                                    v == null ? 'يرجى اختيار الفئة' : null,
                               ),
                             ),
                           ),
@@ -203,7 +234,8 @@ class UpdateFoodPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildImageSection(BuildContext context, UpdateItemNotifier notifier, UpdateItemState state) {
+  Widget _buildImageSection(BuildContext context, UpdateItemNotifier notifier,
+      UpdateItemState state) {
     return Container(
       decoration: AppDecoration.decoration(
         radius: 20,
@@ -232,11 +264,7 @@ class UpdateFoodPage extends ConsumerWidget {
   Widget _buildInputCard({required String title, required Widget child}) {
     return Container(
       decoration: AppDecoration.decoration(
-        radius: 16,
-        shadow: false,
-        color: AppColor.white,
-        showBorder: true
-      ),
+          radius: 16, shadow: false, color: AppColor.white, showBorder: true),
       padding: EdgeInsets.all(16.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -329,7 +357,9 @@ class UpdateFoodPage extends ConsumerWidget {
           Container(
             padding: EdgeInsets.all(8.w),
             decoration: BoxDecoration(
-              color: value ? color.withOpacity(0.1) : AppColor.lightGray.withOpacity(0.5),
+              color: value
+                  ? color.withOpacity(0.1)
+                  : AppColor.lightGray.withOpacity(0.5),
               borderRadius: BorderRadius.circular(8.r),
             ),
             child: Icon(

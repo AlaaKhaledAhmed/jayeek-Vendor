@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:jayeek_vendor/core/constants/app_color.dart';
 import 'package:jayeek_vendor/core/constants/app_string.dart';
+import 'package:jayeek_vendor/core/constants/app_size.dart';
 import 'package:jayeek_vendor/core/widgets/app_bar.dart';
 import 'package:jayeek_vendor/core/widgets/app_buttons.dart';
 import 'package:jayeek_vendor/core/widgets/app_snack_bar.dart';
@@ -11,6 +12,8 @@ import 'package:jayeek_vendor/core/widgets/app_text.dart';
 import 'package:jayeek_vendor/core/widgets/app_text_fields.dart';
 import 'package:jayeek_vendor/core/widgets/scroll_list.dart';
 import 'package:jayeek_vendor/core/widgets/shared_image_picker.dart';
+import 'package:jayeek_vendor/core/widgets/food_emoji_picker.dart';
+import 'package:jayeek_vendor/core/widgets/app_decoration.dart';
 
 import '../../../../../core/error/handel_post_response.dart';
 import '../../../providers/categories/categories_provider.dart';
@@ -31,6 +34,8 @@ class UpdateCategory extends ConsumerStatefulWidget {
 }
 
 class _AddEditCategoryScreenState extends ConsumerState<UpdateCategory> {
+  String? selectedEmoji;
+
   @override
   void initState() {
     super.initState();
@@ -41,6 +46,13 @@ class _AddEditCategoryScreenState extends ConsumerState<UpdateCategory> {
         ref
             .read(categoriesProvider.notifier)
             .loadCategoryForEdit(widget.category!);
+        // Check if current image is an emoji (short string of 1-4 characters)
+        if (widget.category?.image != null &&
+            widget.category!.image!.length <= 4 &&
+            widget.category!.image!.isNotEmpty &&
+            widget.category!.image != 'string') {
+          selectedEmoji = widget.category!.image;
+        }
       } else {
         ref.read(categoriesProvider.notifier).resetAddForm();
       }
@@ -102,23 +114,8 @@ class _AddEditCategoryScreenState extends ConsumerState<UpdateCategory> {
                   ),
                   SizedBox(height: 20.h),
 
-                  // Category Image
-                  const AppText(
-                    text: 'صورة الفئة',
-                    fontWeight: FontWeight.bold,
-                  ),
-                  SizedBox(height: 10.h),
-                  SharedImagePicker(
-                    imagePath: widget.fromUpdate
-                        ? notifier.editSelectedImagePath
-                        : notifier.addSelectedImagePath,
-                    onPickImage: () async {
-                      await notifier.pickCategoryImage(context,
-                          isEdit: widget.fromUpdate);
-                    },
-                    height: 200.h,
-                    placeholderText: AppMessage.selectImage,
-                  ),
+                  // Category Image or Emoji
+                  _buildImageOrEmojiSection(notifier),
                   SizedBox(height: 20.h),
 
                   // Save Button
@@ -159,6 +156,179 @@ class _AddEditCategoryScreenState extends ConsumerState<UpdateCategory> {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageOrEmojiSection(notifier) {
+    final currentImagePath = widget.fromUpdate
+        ? notifier.editSelectedImagePath
+        : notifier.addSelectedImagePath;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const AppText(
+          text: 'صورة الفئة أو أيقونة',
+          fontWeight: FontWeight.bold,
+        ),
+        SizedBox(height: 10.h),
+
+        // Selection Tabs
+        Row(
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    selectedEmoji = null;
+                  });
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 12.h),
+                  decoration: AppDecoration.decoration(
+                    radius: 12,
+                    color: selectedEmoji == null
+                        ? AppColor.mainColor
+                        : AppColor.white,
+                    showBorder: true,
+                    borderColor: AppColor.mainColor,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.image,
+                        color: selectedEmoji == null
+                            ? AppColor.white
+                            : AppColor.mainColor,
+                        size: 20.sp,
+                      ),
+                      SizedBox(width: 8.w),
+                      AppText(
+                        text: 'صورة',
+                        color: selectedEmoji == null
+                            ? AppColor.white
+                            : AppColor.mainColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    selectedEmoji = selectedEmoji ?? '🍔';
+                  });
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 12.h),
+                  decoration: AppDecoration.decoration(
+                    radius: 12,
+                    color: selectedEmoji != null
+                        ? AppColor.mainColor
+                        : AppColor.white,
+                    showBorder: true,
+                    borderColor: AppColor.mainColor,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '😊',
+                        style: TextStyle(fontSize: 20.sp),
+                      ),
+                      SizedBox(width: 8.w),
+                      AppText(
+                        text: 'أيقونة',
+                        color: selectedEmoji != null
+                            ? AppColor.white
+                            : AppColor.mainColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 16.h),
+
+        // Show Image Picker or Emoji Picker based on selection
+        if (selectedEmoji == null)
+          SharedImagePicker(
+            imagePath: currentImagePath,
+            onPickImage: () async {
+              await notifier.pickCategoryImage(context,
+                  isEdit: widget.fromUpdate);
+            },
+            height: 200.h,
+            placeholderText: AppMessage.selectImage,
+          )
+        else
+          _buildEmojiSelector(notifier),
+      ],
+    );
+  }
+
+  Widget _buildEmojiSelector(notifier) {
+    return GestureDetector(
+      onTap: () async {
+        final emoji = await FoodEmojiPicker.showPicker(
+          context,
+          selectedEmoji: selectedEmoji,
+        );
+
+        if (emoji != null) {
+          setState(() {
+            selectedEmoji = emoji;
+          });
+
+          // Set emoji as image in notifier
+          if (widget.fromUpdate) {
+            notifier.setEditImagePath(emoji);
+          } else {
+            notifier.setAddImagePath(emoji);
+          }
+        }
+      },
+      child: Container(
+        height: 200.h,
+        decoration: AppDecoration.decoration(
+          radius: 16,
+          color: AppColor.white,
+          showBorder: true,
+          borderColor: AppColor.borderColor,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (selectedEmoji != null)
+              Text(
+                selectedEmoji!,
+                style: TextStyle(fontSize: 80.sp),
+              )
+            else
+              Icon(
+                Icons.add_reaction,
+                size: 60.sp,
+                color: AppColor.mediumGray,
+              ),
+            SizedBox(height: 16.h),
+            AppText(
+              text: selectedEmoji != null
+                  ? 'اضغط لتغيير الأيقونة'
+                  : 'اضغط لاختيار أيقونة',
+              color: AppColor.subGrayText,
+              fontSize: AppSize.normalText,
+            ),
+          ],
         ),
       ),
     );

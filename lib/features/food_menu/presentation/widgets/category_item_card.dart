@@ -45,6 +45,11 @@ class CategoryItemCard extends StatelessWidget {
         return null;
       }
 
+      // Check if it's an emoji (short string of 1-4 characters)
+      if (imageString.length <= 4) {
+        return null; // Will handle emoji separately
+      }
+
       // Check if it's a network URL
       if (imageString.startsWith('http://') ||
           imageString.startsWith('https://')) {
@@ -70,6 +75,16 @@ class CategoryItemCard extends StatelessWidget {
     return null;
   }
 
+  bool _isEmoji() {
+    if (category.image != null &&
+        category.image!.isNotEmpty &&
+        category.image != 'string' &&
+        category.image!.length <= 4) {
+      return true;
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final imageProvider = _getImageProvider();
@@ -92,19 +107,34 @@ class CategoryItemCard extends StatelessWidget {
             horizontal: 10.w,
             vertical: 8.h,
           ),
-          leading: Container(
-            width: 60.w,
-            height: 60.h,
-            decoration: AppDecoration.decoration(
-              shadow: false,
-              color: AppColor.lightGray,
-              radius: 8,
-              image: imageProvider ??
-                  const AssetImage(Assets.imagesDefault)
-                      as ImageProvider<Object>,
-              cover: imageProvider != null,
-            ),
-          ),
+          leading: _isEmoji()
+              ? Container(
+                  width: 60.w,
+                  height: 60.h,
+                  alignment: Alignment.center,
+                  decoration: AppDecoration.decoration(
+                    shadow: false,
+                    color: AppColor.lightGray,
+                    radius: 8,
+                  ),
+                  child: Text(
+                    category.image!,
+                    style: TextStyle(fontSize: 36.sp),
+                  ),
+                )
+              : Container(
+                  width: 60.w,
+                  height: 60.h,
+                  decoration: AppDecoration.decoration(
+                    shadow: false,
+                    color: AppColor.lightGray,
+                    radius: 8,
+                    image: imageProvider ??
+                        const AssetImage(Assets.imagesDefault)
+                            as ImageProvider<Object>,
+                    cover: imageProvider != null,
+                  ),
+                ),
           title: AppText(
             text: categoryName,
             fontSize: AppSize.normalText,

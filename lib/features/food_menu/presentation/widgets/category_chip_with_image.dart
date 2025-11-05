@@ -50,6 +50,11 @@ class CategoryChipWithImage extends StatelessWidget {
         return null;
       }
 
+      // Check if it's an emoji (short string of 1-4 characters)
+      if (imageString.length <= 4) {
+        return null; // Will handle emoji separately
+      }
+
       // Check if it's a network URL
       if (imageString.startsWith('http://') ||
           imageString.startsWith('https://')) {
@@ -77,6 +82,16 @@ class CategoryChipWithImage extends StatelessWidget {
     }
     // Return null to use default image
     return null;
+  }
+
+  bool _isEmoji() {
+    if (category.image != null &&
+        category.image!.isNotEmpty &&
+        category.image != 'string' &&
+        category.image!.length <= 4) {
+      return true;
+    }
+    return false;
   }
 
   @override
@@ -126,24 +141,34 @@ class CategoryChipWithImage extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Category Image
+            // Category Image or Emoji
             AnimatedScale(
               scale: isSelected ? 1.25 : 1.0,
               duration: const Duration(milliseconds: 700),
               curve: Curves.elasticOut,
-              child: Container(
-                width: 30.spMin,
-                height: 30.spMin,
-                decoration: AppDecoration.decoration(
-                  isCircle: true,
-                  shadow: false,
-                  color: isSelected ? AppColor.white : AppColor.lightGray,
-                  image: imageProvider ??
-                      const AssetImage(Assets.imagesDefault)
-                          as ImageProvider<Object>,
-                  cover: imageProvider != null,
-                ),
-              ),
+              child: _isEmoji()
+                  ? Container(
+                      width: 30.spMin,
+                      height: 30.spMin,
+                      alignment: Alignment.center,
+                      child: Text(
+                        category.image!,
+                        style: TextStyle(fontSize: 24.sp),
+                      ),
+                    )
+                  : Container(
+                      width: 30.spMin,
+                      height: 30.spMin,
+                      decoration: AppDecoration.decoration(
+                        isCircle: true,
+                        shadow: false,
+                        color: isSelected ? AppColor.white : AppColor.lightGray,
+                        image: imageProvider ??
+                            const AssetImage(Assets.imagesDefault)
+                                as ImageProvider<Object>,
+                        cover: imageProvider != null,
+                      ),
+                    ),
             ),
             SizedBox(width: 10.w),
 

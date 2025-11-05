@@ -78,6 +78,18 @@ class CategoriesNotifier extends StateNotifier<CategoriesState>
     _addSelectedImagePath = null;
     state = state.copyWith(selectedImagePath: null);
   }
+  
+  /// Set image path directly (for emojis)
+  void setAddImagePath(String path) {
+    _addSelectedImagePath = path;
+    state = state.copyWith(selectedImagePath: path);
+  }
+  
+  /// Set edit image path directly (for emojis)
+  void setEditImagePath(String path) {
+    _editSelectedImagePath = path;
+    state = state.copyWith(selectedImagePath: path);
+  }
 
   void resetEditForm() {
     _editNameController.clear();
