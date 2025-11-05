@@ -137,7 +137,7 @@ class CategoryChipWithImage extends StatelessWidget {
                 decoration: AppDecoration.decoration(
                   isCircle: true,
                   shadow: false,
-                  color: isSelected ? AppColor.white : AppColor.lightGray,
+                  color: isSelected ? AppColor.white : AppColor.lightGray.resolveOpacity(0.5),
                   image: imageProvider ??
                       const AssetImage(Assets.imagesDefault)
                           as ImageProvider<Object>,
