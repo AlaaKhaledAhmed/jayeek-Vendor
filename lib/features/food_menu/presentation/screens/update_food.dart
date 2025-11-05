@@ -82,12 +82,12 @@ class UpdateFoodPage extends ConsumerWidget {
                       // Price and Category in Row
                       Row(
                         children: [
-                          Expanded(
+                          Flexible(
                             child: _buildInputCard(
                               title: '${AppMessage.price} *',
                               child: AppTextFields(
                                 hintText: AppMessage.price,
-                                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                 controller: notifier.priceController,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
@@ -103,7 +103,8 @@ class UpdateFoodPage extends ConsumerWidget {
                             ),
                           ),
                           SizedBox(width: 12.w),
-                          Expanded(
+                          Flexible(
+                            flex: 2,
                             child: _buildInputCard(
                               title: '${AppMessage.category} *',
                               child: AppDropList<FoodCategoryModel>(
@@ -122,6 +123,16 @@ class UpdateFoodPage extends ConsumerWidget {
                                               Builder(
                                                 builder: (context) {
                                                   try {
+                                                    // Validate image is not empty or invalid
+                                                    if (category.image == null ||
+                                                        category.image!.isEmpty ||
+                                                        category.image == 'string' ||
+                                                        category.image!.length < 3) {
+                                                      return SizedBox(
+                                                          width: 24.w,
+                                                          height: 24.h);
+                                                    }
+                                                    
                                                     final imageProvider = category.image!.startsWith('http')
                                                         ? NetworkImage(category.image!) as ImageProvider
                                                         : MemoryImage(base64Decode(
@@ -196,53 +207,14 @@ class UpdateFoodPage extends ConsumerWidget {
     return Container(
       decoration: AppDecoration.decoration(
         radius: 20,
-        shadow: true,
+        shadow: false,
+        showBorder: true,
         color: AppColor.white,
       ),
       padding: EdgeInsets.all(20.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColor.mainColor.withOpacity(0.1),
-                      AppColor.mainColor.withOpacity(0.05),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.image,
-                      size: 16.sp,
-                      color: AppColor.mainColor,
-                    ),
-                    SizedBox(width: 6.w),
-                    AppText(
-                      text: AppMessage.mealPhoto,
-                      fontSize: AppSize.smallText,
-                      fontWeight: FontWeight.w600,
-                      color: AppColor.mainColor,
-                    ),
-                    AppText(
-                      text: ' *',
-                      fontSize: AppSize.smallText,
-                      color: AppColor.red,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 16.h),
           SharedImagePicker(
             imagePath: state.mealImagePath,
             onPickImage: () async {
@@ -261,8 +233,9 @@ class UpdateFoodPage extends ConsumerWidget {
     return Container(
       decoration: AppDecoration.decoration(
         radius: 16,
-        shadow: true,
+        shadow: false,
         color: AppColor.white,
+        showBorder: true
       ),
       padding: EdgeInsets.all(16.w),
       child: Column(
@@ -289,7 +262,8 @@ class UpdateFoodPage extends ConsumerWidget {
     return Container(
       decoration: AppDecoration.decoration(
         radius: 16,
-        shadow: true,
+        shadow: false,
+        showBorder: true,
         color: AppColor.white,
       ),
       padding: EdgeInsets.all(20.w),
@@ -318,7 +292,7 @@ class UpdateFoodPage extends ConsumerWidget {
             value: state.isCustomizable,
             onChanged: notifier.toggleCustomizable,
             icon: Icons.build_circle_outlined,
-            color: Colors.purple,
+            color: AppColor.subtextColor,
           ),
           SizedBox(height: 16.h),
           _buildModernSwitch(
@@ -326,7 +300,7 @@ class UpdateFoodPage extends ConsumerWidget {
             value: state.isAvailable,
             onChanged: notifier.toggleAvailable,
             icon: Icons.check_circle_outline,
-            color: AppColor.green,
+            color: AppColor.subtextColor,
           ),
         ],
       ),
@@ -390,39 +364,18 @@ class UpdateFoodPage extends ConsumerWidget {
     UpdateItemState state,
     WidgetRef ref,
   ) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16.r),
-        gradient: LinearGradient(
-          colors: [
-            AppColor.mainColor,
-            AppColor.mainColor.withOpacity(0.8),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColor.mainColor.withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: AppButtons(
-        text: AppMessage.saveChanges,
-        onPressed: () async {
-          final updatedItem = await notifier.update();
-          if (updatedItem != null && context.mounted) {
-            // Update in menu list
-            ref.read(menuProvider.notifier).updateItem(updatedItem);
-            Navigator.pop(context);
-          }
-        },
-        backgroundColor: Colors.transparent,
-        showLoader: state.isLoading,
-        height: 56.h,
-      ),
+    return AppButtons(
+      text: AppMessage.saveChanges,
+      onPressed: () async {
+        final updatedItem = await notifier.update();
+        if (updatedItem != null && context.mounted) {
+          // Update in menu list
+          ref.read(menuProvider.notifier).updateItem(updatedItem);
+          Navigator.pop(context);
+        }
+      },
+      showLoader: state.isLoading,
+      width: AppSize.screenWidth,
     );
   }
 }

@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jayeek_vendor/core/constants/app_color.dart';
 import 'package:jayeek_vendor/core/constants/app_string.dart';
 import 'package:jayeek_vendor/core/constants/app_size.dart';
+import 'package:jayeek_vendor/core/extensions/color_extensions.dart';
 import 'package:jayeek_vendor/core/widgets/app_buttons.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
 import 'package:jayeek_vendor/core/widgets/app_text_fields.dart';
@@ -12,6 +13,7 @@ import 'package:jayeek_vendor/core/widgets/shared_image_picker.dart';
 import 'package:jayeek_vendor/core/widgets/app_decoration.dart';
 import 'package:jayeek_vendor/core/widgets/unified_bottom_sheet.dart';
 import 'package:jayeek_vendor/core/services/image_picker_service.dart';
+import '../../../../core/constants/app_icons.dart';
 import '../../providers/add_item_state.dart';
 
 /// Modern Addon Groups Manager Widget
@@ -19,7 +21,7 @@ import '../../providers/add_item_state.dart';
 class AddonGroupsManager extends StatelessWidget {
   final dynamic notifier; // Can be AddItemNotifier or UpdateItemNotifier
   final dynamic state; // Can be AddItemState or UpdateItemState
-  
+
   const AddonGroupsManager({
     super.key,
     required this.notifier,
@@ -33,35 +35,16 @@ class AddonGroupsManager extends StatelessWidget {
     }
 
     return Container(
+      width: AppSize.screenWidth,
       decoration: AppDecoration.decoration(
-        radius: 16,
-        shadow: true,
-        color: AppColor.white,
-      ),
+          radius: 16, shadow: false, color: AppColor.white, showBorder: true),
       padding: EdgeInsets.all(20.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: EdgeInsets.all(10.w),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.purple.withOpacity(0.1),
-                      Colors.purple.withOpacity(0.05),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-                child: Icon(
-                  Icons.add_shopping_cart,
-                  size: 20.sp,
-                  color: Colors.purple,
-                ),
-              ),
-              SizedBox(width: 12.w),
               Expanded(
                 child: AppText(
                   text: AppMessage.addonGroups,
@@ -74,7 +57,7 @@ class AddonGroupsManager extends StatelessWidget {
                 text: '+ إضافة',
                 onPressed: () => _showCreateGroupDialog(context),
                 height: 36.h,
-                backgroundColor: Colors.purple,
+                backgroundColor: AppColor.mainColor,
               ),
             ],
           ),
@@ -97,21 +80,14 @@ class AddonGroupsManager extends StatelessWidget {
 
   Widget _buildEmptyState(BuildContext context) {
     return Container(
+      width: AppSize.screenWidth,
       padding: EdgeInsets.all(32.w),
-      decoration: BoxDecoration(
-        color: AppColor.lightGray.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: AppColor.lightGray,
-          width: 1.5,
-          style: BorderStyle.solid,
-        ),
-      ),
+      decoration: AppDecoration.decoration(shadow: false, showBorder: true),
       child: Column(
         children: [
           Icon(
             Icons.inventory_2_outlined,
-            size: 48.sp,
+            size: 40.sp,
             color: AppColor.mediumGray,
           ),
           SizedBox(height: 12.h),
@@ -131,8 +107,9 @@ class AddonGroupsManager extends StatelessWidget {
     );
   }
 
-  Widget _buildGroupCard(BuildContext context, int groupIndex, AddonGroup group) {
-    return Container(
+  Widget _buildGroupCard(
+      BuildContext context, int groupIndex, AddonGroup group) {
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: AppColor.backgroundColor,
         borderRadius: BorderRadius.circular(16.r),
@@ -145,76 +122,65 @@ class AddonGroupsManager extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Group Header
-          Container(
-            padding: EdgeInsets.all(16.w),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppColor.mainColor.withOpacity(0.1),
-                  AppColor.mainColor.withOpacity(0.05),
+          InkWell(
+            onTap: () => _showEditGroupDialog(context, groupIndex, group),
+            child: Container(
+              padding: EdgeInsets.all(16.w),
+              decoration: AppDecoration.decoration(
+                  shadow: false, showBorder: true, radiusOnlyTop: true),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: Column(
+                      spacing: 5.h,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        AppText(
+                          text: group.title,
+                          fontSize: AppSize.bodyText,
+                          fontWeight: FontWeight.bold,
+                          color: AppColor.textColor,
+                        ),
+                        SizedBox(height: 4.h),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            _buildChip(
+                              label: group.isSingleSelection
+                                  ? AppMessage.singleSelection
+                                  : AppMessage.multipleSelection,
+                              color: Colors.blue,
+                            ),
+                            SizedBox(width: 6.w),
+                            if (!group.isSingleSelection &&
+                                group.maxSelectable != null)
+                              _buildChip(
+                                label: 'حد أقصى: ${group.maxSelectable}',
+                                color: Colors.orange,
+                              ),
+                            SizedBox(width: 6.w),
+                            _buildChip(
+                              label: group.isRequired
+                                  ? AppMessage.required
+                                  : AppMessage.optional,
+                              color:
+                                  group.isRequired ? Colors.red : Colors.grey,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Delete Button
+                  IconButton(
+                    onPressed: () =>
+                        _showDeleteGroupDialog(context, groupIndex),
+                    icon: Icon(AppIcons.delete, color: AppColor.red),
+                  ),
                 ],
               ),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(16.r),
-                topRight: Radius.circular(16.r),
-              ),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AppText(
-                        text: group.title,
-                        fontSize: AppSize.bodyText,
-                        fontWeight: FontWeight.bold,
-                        color: AppColor.textColor,
-                      ),
-                      SizedBox(height: 4.h),
-                      Row(
-                        children: [
-                          _buildChip(
-                            label: group.isSingleSelection
-                                ? AppMessage.singleSelection
-                                : AppMessage.multipleSelection,
-                            color: Colors.blue,
-                          ),
-                          SizedBox(width: 6.w),
-                          if (!group.isSingleSelection && group.maxSelectable != null)
-                            _buildChip(
-                              label: 'حد أقصى: ${group.maxSelectable}',
-                              color: Colors.orange,
-                            ),
-                          SizedBox(width: 6.w),
-                          if (group.allowQuantity)
-                            _buildChip(
-                              label: 'كمية',
-                              color: Colors.green,
-                            ),
-                          SizedBox(width: 6.w),
-                          _buildChip(
-                            label: group.isRequired
-                                ? AppMessage.required
-                                : AppMessage.optional,
-                            color: group.isRequired ? Colors.red : Colors.grey,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                // Edit Button
-                IconButton(
-                  onPressed: () => _showEditGroupDialog(context, groupIndex, group),
-                  icon: Icon(Icons.edit, size: 20.sp, color: AppColor.mainColor),
-                ),
-                // Delete Button
-                IconButton(
-                  onPressed: () => _showDeleteGroupDialog(context, groupIndex),
-                  icon: Icon(Icons.delete, size: 20.sp, color: AppColor.red),
-                ),
-              ],
             ),
           ),
           // Group Items
@@ -236,7 +202,7 @@ class AddonGroupsManager extends StatelessWidget {
                       text: '+ خيار',
                       onPressed: () => _showAddItemDialog(context, groupIndex),
                       height: 32.h,
-                      backgroundColor: AppColor.mainColor,
+                      backgroundColor: AppColor.green,
                     ),
                   ],
                 ),
@@ -244,13 +210,12 @@ class AddonGroupsManager extends StatelessWidget {
                 if (group.items.isEmpty)
                   Container(
                     padding: EdgeInsets.all(16.w),
-                    decoration: BoxDecoration(
-                      color: AppColor.lightGray.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
+                    decoration: AppDecoration.decoration(
+                        shadow: false, showBorder: true),
                     child: Row(
                       children: [
-                        Icon(Icons.info_outline, size: 16.sp, color: AppColor.mediumGray),
+                        Icon(Icons.info_outline,
+                            size: 16.sp, color: AppColor.mediumGray),
                         SizedBox(width: 8.w),
                         AppText(
                           text: AppMessage.noItems,
@@ -264,7 +229,8 @@ class AddonGroupsManager extends StatelessWidget {
                   ...group.items.asMap().entries.map((entry) {
                     final itemIndex = entry.key;
                     final item = entry.value;
-                    return _buildItemCard(context, groupIndex, itemIndex, item, group);
+                    return _buildItemCard(
+                        context, groupIndex, itemIndex, item, group);
                   }).toList(),
               ],
             ),
@@ -276,12 +242,9 @@ class AddonGroupsManager extends StatelessWidget {
 
   Widget _buildChip({required String label, required Color color}) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(6.r),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),
+      decoration: AppDecoration.decoration(
+          radius: 50, color: color.resolveOpacity(0.1), shadow: false),
       child: AppText(
         text: label,
         fontSize: AppSize.smallText,
@@ -298,111 +261,115 @@ class AddonGroupsManager extends StatelessWidget {
     AddonItem item,
     AddonGroup group,
   ) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 12.h),
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: AppColor.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AppColor.lightGray),
-      ),
-      child: Row(
-        children: [
-          // Item Image
-          if (item.image != null && item.image!.isNotEmpty)
-            Container(
-              width: 60.w,
-              height: 60.h,
-              margin: EdgeInsets.only(left: 12.w),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8.r),
-                border: Border.all(color: AppColor.lightGray),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8.r),
-                child: _buildItemImage(item.image!),
-              ),
-            )
-          else
-            Container(
-              width: 60.w,
-              height: 60.h,
-              margin: EdgeInsets.only(left: 12.w),
-              decoration: BoxDecoration(
-                color: AppColor.lightGray.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: Icon(Icons.image, size: 24.sp, color: AppColor.mediumGray),
-            ),
-          // Item Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppText(
-                  text: item.name,
-                  fontSize: AppSize.normalText,
-                  fontWeight: FontWeight.w600,
-                  color: AppColor.textColor,
+    return InkWell(
+      onTap: () =>
+          _showEditItemDialog(context, groupIndex, itemIndex, item, group),
+      child: Container(
+        margin: EdgeInsets.only(bottom: 12.h),
+        padding: EdgeInsets.all(12.w),
+        decoration: BoxDecoration(
+          color: AppColor.white,
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(color: AppColor.lightGray),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Item Image
+            if (item.image != null && item.image!.isNotEmpty)
+              Container(
+                width: 60.spMin,
+                height: 60.spMin,
+                margin: EdgeInsets.only(left: 12.w),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8.r),
+                  border: Border.all(color: AppColor.lightGray),
                 ),
-                if (item.description != null && item.description!.isNotEmpty) ...[
-                  SizedBox(height: 4.h),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.r),
+                  child: _buildItemImage(item.image!),
+                ),
+              )
+            else
+              Container(
+                width: 60.w,
+                height: 60.h,
+                margin: EdgeInsets.only(left: 12.w),
+                decoration: BoxDecoration(
+                  color: AppColor.lightGray.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child:
+                    Icon(Icons.image, size: 24.sp, color: AppColor.mediumGray),
+              ),
+            // Item Info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   AppText(
-                    text: item.description!,
-                    fontSize: AppSize.smallText,
-                    color: AppColor.subGrayText,
+                    text: item.name,
+                    fontSize: AppSize.normalText,
+                    fontWeight: FontWeight.w600,
+                    color: AppColor.textColor,
+                  ),
+                  if (item.description != null &&
+                      item.description!.isNotEmpty) ...[
+                    SizedBox(height: 4.h),
+                    AppText(
+                      text: item.description!,
+                      fontSize: AppSize.smallText,
+                      color: AppColor.subGrayText,
+                    ),
+                  ],
+                  SizedBox(height: 4.h),
+                  Row(
+                    children: [
+                      AppText(
+                        text: '${item.price} ر.س',
+                        fontSize: AppSize.smallText,
+                        fontWeight: FontWeight.bold,
+                        color: AppColor.mainColor,
+                      ),
+                      if (group.allowQuantity) ...[
+                        SizedBox(width: 8.w),
+                        AppText(
+                          text: '• الكمية: ${item.quantity}',
+                          fontSize: AppSize.smallText,
+                          color: AppColor.subGrayText,
+                        ),
+                      ],
+                    ],
                   ),
                 ],
-                SizedBox(height: 4.h),
-                Row(
-                  children: [
-                    AppText(
-                      text: '${item.price} ر.س',
-                      fontSize: AppSize.smallText,
-                      fontWeight: FontWeight.bold,
-                      color: AppColor.mainColor,
-                    ),
-                    if (group.allowQuantity) ...[
-                      SizedBox(width: 8.w),
-                      AppText(
-                        text: '• الكمية: ${item.quantity}',
-                        fontSize: AppSize.smallText,
-                        color: AppColor.subGrayText,
-                      ),
-                    ],
-                  ],
-                ),
-              ],
+              ),
             ),
-          ),
-          // Actions
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                onPressed: () => _showEditItemDialog(context, groupIndex, itemIndex, item, group),
-                icon: Icon(Icons.edit, size: 18.sp, color: AppColor.mainColor),
-                padding: EdgeInsets.all(4.w),
-              ),
-              IconButton(
-                onPressed: () => _showDeleteItemDialog(context, groupIndex, itemIndex),
-                icon: Icon(Icons.delete, size: 18.sp, color: AppColor.red),
-                padding: EdgeInsets.all(4.w),
-              ),
-            ],
-          ),
-        ],
+            // Actions
+            IconButton(
+              onPressed: () =>
+                  _showDeleteItemDialog(context, groupIndex, itemIndex),
+              icon: Icon(Icons.delete, color: AppColor.red),
+              padding: EdgeInsets.all(4.w),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildItemImage(String imagePath) {
     try {
+      // Validate imagePath is not empty or invalid
+      if (imagePath.isEmpty || imagePath == 'string' || imagePath.length < 3) {
+        return Icon(Icons.broken_image, color: AppColor.mediumGray);
+      }
+
       if (imagePath.startsWith('http')) {
         return Image.network(
           imagePath,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Icon(Icons.broken_image, color: AppColor.mediumGray),
+          errorBuilder: (_, __, ___) =>
+              Icon(Icons.broken_image, color: AppColor.mediumGray),
         );
       } else {
         final bytes = base64Decode(
@@ -594,15 +561,20 @@ class AddonGroupsManager extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        color: value ? AppColor.mainColor.withOpacity(0.05) : AppColor.lightGray.withOpacity(0.3),
+        color: value
+            ? AppColor.mainColor.withOpacity(0.05)
+            : AppColor.lightGray.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: value ? AppColor.mainColor.withOpacity(0.3) : AppColor.lightGray,
+          color:
+              value ? AppColor.mainColor.withOpacity(0.3) : AppColor.lightGray,
         ),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 20.sp, color: value ? AppColor.mainColor : AppColor.mediumGray),
+          Icon(icon,
+              size: 20.sp,
+              color: value ? AppColor.mainColor : AppColor.mediumGray),
           SizedBox(width: 12.w),
           Expanded(
             child: AppText(
@@ -622,7 +594,8 @@ class AddonGroupsManager extends StatelessWidget {
     );
   }
 
-  void _showEditGroupDialog(BuildContext context, int groupIndex, AddonGroup group) {
+  void _showEditGroupDialog(
+      BuildContext context, int groupIndex, AddonGroup group) {
     final titleCtrl = TextEditingController(text: group.title);
     bool isSingleSelection = group.isSingleSelection;
     bool isRequired = group.isRequired;
@@ -728,7 +701,8 @@ class AddonGroupsManager extends StatelessWidget {
                 text: AppMessage.save,
                 onPressed: () {
                   if (titleCtrl.text.trim().isEmpty) return;
-                  notifier.editAddonGroupTitle(groupIndex, titleCtrl.text.trim());
+                  notifier.editAddonGroupTitle(
+                      groupIndex, titleCtrl.text.trim());
                   notifier.setGroupSelectionType(groupIndex, isSingleSelection);
                   notifier.setGroupRequired(groupIndex, isRequired);
                   notifier.setGroupAllowQuantity(groupIndex, allowQuantity);
@@ -783,7 +757,8 @@ class AddonGroupsManager extends StatelessWidget {
               SharedImagePicker(
                 imagePath: selectedImagePath,
                 onPickImage: () async {
-                  final path = await AppImagePicker.pickImageWithSource(context: context);
+                  final path = await AppImagePicker.pickImageWithSource(
+                      context: context);
                   if (path != null) {
                     setState(() => selectedImagePath = path);
                   }
@@ -864,7 +839,8 @@ class AddonGroupsManager extends StatelessWidget {
               AppButtons(
                 text: AppMessage.add,
                 onPressed: () {
-                  if (nameCtrl.text.trim().isEmpty || priceCtrl.text.trim().isEmpty) {
+                  if (nameCtrl.text.trim().isEmpty ||
+                      priceCtrl.text.trim().isEmpty) {
                     return;
                   }
                   final item = AddonItem(
@@ -874,9 +850,8 @@ class AddonGroupsManager extends StatelessWidget {
                         ? null
                         : descriptionCtrl.text.trim(),
                     image: selectedImagePath,
-                    quantity: group.allowQuantity
-                        ? quantityCtrl.text.trim()
-                        : '1',
+                    quantity:
+                        group.allowQuantity ? quantityCtrl.text.trim() : '1',
                   );
                   notifier.addAddonItem(groupIndex, item);
                   Navigator.pop(context);
@@ -924,7 +899,8 @@ class AddonGroupsManager extends StatelessWidget {
               SharedImagePicker(
                 imagePath: selectedImagePath,
                 onPickImage: () async {
-                  final path = await AppImagePicker.pickImageWithSource(context: context);
+                  final path = await AppImagePicker.pickImageWithSource(
+                      context: context);
                   if (path != null) {
                     setState(() => selectedImagePath = path);
                   }
@@ -1005,7 +981,8 @@ class AddonGroupsManager extends StatelessWidget {
               AppButtons(
                 text: AppMessage.save,
                 onPressed: () {
-                  if (nameCtrl.text.trim().isEmpty || priceCtrl.text.trim().isEmpty) {
+                  if (nameCtrl.text.trim().isEmpty ||
+                      priceCtrl.text.trim().isEmpty) {
                     return;
                   }
                   final updatedItem = AddonItem(
@@ -1015,9 +992,8 @@ class AddonGroupsManager extends StatelessWidget {
                         ? null
                         : descriptionCtrl.text.trim(),
                     image: selectedImagePath,
-                    quantity: group.allowQuantity
-                        ? quantityCtrl.text.trim()
-                        : '1',
+                    quantity:
+                        group.allowQuantity ? quantityCtrl.text.trim() : '1',
                   );
                   notifier.editAddonItem(groupIndex, itemIndex, updatedItem);
                   Navigator.pop(context);
@@ -1036,7 +1012,8 @@ class AddonGroupsManager extends StatelessWidget {
     UnifiedBottomSheet.showConfirmation(
       context: context,
       title: AppMessage.deleteGroup,
-      message: 'هل أنت متأكد من حذف هذه المجموعة؟ سيتم حذف جميع الخيارات التابعة لها.',
+      message:
+          'هل أنت متأكد من حذف هذه المجموعة؟ سيتم حذف جميع الخيارات التابعة لها.',
       confirmText: AppMessage.delete,
       confirmColor: AppColor.red,
       onConfirm: () {
@@ -1045,7 +1022,8 @@ class AddonGroupsManager extends StatelessWidget {
     );
   }
 
-  void _showDeleteItemDialog(BuildContext context, int groupIndex, int itemIndex) {
+  void _showDeleteItemDialog(
+      BuildContext context, int groupIndex, int itemIndex) {
     UnifiedBottomSheet.showConfirmation(
       context: context,
       title: AppMessage.deleteItem,
@@ -1058,4 +1036,3 @@ class AddonGroupsManager extends StatelessWidget {
     );
   }
 }
-

@@ -54,9 +54,7 @@ class FilterChipWithIcon extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOutCubic,
+      child: Container(
         padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 12.h),
         margin: EdgeInsets.only(left: 8.w),
         decoration: BoxDecoration(
@@ -93,17 +91,12 @@ class FilterChipWithIcon extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             // الأيقونة مع Animation عصري
-            AnimatedScale(
-              scale: isSelected ? 1.15 : 1.0,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.elasticOut,
-              child: Icon(
-                icon,
-                size: 20.sp,
-                color: isSelected
-                    ? effectiveSelectedIconColor
-                    : effectiveUnselectedIconColor,
-              ),
+            Icon(
+              icon,
+              size: 20.sp,
+              color: isSelected
+                  ? effectiveSelectedIconColor
+                  : effectiveUnselectedIconColor,
             ),
             SizedBox(width: 10.w),
 
@@ -120,8 +113,7 @@ class FilterChipWithIcon extends StatelessWidget {
             // العداد (اختياري)
             if (count != null && count! > 0) ...[
               SizedBox(width: 6.w),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
+              Container(
                 padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                 decoration: AppDecoration.decoration(
                   color: isSelected ? AppColor.white : AppColor.mainColor,

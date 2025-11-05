@@ -5,10 +5,13 @@ import 'package:jayeek_vendor/core/constants/app_color.dart';
 import 'package:jayeek_vendor/core/constants/app_icons.dart';
 import 'package:jayeek_vendor/core/constants/app_size.dart';
 import 'package:jayeek_vendor/core/constants/app_string.dart';
+import 'package:jayeek_vendor/core/extensions/color_extensions.dart';
 import 'package:jayeek_vendor/core/routing/app_routes_methods.dart';
 import 'package:jayeek_vendor/core/widgets/app_buttons.dart';
 import 'package:jayeek_vendor/core/widgets/app_decoration.dart';
+import 'package:jayeek_vendor/core/widgets/app_image_placeholder.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
+import '../../../../generated/assets.dart';
 import '../../domain/models/menu_item_model.dart';
 import '../../providers/menu/menu_provider.dart';
 import '../screens/update_food.dart';
@@ -48,19 +51,24 @@ class MenuItemCard extends ConsumerWidget {
                     aspectRatio: 16 / 10,
                     child: Hero(
                       tag: 'menu-image-${item.id}',
-                      child: Image.network(
-                        item.imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          color: Colors.grey.shade200,
-                          alignment: Alignment.center,
-                          child: const Icon(Icons.image_not_supported),
-                        ),
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Container(color: Colors.grey.shade200);
-                        },
-                      ),
+                      child: (item.imageUrl.isEmpty ||
+                              item.imageUrl == 'string' ||
+                              item.imageUrl.length < 3)
+                          ? const AppImagePlaceholder()
+                          : Image.network(
+                              item.imageUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Container(
+                                color: Colors.grey.shade200,
+                                alignment: Alignment.center,
+                                child: const Icon(Icons.image_not_supported),
+                              ),
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Container(color: Colors.grey.shade200);
+                              },
+                            ),
                     ),
                   ),
                 ),
@@ -80,7 +88,7 @@ class MenuItemCard extends ConsumerWidget {
                   Positioned.fill(
                     child: Container(
                       decoration: AppDecoration.decoration(
-                        color: Colors.black.withOpacity(0.35),
+                        color: Colors.black.resolveOpacity(0.35),
                         shadow: false,
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(16.r),

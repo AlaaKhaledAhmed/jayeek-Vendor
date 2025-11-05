@@ -45,6 +45,11 @@ class CategoryChipWithImage extends StatelessWidget {
     if (category.image != null && category.image!.isNotEmpty) {
       final imageString = category.image!;
 
+      // Validate that image is not an invalid placeholder string
+      if (imageString == 'string' || imageString.length < 3) {
+        return null;
+      }
+
       // Check if it's a network URL
       if (imageString.startsWith('http://') ||
           imageString.startsWith('https://')) {
@@ -124,7 +129,7 @@ class CategoryChipWithImage extends StatelessWidget {
             // Category Image
             AnimatedScale(
               scale: isSelected ? 1.25 : 1.0,
-              duration: const Duration(milliseconds: 700),
+              duration: const Duration(milliseconds: 1000),
               curve: Curves.elasticOut,
               child: Container(
                 width: 30.spMin,

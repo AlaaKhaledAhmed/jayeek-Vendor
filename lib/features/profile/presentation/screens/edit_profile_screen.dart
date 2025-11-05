@@ -227,7 +227,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            if (_coverImagePath != null)
+            if (_isValidImage(_coverImagePath))
               ClipRRect(
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(20.r),
@@ -353,7 +353,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ],
           ),
           child: ClipOval(
-            child: _logoPath != null
+            child: _isValidImage(_logoPath)
                 ? (_isLocalImage(_logoPath!)
                     ? Image.file(
                         File(_logoPath!),
@@ -662,6 +662,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   bool _isLocalImage(String path) {
     return path.startsWith('/') || path.startsWith('file://');
+  }
+
+  bool _isValidImage(String? path) {
+    return path != null &&
+        path.isNotEmpty &&
+        path != 'string' &&
+        path.length >= 3;
   }
 
   void _saveChanges() {

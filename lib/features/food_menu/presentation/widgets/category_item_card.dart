@@ -27,7 +27,9 @@ class CategoryItemCard extends StatelessWidget {
   /// Get category name based on current language
   String _getCategoryName() {
     final lang = LanguageService.getLang();
-    if (lang == 'ar' && category.nameAr != null && category.nameAr!.isNotEmpty) {
+    if (lang == 'ar' &&
+        category.nameAr != null &&
+        category.nameAr!.isNotEmpty) {
       return category.nameAr!;
     }
     return category.name ?? '';
@@ -37,6 +39,11 @@ class CategoryItemCard extends StatelessWidget {
   ImageProvider<Object>? _getImageProvider() {
     if (category.image != null && category.image!.isNotEmpty) {
       final imageString = category.image!;
+
+      // Validate that image is not an invalid placeholder string
+      if (imageString == 'string' || imageString.length < 3) {
+        return null;
+      }
 
       // Check if it's a network URL
       if (imageString.startsWith('http://') ||
@@ -93,7 +100,8 @@ class CategoryItemCard extends StatelessWidget {
               color: AppColor.lightGray,
               radius: 8,
               image: imageProvider ??
-                  const AssetImage(Assets.imagesDefault) as ImageProvider<Object>,
+                  const AssetImage(Assets.imagesDefault)
+                      as ImageProvider<Object>,
               cover: imageProvider != null,
             ),
           ),
@@ -116,4 +124,3 @@ class CategoryItemCard extends StatelessWidget {
     );
   }
 }
-

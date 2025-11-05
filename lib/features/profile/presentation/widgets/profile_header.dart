@@ -74,7 +74,10 @@ class ProfileHeader extends StatelessWidget {
             ],
           ),
           child: ClipOval(
-            child: vendor.logo != null
+            child: (vendor.logo != null &&
+                    vendor.logo!.isNotEmpty &&
+                    vendor.logo != 'string' &&
+                    vendor.logo!.length >= 3)
                 ? Image.network(
                     vendor.logo!,
                     fit: BoxFit.cover,

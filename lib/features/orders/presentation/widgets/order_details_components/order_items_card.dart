@@ -26,7 +26,11 @@ class OrderItemsCard extends StatelessWidget {
         children: [
           // Header
           _buildHeader(),
-          const Divider(endIndent: 10,indent: 10,height: 5, ),
+          const Divider(
+            endIndent: 10,
+            indent: 10,
+            height: 5,
+          ),
           // Items List
           Padding(
             padding: EdgeInsets.all(18.w),
@@ -256,7 +260,10 @@ class OrderItemsCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12.r),
-        child: imageUrl != null && imageUrl.isNotEmpty
+        child: (imageUrl != null &&
+                imageUrl.isNotEmpty &&
+                imageUrl != 'string' &&
+                imageUrl.length >= 3)
             ? Image.network(
                 imageUrl,
                 fit: BoxFit.cover,

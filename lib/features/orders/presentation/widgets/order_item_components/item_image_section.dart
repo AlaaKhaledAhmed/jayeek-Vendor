@@ -15,7 +15,13 @@ class ItemImageSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (imageUrl != null) {
+    // Validate that we have a valid image URL
+    final hasValidImage = imageUrl != null &&
+        imageUrl!.isNotEmpty &&
+        imageUrl != 'string' &&
+        imageUrl!.length >= 3;
+
+    if (hasValidImage) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(10.r),
         child: Image.network(

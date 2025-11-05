@@ -124,8 +124,8 @@ class _ModernProfileHeaderState extends State<ModernProfileHeader> {
     return Container(
       height: 600.h,
       width: double.infinity,
-      child: imageUrl != null
-          ? _isLocalImage(imageUrl)
+      child: _isValidImage(imageUrl)
+          ? _isLocalImage(imageUrl!)
               ? Image.file(
                   File(imageUrl),
                   fit: BoxFit.cover,
@@ -215,8 +215,8 @@ class _ModernProfileHeaderState extends State<ModernProfileHeader> {
             color: AppColor.mainColor.resolveOpacity(0.1),
           ),
           child: ClipOval(
-            child: logoImage != null
-                ? (_isLocalImage(logoImage)
+            child: _isValidImage(logoImage)
+                ? (_isLocalImage(logoImage!)
                     ? Image.file(
                         File(logoImage),
                         fit: BoxFit.cover,
@@ -491,6 +491,13 @@ class _ModernProfileHeaderState extends State<ModernProfileHeader> {
 
   bool _isLocalImage(String path) {
     return path.startsWith('/') || path.startsWith('file://');
+  }
+
+  bool _isValidImage(String? path) {
+    return path != null &&
+        path.isNotEmpty &&
+        path != 'string' &&
+        path.length >= 3;
   }
 
   String _formatNumber(int number) {

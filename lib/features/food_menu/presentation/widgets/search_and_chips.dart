@@ -71,24 +71,23 @@ class _SearchAndChipsState extends ConsumerState<SearchAndChips> {
             onChanged: notifier.setQuery,
           ),
           SizedBox(height: 12.h),
-          SizedBox(
-            height: 50.h,
-            child: DataViewBuilder(
-              dataHandle: state.categories,
-              loadingBuilder: () => CustomLoad().boxLoad(height: 50.h),
-              isDataEmpty: () => state.categories.data?.data?.isEmpty ?? true,
-              onReload: () async => notifier.refreshMenu(),
-              emptyBuilder: () => const SizedBox(),
-              isSmallError: true,
-              successBuilder: (model) {
-                final categoriesList = model.data
-                        ?.where((cat) => cat.deleteFlag != true)
-                        .toList() ??
-                    [];
+          DataViewBuilder(
+            dataHandle: state.categories,
+            loadingBuilder: () => CustomLoad().boxLoad(height: 50.h),
+            isDataEmpty: () => state.categories.data?.data?.isEmpty ?? true,
+            onReload: () async => notifier.refreshMenu(),
+            emptyBuilder: () => const SizedBox(),
+            isSmallError: true,
+            successBuilder: (model) {
+              final categoriesList =
+                  model.data?.where((cat) => cat.deleteFlag != true).toList() ??
+                      [];
 
-                const allCategories = ['All'];
+              const allCategories = ['All'];
 
-                return ListView.separated(
+              return SizedBox(
+                height: 55.h,
+                child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   padding: EdgeInsets.symmetric(horizontal: 4.w),
                   itemCount: allCategories.length + categoriesList.length,
@@ -128,9 +127,9 @@ class _SearchAndChipsState extends ConsumerState<SearchAndChips> {
                     }
                     return const SizedBox();
                   },
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
         ],
       ),

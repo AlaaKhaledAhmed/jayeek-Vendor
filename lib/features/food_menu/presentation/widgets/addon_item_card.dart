@@ -85,6 +85,12 @@ class AddonItemCard extends StatelessWidget {
 
   ///addon image======================================================================================================
   Widget _buildImageWidget() {
+    // Validate if we have a valid image URL
+    final hasValidImage = addon.imageUrl != null &&
+        addon.imageUrl!.isNotEmpty &&
+        addon.imageUrl != 'string' &&
+        addon.imageUrl!.length >= 3;
+
     return Container(
       width: 60.w,
       height: 60.h,
@@ -92,14 +98,12 @@ class AddonItemCard extends StatelessWidget {
           shadow: false,
           color: AppColor.lightGray,
           radius: 8,
-          image: addon.imageUrl != null && addon.imageUrl!.isNotEmpty
+          image: hasValidImage
               ? NetworkImage(addon.imageUrl!)
               : const AssetImage(
                   Assets.imagesDefault,
                 ) as ImageProvider<Object>,
-          cover: addon.imageUrl != null && addon.imageUrl!.isNotEmpty
-              ? true
-              : false),
+          cover: hasValidImage ? true : false),
     );
   }
 

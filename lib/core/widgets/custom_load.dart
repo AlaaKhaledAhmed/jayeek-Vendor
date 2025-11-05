@@ -35,7 +35,7 @@ class CustomLoad {
         itemCount: length,
         itemBuilder:
             (context, index) => Container(
-              margin: EdgeInsets.only(bottom: 10.h),
+              margin: EdgeInsets.only(bottom: 10.h,left: 10.w,right: 10.w),
               height: 100.h,
               width: context.width,
               decoration: AppDecoration.decoration(shadow: false,color: AppColor.lightGray),
@@ -51,6 +51,7 @@ class CustomLoad {
       height: height ?? 200.h,
       decoration: AppDecoration.decoration(
         radius: 5.r,
+        shadow: false,
         color: AppColor.lightGray,
       ),
     );

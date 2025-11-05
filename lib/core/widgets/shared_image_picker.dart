@@ -2,12 +2,13 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:jayeek_vendor/core/extensions/color_extensions.dart';
 import '../constants/app_color.dart';
 import '../constants/app_size.dart';
 import '../constants/app_string.dart';
 import '../widgets/app_decoration.dart';
 import '../widgets/app_text.dart';
-import '../widgets/app_buttons.dart';
+import 'app_image_placeholder.dart';
 
 /// Unified image picker widget used throughout the application
 /// Supports network images, local files, and base64 strings
@@ -37,32 +38,18 @@ class SharedImagePicker extends StatelessWidget {
       width: width ?? double.infinity,
       height: height,
       decoration: AppDecoration.decoration(
-        radius: borderRadius,
-        color: AppColor.lightGray,
-        showBorder: true,
-        borderColor: AppColor.borderColor,
-      ),
+          radius: borderRadius,
+          color: AppColor.lightGray.resolveOpacity(0.5),
+          showBorder: true,
+          borderColor: AppColor.borderColor,
+          shadow: false),
       child: InkWell(
         onTap: onPickImage,
         borderRadius: BorderRadius.circular(borderRadius.r),
         child: imagePath != null && imagePath!.isNotEmpty
-            ? Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(borderRadius.r),
-                    child: _buildImageWidget(imagePath!),
-                  ),
-                  Positioned(
-                    bottom: 10.h,
-                    right: 10.w,
-                    child: AppButtons(
-                      text: AppMessage.changeImage,
-                      onPressed: onPickImage,
-                      height: 40.h,
-                      backgroundColor: AppColor.mainColor.withOpacity(0.9),
-                    ),
-                  ),
-                ],
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(borderRadius.r),
+                child: _buildImageWidget(imagePath!),
               )
             : _buildPlaceholder(),
       ),
@@ -70,6 +57,11 @@ class SharedImagePicker extends StatelessWidget {
   }
 
   Widget _buildImageWidget(String imagePath) {
+    // Validate imagePath is not empty or invalid
+    if (imagePath.isEmpty || imagePath == 'string' || imagePath.length < 3) {
+      return const AppImagePlaceholder();
+    }
+
     // Check if it's a network URL first
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
       return Image.network(
@@ -78,7 +70,7 @@ class SharedImagePicker extends StatelessWidget {
         height: height,
         fit: fit,
         errorBuilder: (context, error, stackTrace) {
-          return _buildErrorPlaceholder();
+          return const AppImagePlaceholder();
         },
         loadingBuilder: (context, child, loadingProgress) {
           if (loadingProgress == null) return child;
@@ -97,7 +89,7 @@ class SharedImagePicker extends StatelessWidget {
     }
 
     // Check if it's a base64 string
-    bool isBase64 = imagePath.startsWith('/9j/') ||
+    final bool isBase64 = imagePath.startsWith('/9j/') ||
         imagePath.startsWith('data:image') ||
         (imagePath.length > 500 &&
             !imagePath.contains('/tmp/') &&
@@ -117,7 +109,7 @@ class SharedImagePicker extends StatelessWidget {
           height: height,
           fit: fit,
           errorBuilder: (context, error, stackTrace) {
-            return _buildErrorPlaceholder();
+            return const AppImagePlaceholder();
           },
         );
       } catch (e) {
@@ -140,7 +132,7 @@ class SharedImagePicker extends StatelessWidget {
             height: height,
             fit: fit,
             errorBuilder: (context, error, stackTrace) {
-              return _buildErrorPlaceholder();
+              return const AppImagePlaceholder();
             },
           );
         }
@@ -149,7 +141,7 @@ class SharedImagePicker extends StatelessWidget {
       }
     }
 
-    return _buildErrorPlaceholder();
+    return const AppImagePlaceholder();
   }
 
   Widget _buildPlaceholder() {
@@ -158,31 +150,12 @@ class SharedImagePicker extends StatelessWidget {
       children: [
         Icon(
           Icons.add_photo_alternate,
-          size: 60.sp,
+          size: AppSize.veryLargeIconSize,
           color: AppColor.mediumGray,
         ),
         SizedBox(height: 12.h),
         AppText(
           text: placeholderText ?? AppMessage.selectImage,
-          fontSize: AppSize.normalText,
-          color: AppColor.mediumGray,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildErrorPlaceholder() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          Icons.broken_image,
-          size: 60.sp,
-          color: AppColor.mediumGray,
-        ),
-        SizedBox(height: 12.h),
-        AppText(
-          text: AppMessage.selectImage,
           fontSize: AppSize.normalText,
           color: AppColor.mediumGray,
         ),

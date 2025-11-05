@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:jayeek_vendor/core/constants/app_color.dart';
 import 'package:jayeek_vendor/core/extensions/context_extensions.dart';
+import 'package:jayeek_vendor/core/widgets/app_decoration.dart';
 import '../../features/auth/presentation/screens/login_page.dart';
 import '../constants/app_flow_sate.dart';
 import '../constants/app_size.dart';
@@ -74,26 +76,24 @@ class DataViewBuilder<T> extends StatelessWidget {
       // Small error display - doesn't take full height
       return Padding(
         padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 20.h),
-        child: Wrap(
-          runSpacing: 10.h,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          alignment: WrapAlignment.center,
-          children: [
-            AppText(
+        child: DecoratedBox(
+          decoration: AppDecoration.decoration(
+              shadow: false, showBorder: true, color: AppColor.lightRed),
+          child: ListTile(
+            title: AppText(
               text: AppErrorMessage.getMessage(result),
               fontWeight: FontWeight.bold,
               align: TextAlign.center,
               fontSize: AppSize.smallText,
             ),
-            SizedBox(height: 10.h),
-            AppButtons(
+            trailing: AppButtons(
               text: AppMessage.tryAgain,
               height: AppSize.inputFieldHeight,
               onPressed: () async {
                 await onReload();
               },
             ),
-          ],
+          ),
         ),
       );
     }
