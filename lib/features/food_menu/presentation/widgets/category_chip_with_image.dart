@@ -129,7 +129,7 @@ class CategoryChipWithImage extends StatelessWidget {
             // Category Image
             AnimatedScale(
               scale: isSelected ? 1.25 : 1.0,
-              duration: const Duration(milliseconds: 1000),
+              duration: const Duration(milliseconds: 700),
               curve: Curves.elasticOut,
               child: Container(
                 width: 30.spMin,
@@ -137,7 +137,7 @@ class CategoryChipWithImage extends StatelessWidget {
                 decoration: AppDecoration.decoration(
                   isCircle: true,
                   shadow: false,
-                  color: isSelected ? AppColor.white : AppColor.lightGray.resolveOpacity(0.5),
+                  color: isSelected ? AppColor.white : AppColor.lightGray,
                   image: imageProvider ??
                       const AssetImage(Assets.imagesDefault)
                           as ImageProvider<Object>,

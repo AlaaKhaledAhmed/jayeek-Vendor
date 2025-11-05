@@ -15,7 +15,7 @@ import 'app_buttons.dart';
 import 'app_refresh_indicator.dart';
 import 'app_text.dart';
 
-class DataViewBuilder<T> extends StatelessWidget {
+class DataViewBuilder<T> extends StatefulWidget {
   final DataHandle<T> dataHandle;
   final Widget Function() loadingBuilder;
   final Widget Function() emptyBuilder;
@@ -44,35 +44,58 @@ class DataViewBuilder<T> extends StatelessWidget {
   });
 
   @override
+  State<DataViewBuilder<T>> createState() => _DataViewBuilderState<T>();
+}
+
+class _DataViewBuilderState<T> extends State<DataViewBuilder<T>> {
+  bool _hasNavigated = false;
+
+  @override
+  void didUpdateWidget(DataViewBuilder<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Reset navigation flag if the dataHandle changed
+    if (oldWidget.dataHandle.result != widget.dataHandle.result) {
+      _hasNavigated = false;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final result = dataHandle.result;
+    final result = widget.dataHandle.result;
 
     ///om loading or initial show shimmer=======================================================================================================================
     if (result == AppFlowState.loading || result == AppFlowState.initial) {
-      return loadingBuilder();
+      return widget.loadingBuilder();
     }
 
     ///on token error=======================================================================================================================================
     else if (result == AppErrorState.unAuthorized) {
-      ///use FutureBuilder if you wont using await inside build methods
-      AppRoutes.pushAndRemoveAllPageTo(context, const LoginScreen());
+      ///use WidgetsBinding to schedule navigation after build is complete
+      if (!_hasNavigated) {
+        _hasNavigated = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && context.mounted) {
+            AppRoutes.pushAndRemoveAllPageTo(context, const LoginScreen());
+          }
+        });
+      }
       return const SizedBox();
     }
 
     ///on successful or pagination show data=============================================================================================================================================
     else if (result == AppFlowState.loaded ||
         result == AppFlowState.loadingMore) {
-      if (isDataEmpty()) {
-        return emptyBuilder();
+      if (widget.isDataEmpty()) {
+        return widget.emptyBuilder();
       }
       return AppRefreshIndicator(
-        onRefresh: onReload,
-        child: successBuilder(dataHandle.data as T),
+        onRefresh: widget.onReload,
+        child: widget.successBuilder(widget.dataHandle.data as T),
       );
     }
 
     ///on error show retry button=============================================================================================================================================
-    if (isSmallError) {
+    if (widget.isSmallError) {
       // Small error display - doesn't take full height
       return Padding(
         padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 20.h),
@@ -90,7 +113,7 @@ class DataViewBuilder<T> extends StatelessWidget {
               text: AppMessage.tryAgain,
               height: AppSize.inputFieldHeight,
               onPressed: () async {
-                await onReload();
+                await widget.onReload();
               },
             ),
           ),
@@ -117,7 +140,7 @@ class DataViewBuilder<T> extends StatelessWidget {
               text: AppMessage.tryAgain,
               height: AppSize.inputFieldHeight,
               onPressed: () async {
-                await onReload();
+                await widget.onReload();
               },
             ),
           ],
