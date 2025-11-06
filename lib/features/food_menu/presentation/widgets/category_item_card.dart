@@ -3,8 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:convert';
 
 import 'package:jayeek_vendor/core/constants/app_color.dart';
-import 'package:jayeek_vendor/core/constants/app_icons.dart';
 import 'package:jayeek_vendor/core/constants/app_size.dart';
+import 'package:jayeek_vendor/core/extensions/color_extensions.dart';
 import 'package:jayeek_vendor/core/services/language_service.dart';
 import 'package:jayeek_vendor/core/widgets/app_decoration.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
@@ -12,7 +12,7 @@ import 'package:jayeek_vendor/generated/assets.dart';
 
 import '../../domain/models/food_category_model.dart';
 
-class CategoryItemCard extends StatelessWidget {
+class CategoryItemCard extends StatefulWidget {
   final FoodCategoryModel category;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
@@ -24,21 +24,48 @@ class CategoryItemCard extends StatelessWidget {
     required this.onDelete,
   });
 
+  @override
+  State<CategoryItemCard> createState() => _CategoryItemCardState();
+}
+
+class _CategoryItemCardState extends State<CategoryItemCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   /// Get category name based on current language
   String _getCategoryName() {
     final lang = LanguageService.getLang();
     if (lang == 'ar' &&
-        category.nameAr != null &&
-        category.nameAr!.isNotEmpty) {
-      return category.nameAr!;
+        widget.category.nameAr != null &&
+        widget.category.nameAr!.isNotEmpty) {
+      return widget.category.nameAr!;
     }
-    return category.name ?? '';
+    return widget.category.name ?? '';
   }
 
   /// Get image provider from category image
   ImageProvider<Object>? _getImageProvider() {
-    if (category.image != null && category.image!.isNotEmpty) {
-      final imageString = category.image!;
+    if (widget.category.image != null && widget.category.image!.isNotEmpty) {
+      final imageString = widget.category.image!;
 
       // Validate that image is not an invalid placeholder string
       if (imageString == 'string' || imageString.length < 3) {
@@ -76,10 +103,10 @@ class CategoryItemCard extends StatelessWidget {
   }
 
   bool _isEmoji() {
-    if (category.image != null &&
-        category.image!.isNotEmpty &&
-        category.image != 'string' &&
-        category.image!.length <= 4) {
+    if (widget.category.image != null &&
+        widget.category.image!.isNotEmpty &&
+        widget.category.image != 'string' &&
+        widget.category.image!.length <= 4) {
       return true;
     }
     return false;
@@ -89,66 +116,102 @@ class CategoryItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final imageProvider = _getImageProvider();
     final categoryName = _getCategoryName();
+    final isEmoji = _isEmoji();
 
-    return GestureDetector(
-      onTap: onEdit,
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 4.h),
-        decoration: AppDecoration.decoration(
-          color: AppColor.white,
-          radius: 12,
-          shadowOpacity: 0.1,
-          showBorder: true,
-          borderColor: AppColor.borderColor,
-          borderWidth: 1,
-        ),
-        child: ListTile(
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: 10.w,
-            vertical: 8.h,
-          ),
-          leading: _isEmoji()
-              ? Container(
-                  width: 60.w,
-                  height: 60.h,
-                  alignment: Alignment.center,
-                  decoration: AppDecoration.decoration(
-                    shadow: false,
-                    color: AppColor.lightGray,
-                    radius: 8,
-                  ),
-                  child: Text(
-                    category.image!,
-                    style: TextStyle(fontSize: 36.sp),
-                  ),
-                )
-              : Container(
-                  width: 60.w,
-                  height: 60.h,
-                  decoration: AppDecoration.decoration(
-                    shadow: false,
-                    color: AppColor.lightGray,
-                    radius: 8,
-                    image: imageProvider ??
-                        const AssetImage(Assets.imagesDefault)
-                            as ImageProvider<Object>,
-                    cover: imageProvider != null,
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: GestureDetector(
+        onTapDown: (_) {
+          _controller.forward();
+        },
+        onTapUp: (_) {
+          _controller.reverse();
+          widget.onEdit();
+        },
+        onTapCancel: () {
+          _controller.reverse();
+        },
+        child: DecoratedBox(
+          decoration: AppDecoration.decoration(showBorder: true),
+          child: Padding(
+            padding: EdgeInsets.all(16.w),
+            child: Row(
+              children: [
+                // Modern Image/Emoji Container
+                Hero(
+                  tag: 'category_${widget.category.id}',
+                  child: Container(
+                    width: 75.w,
+                    height: 75.w,
+                    decoration: AppDecoration.decoration(
+                      shadow: false,
+                      showBorder: true,
+                      color: isEmoji
+                          ? null
+                          : AppColor.lightGray.resolveOpacity(0.5),
+                      borderRadius: BorderRadius.circular(18.r),
+                      image: isEmoji
+                          ? null
+                          : (imageProvider ??
+                              const AssetImage(Assets.imagesDefault)),
+                    ),
+                    child: isEmoji
+                        ? Center(
+                            child: AppText(
+                              text: widget.category.image!,
+                            ),
+                          )
+                        : null,
                   ),
                 ),
-          title: AppText(
-            text: categoryName,
-            fontSize: AppSize.normalText,
-            fontWeight: FontWeight.bold,
-            color: AppColor.textColor,
-          ),
-          trailing: IconButton(
-            onPressed: onDelete,
-            icon: Icon(
-              AppIcons.delete,
-              color: AppColor.red,
-              size: AppSize.mediumIconSize,
+                SizedBox(width: 16.w),
+
+                // Category Name
+                Expanded(
+                  child: AppText(
+                    text: categoryName,
+                    fontSize: AppSize.bodyText,
+                    fontWeight: FontWeight.w700,
+                    color: AppColor.textColor,
+                  ),
+                ),
+
+                // Action Buttons
+                _buildActionButton(
+                  icon: Icons.delete_rounded,
+                  color: AppColor.red,
+                  onTap: widget.onDelete,
+                ),
+              ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 44.w,
+        height: 44.w,
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(
+            color: color.withOpacity(0.2),
+            width: 1.5,
+          ),
+        ),
+        child: Icon(
+          icon,
+          color: color,
+          size: 22.sp,
         ),
       ),
     );

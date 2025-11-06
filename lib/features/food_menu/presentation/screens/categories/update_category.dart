@@ -82,6 +82,22 @@ class _AddEditCategoryScreenState extends ConsumerState<UpdateCategory> {
               ),
               child: ScrollList(
                 children: [
+                  // Category Name (Arabic)
+                  const AppText(
+                    text: 'اسم الفئة (العربية)',
+                    fontWeight: FontWeight.bold,
+                  ),
+                  SizedBox(height: 5.h),
+                  AppTextFields(
+                    hintText: 'اسم الفئة (العربية)',
+                    controller: widget.fromUpdate
+                        ? notifier.editNameArController
+                        : notifier.addNameArController,
+                    validator: (v) =>
+                        v!.isEmpty ? AppMessage.enterCategoryNameAr : null,
+                  ),
+                  SizedBox(height: 10.h),
+
                   // Category Name (English)
                   const AppText(
                     text: 'اسم الفئة (الإنجليزية)',
@@ -95,21 +111,6 @@ class _AddEditCategoryScreenState extends ConsumerState<UpdateCategory> {
                         : notifier.addNameController,
                     validator: (v) =>
                         v!.isEmpty ? AppMessage.enterCategoryName : null,
-                  ),
-                  SizedBox(height: 10.h),
-
-                  // Category Name (Arabic)
-                  const AppText(
-                    text: 'اسم الفئة (العربية)',
-                    fontWeight: FontWeight.bold,
-                  ),
-                  SizedBox(height: 5.h),
-                  AppTextFields(
-                    hintText: 'اسم الفئة (العربية)',
-                    controller: widget.fromUpdate
-                        ? notifier.editNameArController
-                        : notifier.addNameArController,
-                    validator: (v) => null,
                   ),
                   SizedBox(height: 20.h),
 
@@ -347,7 +348,7 @@ class _AddEditCategoryScreenState extends ConsumerState<UpdateCategory> {
                 ),
               ),
             ),
-            
+
             // Content
             Center(
               child: Column(
@@ -385,7 +386,7 @@ class _AddEditCategoryScreenState extends ConsumerState<UpdateCategory> {
                     },
                   ),
                   SizedBox(height: 24.h),
-                  
+
                   // Action Text
                   Container(
                     padding: EdgeInsets.symmetric(

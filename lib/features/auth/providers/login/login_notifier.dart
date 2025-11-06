@@ -55,5 +55,6 @@ class LoginNotifier extends StateNotifier<LoginState> {
   ///logout function
   Future<void> logout() async {
     await SharedPreferencesService.clearCache();
+
   }
 }
