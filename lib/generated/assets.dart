@@ -8,6 +8,8 @@ class Assets {
   static const String imagesBackground = 'assets/images/background.png';
   static const String imagesDefault = 'assets/images/default.png';
   static const String imagesLogo = 'assets/images/logo.png';
+  static const String imagesSplash = 'assets/images/splash.png';
+  static const String imagesSplashTr = 'assets/images/splash_tr.png';
   static const String translationsAr = 'assets/translations/ar.json';
   static const String translationsEn = 'assets/translations/en.json';
 

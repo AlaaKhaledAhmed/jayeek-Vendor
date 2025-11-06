@@ -23,8 +23,8 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _backgroundImage = Image.asset(Assets.imagesBackground);
-    _logo = Image.asset(Assets.imagesLogo);
+    _backgroundImage = Image.asset(Assets.imagesSplashTr);
+    _logo = Image.asset(Assets.imagesSplashTr);
     _initializeApp();
   }
 
@@ -51,15 +51,23 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: Container(
         decoration: AppDecoration.decoration(
-          color: AppColor.mainColor,
-          image: _backgroundImage.image,
+          //color: AppColor.mainColor,
+          // image: _backgroundImage.image,
           alignment: AlignmentDirectional.bottomCenter,
+
           // cover: true
         ),
-        alignment: Alignment.center,
+        alignment: Alignment.bottomCenter,
         height: AppSize.screenHeight,
         width: AppSize.screenWidth,
-        child: Image(image: _logo.image, width: context.width * 0.5.spMin,color: AppColor.white,),
+        child: Padding(
+          padding: EdgeInsets.only(left: 30.w, right: 30.w),
+          child: Image(
+            image: _logo.image,
+            //width: context.width * 0.5.spMin,
+            // color: AppColor.white,
+          ),
+        ),
       ),
     );
   }
