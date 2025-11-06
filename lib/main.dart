@@ -10,7 +10,6 @@ void main() async {
   await EasyLocalization.ensureInitialized();
   await ScreenUtil.ensureScreenSize();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-//🍹 🍰 🦐 🥗 🍟 🍛 🍕 🍔 🌯 🥐 🍛 🍲 🥦 ☕🍳 🍱 🥑 🍢 🍊
   runApp(
     EasyLocalization(
       supportedLocales: const [Locale('en'), Locale('ar')],

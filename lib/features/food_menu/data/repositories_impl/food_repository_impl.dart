@@ -1,6 +1,7 @@
 import '../../../../core/constants/app_end_points.dart';
 import '../../../../core/model/data_handel.dart';
 import '../../../../core/services/network/inetwork_services.dart';
+import '../../domain/models/branch_response.dart';
 import '../../domain/models/food_category_model.dart';
 import '../../domain/models/menu_item_model.dart';
 import '../../domain/models/menu_items_response.dart';
@@ -113,6 +114,14 @@ class FoodRepositoryImpl implements FoodRepository {
       url: ApiEndPoints.getMenuItemsUrl,
       queryParams: {'categoryId': categoryId},
       fromJson: MenuItemsResponse.fromJson,
+    );
+  }
+
+  @override
+  Future<PostDataHandle<BranchResponse>> getBranchItems(int branchId) {
+    return networkService.get<BranchResponse>(
+      url: ApiEndPoints.getBranchByIdUrl(branchId),
+      fromJson: BranchResponse.fromJson,
     );
   }
 

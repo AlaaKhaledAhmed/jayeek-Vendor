@@ -60,7 +60,9 @@ class MenuItemModel extends Equatable {
   final double price;
   final bool isAvailable;
   final bool isFeatured;
-  final String category;
+  final String category; // itemCategoryId
+  final String? categoryName; // itemCategoryName
+  final String? categoryNameAr; // itemCategoryNameAr
   final String? branch;
   final bool isCustomizable;
   final List<AddonModel>? availableAddons;
@@ -74,6 +76,8 @@ class MenuItemModel extends Equatable {
     required this.isAvailable,
     required this.isFeatured,
     required this.category,
+    this.categoryName,
+    this.categoryNameAr,
     this.branch,
     this.isCustomizable = false,
     this.availableAddons,
@@ -87,6 +91,8 @@ class MenuItemModel extends Equatable {
     bool? isAvailable,
     bool? isFeatured,
     String? category,
+    String? categoryName,
+    String? categoryNameAr,
     String? branch,
     bool? isCustomizable,
     List<AddonModel>? availableAddons,
@@ -100,6 +106,8 @@ class MenuItemModel extends Equatable {
       isAvailable: isAvailable ?? this.isAvailable,
       isFeatured: isFeatured ?? this.isFeatured,
       category: category ?? this.category,
+      categoryName: categoryName ?? this.categoryName,
+      categoryNameAr: categoryNameAr ?? this.categoryNameAr,
       branch: branch ?? this.branch,
       isCustomizable: isCustomizable ?? this.isCustomizable,
       availableAddons: availableAddons ?? this.availableAddons,
@@ -116,6 +124,8 @@ class MenuItemModel extends Equatable {
       'isAvailable': isAvailable,
       'isFeatured': isFeatured,
       'category': category,
+      'categoryName': categoryName,
+      'categoryNameAr': categoryNameAr,
       'branch': branch,
       'isCustomizable': isCustomizable,
       'availableAddons':
@@ -125,7 +135,7 @@ class MenuItemModel extends Equatable {
 
   factory MenuItemModel.fromJson(Map<String, dynamic> json) {
     return MenuItemModel(
-      id: json['id']?.toString() ?? '',
+      id: json['itemId']?.toString() ?? json['id']?.toString() ?? '',
       name: json['name']?.toString() ?? '',
       description:
           json['details']?.toString() ?? json['description']?.toString() ?? '',
@@ -137,7 +147,9 @@ class MenuItemModel extends Equatable {
       category: json['itemCategoryId']?.toString() ??
           json['category']?.toString() ??
           '',
-      branch: json['branch']?.toString(),
+      categoryName: json['itemCategoryName']?.toString(),
+      categoryNameAr: json['itemCategoryNameAr']?.toString(),
+      branch: json['branchId']?.toString() ?? json['branch']?.toString(),
       isCustomizable: json['isCustomizable'] as bool? ?? false,
       availableAddons: json['addons'] != null
           ? (json['addons'] as List)
@@ -161,6 +173,8 @@ class MenuItemModel extends Equatable {
         isAvailable,
         isFeatured,
         category,
+        categoryName,
+        categoryNameAr,
         branch,
         isCustomizable,
         availableAddons,

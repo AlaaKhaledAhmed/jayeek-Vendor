@@ -210,36 +210,75 @@ class _FoodMenuScreenWithTabsState extends ConsumerState<FoodMenuScreenWithTabs>
   }
 
   Widget _buildMenuItemsList(MenuState state, MenuNotifier notifier) {
-    // Get items from response
-    final items = state.items.data?.data ?? [];
+    // Get items from branch data
+    final allItems = state.branchData.data?.data?.items ?? [];
 
-    // Filter items based on query
-    final filteredItems = items.where((item) {
+    // Filter items based on query and Food Category (selectedCategoryId)
+    final filteredItems = allItems.where((item) {
+      // فلترة حسب البحث
       final q = (state.query ?? '').trim().toLowerCase();
-      return q.isEmpty ||
+      final matchesQuery = q.isEmpty ||
           item.name.toLowerCase().contains(q) ||
           item.description.toLowerCase().contains(q);
+
+      // فلترة حسب Food Category - تصفية حسب itemCategoryId المرتبط بالقسم المختار
+      final matchesCategory = state.selectedItemCategoryId == null ||
+          int.tryParse(item.category) == state.selectedItemCategoryId;
+
+      return matchesQuery && matchesCategory;
     }).toList(growable: false);
 
     return DataViewBuilder(
-      dataHandle: state.items,
+      dataHandle: state.branchData,
       loadingBuilder: () => CustomLoad().loadVerticalList(context: context),
-      isDataEmpty: () => filteredItems.isEmpty,
+      isDataEmpty: () =>
+          allItems.isEmpty, // Check if ALL items are empty (API issue)
       onReload: () async => notifier.refreshMenu(),
       emptyBuilder: () => const EmptyState(),
-      successBuilder: (response) => Padding(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-        child: (state.gridMode ?? false)
-            ? GridList(items: filteredItems)
-            : ListView.separated(
-                itemCount: filteredItems.length,
-                separatorBuilder: (_, __) => SizedBox(height: 12.h),
-                itemBuilder: (_, i) {
-                  final item = filteredItems[i];
-                  return MenuItemCard(item: item);
-                },
-              ),
-      ),
+      successBuilder: (response) {
+        // If filtered items are empty but we have items, show "no items in this category"
+        if (filteredItems.isEmpty && allItems.isNotEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.inbox_outlined,
+                  size: 80.sp,
+                  color: AppColor.mediumGray,
+                ),
+                SizedBox(height: 16.h),
+                AppText(
+                  text: 'لا توجد عناصر في هذا القسم',
+                  fontSize: AppSize.heading2,
+                  fontWeight: FontWeight.bold,
+                  color: AppColor.textColor,
+                ),
+                SizedBox(height: 8.h),
+                AppText(
+                  text: 'جرب البحث أو اختر قسم آخر',
+                  fontSize: AppSize.normalText,
+                  color: AppColor.mediumGray,
+                ),
+              ],
+            ),
+          );
+        }
+
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+          child: (state.gridMode ?? false)
+              ? GridList(items: filteredItems)
+              : ListView.separated(
+                  itemCount: filteredItems.length,
+                  separatorBuilder: (_, __) => SizedBox(height: 12.h),
+                  itemBuilder: (_, i) {
+                    final item = filteredItems[i];
+                    return MenuItemCard(item: item);
+                  },
+                ),
+        );
+      },
     );
   }
 }
