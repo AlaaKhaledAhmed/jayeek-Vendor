@@ -78,13 +78,13 @@ class CategoriesNotifier extends StateNotifier<CategoriesState>
     _addSelectedImagePath = null;
     state = state.copyWith(selectedImagePath: null);
   }
-  
+
   /// Set image path directly (for emojis)
   void setAddImagePath(String path) {
     _addSelectedImagePath = path;
     state = state.copyWith(selectedImagePath: path);
   }
-  
+
   /// Set edit image path directly (for emojis)
   void setEditImagePath(String path) {
     _editSelectedImagePath = path;
@@ -118,7 +118,20 @@ class CategoriesNotifier extends StateNotifier<CategoriesState>
       ),
     );
 
-    final response = await _repository.getFoodCategories();
+    // Get branchId from SharedPreferences
+    final branchId = await SharedPreferencesService.getBranchId();
+
+    if (branchId == null) {
+      state = state.copyWith(
+        categoriesData: state.categoriesData.copyWith(
+          result: 'Branch ID not found',
+        ),
+      );
+      return;
+    }
+
+    // Use the new API that returns categories with items
+    final response = await _repository.getCategoriesWithItemsByBranch(branchId);
 
     if (!response.hasError && response.data != null) {
       state = state.copyWith(
@@ -158,12 +171,21 @@ class CategoriesNotifier extends StateNotifier<CategoriesState>
     // Get organizationId from shared preferences
     final organizationId = await SharedPreferencesService.getOrganizationId();
 
-    // Convert image to base64 if it's a local file
+    // Convert image to base64 if it's a local file (not emoji)
     String? imageBase64;
     if (_addSelectedImagePath != null && _addSelectedImagePath!.isNotEmpty) {
-      // Check if it's a local file path
-      if (_addSelectedImagePath!.startsWith('/') &&
+      // Check if it's an emoji (short string, typically 1-4 characters)
+      bool isEmoji = _addSelectedImagePath!.length <= 10 &&
+          !_addSelectedImagePath!.startsWith('/') &&
+          !_addSelectedImagePath!.startsWith('http') &&
+          !_addSelectedImagePath!.contains('.');
+
+      if (isEmoji) {
+        // Don't send image for emoji, just skip it
+        imageBase64 = null;
+      } else if (_addSelectedImagePath!.startsWith('/') &&
           !_addSelectedImagePath!.startsWith('http')) {
+        // It's a local file path, convert to base64
         try {
           final file = File(_addSelectedImagePath!);
           final bytes = await file.readAsBytes();
@@ -213,12 +235,21 @@ class CategoriesNotifier extends StateNotifier<CategoriesState>
     final organizationId = _editingCategory!.organizationId ??
         await SharedPreferencesService.getOrganizationId();
 
-    // Convert image to base64 if it's a local file
+    // Convert image to base64 if it's a local file (not emoji)
     String? imageBase64;
     final imagePath = _editSelectedImagePath ?? _editingCategory!.image;
     if (imagePath != null && imagePath.isNotEmpty) {
-      // Check if it's a local file path
-      if (imagePath.startsWith('/') && !imagePath.startsWith('http')) {
+      // Check if it's an emoji (short string, typically 1-4 characters)
+      bool isEmoji = imagePath.length <= 10 &&
+          !imagePath.startsWith('/') &&
+          !imagePath.startsWith('http') &&
+          !imagePath.contains('.');
+
+      if (isEmoji) {
+        // Don't send image for emoji, just skip it
+        imageBase64 = null;
+      } else if (imagePath.startsWith('/') && !imagePath.startsWith('http')) {
+        // It's a local file path, convert to base64
         try {
           final file = File(imagePath);
           final bytes = await file.readAsBytes();

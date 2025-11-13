@@ -108,6 +108,15 @@ class FoodRepositoryImpl implements FoodRepository {
   }
 
   @override
+  Future<PostDataHandle<FoodCategoriesResponse>> getCategoriesWithItemsByBranch(
+      int branchId) {
+    return networkService.get<FoodCategoriesResponse>(
+      url: ApiEndPoints.getCategoriesWithItemsByBranchUrl(branchId),
+      fromJson: FoodCategoriesResponse.fromJson,
+    );
+  }
+
+  @override
   Future<PostDataHandle<MenuItemsResponse>> getMenuItemsByCategoryId(
       int categoryId) {
     return networkService.get<MenuItemsResponse>(

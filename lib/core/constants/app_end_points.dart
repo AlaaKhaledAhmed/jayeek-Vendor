@@ -23,6 +23,8 @@ class ApiEndPoints {
 
   // Food Category endpoints
   static const String getFoodCategoriesUrl = '$_baseUrl/ItemCategory/get-all';
+  static String getCategoriesWithItemsByBranchUrl(int branchId) =>
+      '$_baseUrl/ItemCategory/get/$branchId';
   static const String createFoodCategoryUrl = '$_baseUrl/ItemCategory/create';
   static const String updateFoodCategoryUrl = '$_baseUrl/ItemCategory/update';
   static const String deleteFoodCategoryUrl = '$_baseUrl/ItemCategory/delete';

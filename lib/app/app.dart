@@ -34,7 +34,7 @@ class _MyAppState extends State<MyApp> {
       splitScreenMode: true,
       builder: (_, __) => MaterialApp(
         navigatorKey: myNavigatorKey,
-        // home: const SplashScreen(),
+      home: const HomePage(),
         onGenerateRoute: onGenerateRoute,
         debugShowCheckedModeBanner: false,
         locale: context.locale,

@@ -11,7 +11,6 @@ import 'package:jayeek_vendor/core/widgets/app_buttons.dart';
 import 'package:jayeek_vendor/core/widgets/app_decoration.dart';
 import 'package:jayeek_vendor/core/widgets/app_image_placeholder.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
-import '../../../../generated/assets.dart';
 import '../../domain/models/menu_item_model.dart';
 import '../../providers/menu/menu_provider.dart';
 import '../screens/update_food.dart';
@@ -20,8 +19,13 @@ import 'price_chip.dart';
 
 class MenuItemCard extends ConsumerWidget {
   final MenuItemModel item;
+  final bool showCategoryName;
 
-  const MenuItemCard({super.key, required this.item});
+  const MenuItemCard({
+    super.key,
+    required this.item,
+    this.showCategoryName = false,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -125,24 +129,28 @@ class MenuItemCard extends ConsumerWidget {
                         ),
                       ),
                       SizedBox(width: 6.w),
-                      // Category chip small
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8.w,
-                          vertical: 4.h,
+                      // Category chip - show only when showCategoryName is true
+                      if (showCategoryName &&
+                          (item.categoryName?.isNotEmpty == true ||
+                              item.categoryNameAr?.isNotEmpty == true))
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8.w,
+                            vertical: 4.h,
+                          ),
+                          decoration: AppDecoration.decoration(
+                            color: AppColor.subtextColor,
+                            radius: 24,
+                            shadow: false,
+                          ),
+                          child: AppText(
+                            text:
+                                item.categoryNameAr ?? item.categoryName ?? '',
+                            fontSize: AppSize.smallText,
+                            color: AppColor.white,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                        decoration: AppDecoration.decoration(
-                          color: AppColor.subtextColor,
-                          radius: 24,
-                          shadow: false,
-                        ),
-                        child: AppText(
-                          text: item.category,
-                          fontSize: AppSize.smallText,
-                          color: AppColor.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
                     ],
                   ),
                   SizedBox(height: 4.h),

@@ -17,7 +17,7 @@ class CustomizableBadge extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
         decoration: AppDecoration.decoration(
-          color: AppColor.subtextColor,
+          color: AppColor.green,
           radius: 16,
           shadow: false,
           borderRadius: BorderRadius.only(

@@ -16,46 +16,10 @@ class MenuNotifier extends StateNotifier<MenuState> {
     _loadInitialData();
   }
 
-  /// Load categories and branch items
+  /// Load categories with items using the new unified API
   Future<void> _loadInitialData() async {
-    // Load categories first
-    await _loadCategories();
-
-    // Load all branch items
-    await _loadBranchItems();
-  }
-
-  /// Load categories
-  Future<void> _loadCategories() async {
     state = state.copyWith(
-      categories: state.categories.copyWith(
-        result: AppFlowState.loading,
-      ),
-    );
-
-    final apiResponse = await repository.getFoodCategories();
-
-    if (!apiResponse.hasError && apiResponse.data != null) {
-      state = state.copyWith(
-        categories: state.categories.copyWith(
-          result: AppFlowState.loaded,
-          data: apiResponse.data,
-        ),
-      );
-    } else {
-      state = state.copyWith(
-        categories: state.categories.copyWith(
-          result: apiResponse.message ?? AppFlowState.error,
-          data: const FoodCategoriesResponse(),
-        ),
-      );
-    }
-  }
-
-  /// Load all branch items using Branch API
-  Future<void> _loadBranchItems() async {
-    state = state.copyWith(
-      branchData: state.branchData.copyWith(
+      categoriesWithItems: state.categoriesWithItems.copyWith(
         result: AppFlowState.loading,
       ),
     );
@@ -65,26 +29,46 @@ class MenuNotifier extends StateNotifier<MenuState> {
 
     if (branchId == null) {
       state = state.copyWith(
-        branchData: state.branchData.copyWith(
+        categoriesWithItems: state.categoriesWithItems.copyWith(
           result: 'Branch ID not found',
         ),
       );
       return;
     }
 
-    final apiResponse = await repository.getBranchItems(branchId);
+    final apiResponse =
+        await repository.getCategoriesWithItemsByBranch(branchId);
 
     if (!apiResponse.hasError && apiResponse.data != null) {
+      // Update items with category names
+      final categoriesWithUpdatedItems =
+          apiResponse.data!.data?.map((category) {
+        if (category.items == null || category.items!.isEmpty) {
+          return category;
+        }
+
+        // Add category name to each item
+        final updatedItems = category.items!.map((item) {
+          return item.copyWith(
+            categoryName: category.name,
+            categoryNameAr: category.nameAr,
+          );
+        }).toList();
+
+        return category.copyWith(items: updatedItems);
+      }).toList();
+
       state = state.copyWith(
-        branchData: state.branchData.copyWith(
+        categoriesWithItems: state.categoriesWithItems.copyWith(
           result: AppFlowState.loaded,
-          data: apiResponse.data,
+          data: apiResponse.data!.copyWith(data: categoriesWithUpdatedItems),
         ),
       );
     } else {
       state = state.copyWith(
-        branchData: state.branchData.copyWith(
+        categoriesWithItems: state.categoriesWithItems.copyWith(
           result: apiResponse.message ?? AppFlowState.error,
+          data: const FoodCategoriesResponse(),
         ),
       );
     }
@@ -99,89 +83,107 @@ class MenuNotifier extends StateNotifier<MenuState> {
 
   void setQuery(String q) => state = state.copyWith(query: q);
 
-  void setCategory(String? cat) {
-    if (cat == null || cat == 'All') {
-      // عرض كل العناصر - مسح الفلتر
-      state = state.copyWith(
-          category: '', selectedCategoryId: null, clearItemCategoryId: true);
+  void setCategory(int? categoryId) {
+    if (categoryId == null) {
+      state = state.copyWith(clearCategoryId: true);
     } else {
-      // Find the selected category's id
-      final categories = state.categories.data?.data ?? [];
-      final selectedCategory = categories.firstWhere(
-        (c) => c.name == cat && c.deleteFlag != true,
-        orElse: () => categories.first,
-      );
-
-      // Update state with both category name and itemCategoryId for filtering
-      state = state.copyWith(
-        category: cat,
-        selectedCategoryId: selectedCategory.id,
-        selectedItemCategoryId:
-            selectedCategory.id, // Use category id as itemCategoryId
-      );
+      state = state.copyWith(selectedCategoryId: categoryId);
     }
   }
 
-  /// فلترة العناصر حسب itemCategoryId
-  void setItemCategory(int? itemCategoryId) {
-    if (itemCategoryId == null) {
-      state = state.copyWith(clearItemCategoryId: true);
-    } else {
-      state = state.copyWith(selectedItemCategoryId: itemCategoryId);
-    }
-  }
+  /// Get all items from all categories
+  List<MenuItemModel> getAllItems() {
+    final categories = state.categoriesWithItems.data?.data ?? [];
+    final List<MenuItemModel> allItems = [];
 
-  /// الحصول على قائمة فريدة من فئات العناصر الموجودة
-  List<ItemCategoryInfo> getUniqueItemCategories() {
-    final items = state.branchData.data?.data?.items ?? [];
-    final Map<int, ItemCategoryInfo> categoryMap = {};
-
-    for (final item in items) {
-      final categoryId = int.tryParse(item.category);
-      if (categoryId != null && !categoryMap.containsKey(categoryId)) {
-        categoryMap[categoryId] = ItemCategoryInfo(
-          id: categoryId,
-          name: item.categoryName ?? '',
-          nameAr: item.categoryNameAr ?? '',
-        );
+    for (final category in categories) {
+      if (category.items != null) {
+        allItems.addAll(category.items!);
       }
     }
 
-    return categoryMap.values.toList();
+    return allItems;
   }
 
-  void toggleAvailability(String id) {
-    final currentItems = state.branchData.data?.data?.items ?? [];
-    final updated = currentItems.map((e) {
-      if (e.id == id) return e.copyWith(isAvailable: !e.isAvailable);
-      return e;
-    }).toList(growable: false);
+  /// Get filtered items based on current state
+  List<MenuItemModel> getFilteredItems() {
+    final categories = state.categoriesWithItems.data?.data ?? [];
+    List<MenuItemModel> items = [];
 
-    // Update branchData with new items
-    final updatedBranchData =
-        state.branchData.data?.data?.copyWith(items: updated);
+    // Get items from selected category or all categories
+    if (state.selectedCategoryId != null) {
+      final selectedCategory = categories.firstWhere(
+        (cat) => cat.id == state.selectedCategoryId,
+        orElse: () => const FoodCategoryModel(),
+      );
+      items = selectedCategory.items ?? [];
+    } else {
+      // Get all items from all categories
+      for (final category in categories) {
+        if (category.items != null) {
+          items.addAll(category.items!);
+        }
+      }
+    }
+
+    // Apply search query filter
+    if (state.query != null && state.query!.isNotEmpty) {
+      final query = state.query!.toLowerCase();
+      items = items.where((item) {
+        return item.name.toLowerCase().contains(query) ||
+            item.description.toLowerCase().contains(query);
+      }).toList();
+    }
+
+    return items;
+  }
+
+  /// Get list of categories
+  List<FoodCategoryModel> getCategories() {
+    return state.categoriesWithItems.data?.data ?? [];
+  }
+
+  void toggleAvailability(String itemId) {
+    final categories = state.categoriesWithItems.data?.data ?? [];
+    final updatedCategories = categories.map((category) {
+      if (category.items == null) return category;
+
+      final updatedItems = category.items!.map((item) {
+        if (item.id == itemId) {
+          return item.copyWith(isAvailable: !item.isAvailable);
+        }
+        return item;
+      }).toList();
+
+      return category.copyWith(items: updatedItems);
+    }).toList();
+
     state = state.copyWith(
-      branchData: state.branchData.copyWith(
-        data: state.branchData.data?.copyWith(data: updatedBranchData),
+      categoriesWithItems: state.categoriesWithItems.copyWith(
+        data: state.categoriesWithItems.data?.copyWith(data: updatedCategories),
       ),
     );
   }
 
-  Future<void> deleteItem(String id) async {
+  Future<void> deleteItem(String itemId) async {
     try {
       // Call API to delete item from server
-      await repository.deleteMenuItem(id);
+      await repository.deleteMenuItem(itemId);
 
       // Update local state after successful deletion
-      final currentItems = state.branchData.data?.data?.items ?? [];
-      final updated =
-          currentItems.where((e) => e.id != id).toList(growable: false);
+      final categories = state.categoriesWithItems.data?.data ?? [];
+      final updatedCategories = categories.map((category) {
+        if (category.items == null) return category;
 
-      final updatedBranchData =
-          state.branchData.data?.data?.copyWith(items: updated);
+        final updatedItems =
+            category.items!.where((item) => item.id != itemId).toList();
+        return category.copyWith(items: updatedItems);
+      }).toList();
+
       state = state.copyWith(
-        branchData: state.branchData.copyWith(
-          data: state.branchData.data?.copyWith(data: updatedBranchData),
+        categoriesWithItems: state.categoriesWithItems.copyWith(
+          data:
+              state.categoriesWithItems.data?.copyWith(data: updatedCategories),
         ),
       );
     } catch (e) {
@@ -191,43 +193,44 @@ class MenuNotifier extends StateNotifier<MenuState> {
   }
 
   void updateItem(MenuItemModel updatedItem) {
-    final currentItems = state.branchData.data?.data?.items ?? [];
-    final updated = currentItems
-        .map((e) => e.id == updatedItem.id ? updatedItem : e)
-        .toList(growable: false);
+    final categories = state.categoriesWithItems.data?.data ?? [];
+    final updatedCategories = categories.map((category) {
+      if (category.items == null) return category;
 
-    final updatedBranchData =
-        state.branchData.data?.data?.copyWith(items: updated);
+      final updatedItems = category.items!.map((item) {
+        if (item.id == updatedItem.id) {
+          return updatedItem;
+        }
+        return item;
+      }).toList();
+
+      return category.copyWith(items: updatedItems);
+    }).toList();
+
     state = state.copyWith(
-      branchData: state.branchData.copyWith(
-        data: state.branchData.data?.copyWith(data: updatedBranchData),
+      categoriesWithItems: state.categoriesWithItems.copyWith(
+        data: state.categoriesWithItems.data?.copyWith(data: updatedCategories),
       ),
     );
   }
 
   void addItem(MenuItemModel newItem) {
-    final currentItems = state.branchData.data?.data?.items ?? [];
-    final updated = [...currentItems, newItem];
+    final categories = state.categoriesWithItems.data?.data ?? [];
+    final categoryId = int.tryParse(newItem.category);
 
-    final updatedBranchData =
-        state.branchData.data?.data?.copyWith(items: updated);
+    final updatedCategories = categories.map((category) {
+      if (category.id == categoryId) {
+        final currentItems = category.items ?? [];
+        final updatedItems = [...currentItems, newItem];
+        return category.copyWith(items: updatedItems);
+      }
+      return category;
+    }).toList();
+
     state = state.copyWith(
-      branchData: state.branchData.copyWith(
-        data: state.branchData.data?.copyWith(data: updatedBranchData),
+      categoriesWithItems: state.categoriesWithItems.copyWith(
+        data: state.categoriesWithItems.data?.copyWith(data: updatedCategories),
       ),
     );
   }
-}
-
-/// معلومات فئة العنصر
-class ItemCategoryInfo {
-  final int id;
-  final String name;
-  final String nameAr;
-
-  ItemCategoryInfo({
-    required this.id,
-    required this.name,
-    required this.nameAr,
-  });
 }

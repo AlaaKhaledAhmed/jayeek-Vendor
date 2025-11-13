@@ -6,8 +6,13 @@ import 'menu_item_card.dart';
 
 class GridList extends ConsumerWidget {
   final List<MenuItemModel> items;
+  final bool showCategoryName;
 
-  const GridList({super.key, required this.items});
+  const GridList({
+    super.key,
+    required this.items,
+    this.showCategoryName = false,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -19,7 +24,10 @@ class GridList extends ConsumerWidget {
         mainAxisSpacing: 10.h,
       ),
       itemCount: items.length,
-      itemBuilder: (_, i) => MenuItemCard(item: items[i]),
+      itemBuilder: (_, i) => MenuItemCard(
+        item: items[i],
+        showCategoryName: showCategoryName,
+      ),
     );
   }
 }

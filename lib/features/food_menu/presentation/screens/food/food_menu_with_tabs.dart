@@ -14,6 +14,7 @@ import 'package:jayeek_vendor/core/widgets/custom_load.dart';
 import 'package:jayeek_vendor/core/widgets/data_view_builder.dart';
 import 'package:jayeek_vendor/features/food_menu/presentation/screens/food/add_food.dart';
 
+import '../../../domain/models/menu_item_model.dart';
 import '../../../providers/menu/menu_notifier.dart';
 import '../../../providers/menu/menu_provider.dart';
 import '../../../providers/menu/menu_state.dart';
@@ -185,15 +186,8 @@ class _FoodMenuScreenWithTabsState extends ConsumerState<FoodMenuScreenWithTabs>
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  /// Meals Tab
-                  Column(
-                    children: [
-                      const SearchAndChips(),
-                      Expanded(
-                        child: _buildMenuItemsList(state, notifier),
-                      ),
-                    ],
-                  ),
+                  /// Meals Tab - All content wrapped in DataViewBuilder
+                  _buildMenuItemsList(state, notifier),
 
                   /// Categories Tab
                   const CategoriesScreen(),
@@ -210,75 +204,91 @@ class _FoodMenuScreenWithTabsState extends ConsumerState<FoodMenuScreenWithTabs>
   }
 
   Widget _buildMenuItemsList(MenuState state, MenuNotifier notifier) {
-    // Get items from branch data
-    final allItems = state.branchData.data?.data?.items ?? [];
-
-    // Filter items based on query and Food Category (selectedCategoryId)
-    final filteredItems = allItems.where((item) {
-      // فلترة حسب البحث
-      final q = (state.query ?? '').trim().toLowerCase();
-      final matchesQuery = q.isEmpty ||
-          item.name.toLowerCase().contains(q) ||
-          item.description.toLowerCase().contains(q);
-
-      // فلترة حسب Food Category - تصفية حسب itemCategoryId المرتبط بالقسم المختار
-      final matchesCategory = state.selectedItemCategoryId == null ||
-          int.tryParse(item.category) == state.selectedItemCategoryId;
-
-      return matchesQuery && matchesCategory;
-    }).toList(growable: false);
-
     return DataViewBuilder(
-      dataHandle: state.branchData,
+      dataHandle: state.categoriesWithItems,
       loadingBuilder: () => CustomLoad().loadVerticalList(context: context),
-      isDataEmpty: () =>
-          allItems.isEmpty, // Check if ALL items are empty (API issue)
+      isDataEmpty: () {
+        final allItems = notifier.getAllItems();
+        return allItems.isEmpty;
+      },
       onReload: () async => notifier.refreshMenu(),
       emptyBuilder: () => const EmptyState(),
       successBuilder: (response) {
-        // If filtered items are empty but we have items, show "no items in this category"
-        if (filteredItems.isEmpty && allItems.isNotEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.inbox_outlined,
-                  size: 80.sp,
-                  color: AppColor.mediumGray,
-                ),
-                SizedBox(height: 16.h),
-                AppText(
-                  text: 'لا توجد عناصر في هذا القسم',
-                  fontSize: AppSize.heading2,
-                  fontWeight: FontWeight.bold,
-                  color: AppColor.textColor,
-                ),
-                SizedBox(height: 8.h),
-                AppText(
-                  text: 'جرب البحث أو اختر قسم آخر',
-                  fontSize: AppSize.normalText,
-                  color: AppColor.mediumGray,
-                ),
-              ],
-            ),
-          );
-        }
+        // Get filtered items using the new notifier method
+        final filteredItems = notifier.getFilteredItems();
+        final allItems = notifier.getAllItems();
 
-        return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-          child: (state.gridMode ?? false)
-              ? GridList(items: filteredItems)
-              : ListView.separated(
-                  itemCount: filteredItems.length,
-                  separatorBuilder: (_, __) => SizedBox(height: 12.h),
-                  itemBuilder: (_, i) {
-                    final item = filteredItems[i];
-                    return MenuItemCard(item: item);
-                  },
-                ),
+        return Column(
+          children: [
+            // Search and Category Chips - shown only when data is loaded
+            const SearchAndChips(),
+
+            // Items List
+            Expanded(
+              child: _buildItemsContent(
+                filteredItems: filteredItems,
+                allItems: allItems,
+                state: state,
+              ),
+            ),
+          ],
         );
       },
+    );
+  }
+
+  Widget _buildItemsContent({
+    required List<MenuItemModel> filteredItems,
+    required List<MenuItemModel> allItems,
+    required MenuState state,
+  }) {
+    // Check if we're in "All" category (no specific category selected)
+    final bool showCategoryName = state.selectedCategoryId == null;
+
+    // If filtered items are empty but we have items, show "no items in this category"
+    if (filteredItems.isEmpty && allItems.isNotEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.inbox_outlined,
+              size: 80.sp,
+              color: AppColor.mediumGray,
+            ),
+            SizedBox(height: 16.h),
+            AppText(
+              text: 'لا توجد عناصر في هذا القسم',
+              fontSize: AppSize.heading2,
+              fontWeight: FontWeight.bold,
+              color: AppColor.textColor,
+            ),
+            SizedBox(height: 8.h),
+            AppText(
+              text: 'جرب البحث أو اختر قسم آخر',
+              fontSize: AppSize.normalText,
+              color: AppColor.mediumGray,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+      child: (state.gridMode ?? false)
+          ? GridList(items: filteredItems, showCategoryName: showCategoryName)
+          : ListView.separated(
+              itemCount: filteredItems.length,
+              separatorBuilder: (_, __) => SizedBox(height: 12.h),
+              itemBuilder: (_, i) {
+                final item = filteredItems[i];
+                return MenuItemCard(
+                  item: item,
+                  showCategoryName: showCategoryName,
+                );
+              },
+            ),
     );
   }
 }

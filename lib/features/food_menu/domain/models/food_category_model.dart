@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'menu_item_model.dart';
 
 class FoodCategoriesResponse extends Equatable {
   const FoodCategoriesResponse({
@@ -52,38 +53,46 @@ class FoodCategoryModel extends Equatable {
   const FoodCategoryModel({
     this.id,
     this.organizationId,
+    this.branchId,
     this.name,
     this.nameAr,
     this.image,
     this.deleteFlag,
     this.forSale,
+    this.items,
   });
 
   final int? id;
   final int? organizationId;
+  final int? branchId;
   final String? name;
   final String? nameAr;
   final String? image; // Can be null or base64 string
   final bool? deleteFlag;
   final bool? forSale;
+  final List<MenuItemModel>? items;
 
   FoodCategoryModel copyWith({
     int? id,
     int? organizationId,
+    int? branchId,
     String? name,
     String? nameAr,
     String? image,
     bool? deleteFlag,
     bool? forSale,
+    List<MenuItemModel>? items,
   }) {
     return FoodCategoryModel(
       id: id ?? this.id,
       organizationId: organizationId ?? this.organizationId,
+      branchId: branchId ?? this.branchId,
       name: name ?? this.name,
       nameAr: nameAr ?? this.nameAr,
       image: image ?? this.image,
       deleteFlag: deleteFlag ?? this.deleteFlag,
       forSale: forSale ?? this.forSale,
+      items: items ?? this.items,
     );
   }
 
@@ -91,32 +100,42 @@ class FoodCategoryModel extends Equatable {
     return FoodCategoryModel(
       id: json["id"],
       organizationId: json["organizationId"],
+      branchId: json["branchId"],
       name: json["name"],
       nameAr: json["nameAr"],
       image: json["image"],
       deleteFlag: json["deleteFlag"],
       forSale: json["forSale"],
+      items: json["items"] != null
+          ? (json["items"] as List)
+              .map((item) => MenuItemModel.fromJson(item))
+              .toList()
+          : null,
     );
   }
 
   Map<String, dynamic> toJson() => {
         "id": id,
         "organizationId": organizationId,
+        "branchId": branchId,
         "name": name,
         "nameAr": nameAr,
         "image": image,
         "deleteFlag": deleteFlag,
         "forSale": forSale,
+        "items": items?.map((x) => x.toJson()).toList(),
       };
 
   @override
   List<Object?> get props => [
         id,
         organizationId,
+        branchId,
         name,
         nameAr,
         image,
         deleteFlag,
         forSale,
+        items,
       ];
 }

@@ -3,52 +3,63 @@ import 'package:equatable/equatable.dart';
 /// Addon Model للإضافات على الوجبات
 class AddonModel extends Equatable {
   final String id;
+  final String itemId;
   final String name;
   final double price;
-  final bool isAvailable;
+  final String addonType;
+  final String? image;
 
   const AddonModel({
     required this.id,
+    required this.itemId,
     required this.name,
     required this.price,
-    this.isAvailable = true,
+    this.addonType = 'none',
+    this.image,
   });
 
   factory AddonModel.fromJson(Map<String, dynamic> json) {
     return AddonModel(
       id: json['id']?.toString() ?? '',
+      itemId: json['itemId']?.toString() ?? '',
       name: json['name']?.toString() ?? '',
       price: (json['price'] ?? 0).toDouble(),
-      isAvailable:
-          json['is_available'] as bool? ?? json['isAvailable'] as bool? ?? true,
+      addonType: json['addonType']?.toString() ?? 'none',
+      image: json['image']?.toString(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'itemId': itemId,
       'name': name,
       'price': price,
-      'is_available': isAvailable,
+      'addonType': addonType,
+      'image': image,
     };
   }
 
   AddonModel copyWith({
     String? id,
+    String? itemId,
     String? name,
     double? price,
-    bool? isAvailable,
+    String? addonType,
+    String? image,
   }) {
     return AddonModel(
       id: id ?? this.id,
+      itemId: itemId ?? this.itemId,
       name: name ?? this.name,
       price: price ?? this.price,
-      isAvailable: isAvailable ?? this.isAvailable,
+      addonType: addonType ?? this.addonType,
+      image: image ?? this.image,
     );
   }
 
   @override
-  List<Object?> get props => [id, name, price, isAvailable];
+  List<Object?> get props => [id, itemId, name, price, addonType, image];
 }
 
 /// Menu Item Model مع دعم الإضافات (Addons)
@@ -66,6 +77,7 @@ class MenuItemModel extends Equatable {
   final String? branch;
   final bool isCustomizable;
   final List<AddonModel>? availableAddons;
+  final double? averageRating;
 
   const MenuItemModel({
     required this.id,
@@ -81,6 +93,7 @@ class MenuItemModel extends Equatable {
     this.branch,
     this.isCustomizable = false,
     this.availableAddons,
+    this.averageRating,
   });
 
   MenuItemModel copyWith({
@@ -96,6 +109,7 @@ class MenuItemModel extends Equatable {
     String? branch,
     bool? isCustomizable,
     List<AddonModel>? availableAddons,
+    double? averageRating,
   }) {
     return MenuItemModel(
       id: id,
@@ -111,6 +125,7 @@ class MenuItemModel extends Equatable {
       branch: branch ?? this.branch,
       isCustomizable: isCustomizable ?? this.isCustomizable,
       availableAddons: availableAddons ?? this.availableAddons,
+      averageRating: averageRating ?? this.averageRating,
     );
   }
 
@@ -130,10 +145,21 @@ class MenuItemModel extends Equatable {
       'isCustomizable': isCustomizable,
       'availableAddons':
           availableAddons?.map((addon) => addon.toJson()).toList(),
+      'averageRating': averageRating,
     };
   }
 
   factory MenuItemModel.fromJson(Map<String, dynamic> json) {
+    final addons = json['addons'] != null
+        ? (json['addons'] as List)
+            .map((addon) => AddonModel.fromJson(addon))
+            .toList()
+        : json['availableAddons'] != null
+            ? (json['availableAddons'] as List)
+                .map((addon) => AddonModel.fromJson(addon))
+                .toList()
+            : <AddonModel>[];
+
     return MenuItemModel(
       id: json['itemId']?.toString() ?? json['id']?.toString() ?? '',
       name: json['name']?.toString() ?? '',
@@ -150,16 +176,9 @@ class MenuItemModel extends Equatable {
       categoryName: json['itemCategoryName']?.toString(),
       categoryNameAr: json['itemCategoryNameAr']?.toString(),
       branch: json['branchId']?.toString() ?? json['branch']?.toString(),
-      isCustomizable: json['isCustomizable'] as bool? ?? false,
-      availableAddons: json['addons'] != null
-          ? (json['addons'] as List)
-              .map((addon) => AddonModel.fromJson(addon))
-              .toList()
-          : json['availableAddons'] != null
-              ? (json['availableAddons'] as List)
-                  .map((addon) => AddonModel.fromJson(addon))
-                  .toList()
-              : null,
+      isCustomizable: addons.isNotEmpty,
+      availableAddons: addons.isNotEmpty ? addons : null,
+      averageRating: (json['averageRating'] as num?)?.toDouble(),
     );
   }
 
@@ -178,5 +197,6 @@ class MenuItemModel extends Equatable {
         branch,
         isCustomizable,
         availableAddons,
+        averageRating,
       ];
 }

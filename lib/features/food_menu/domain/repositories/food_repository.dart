@@ -16,6 +16,8 @@ abstract class FoodRepository {
   Future<void> addCategory(String name);
   Future<List<String>> getBranches();
   Future<PostDataHandle<FoodCategoriesResponse>> getFoodCategories();
+  Future<PostDataHandle<FoodCategoriesResponse>> getCategoriesWithItemsByBranch(
+      int branchId);
   Future<PostDataHandle<FoodCategoryModel>> createCategory(
       FoodCategoryModel category);
   Future<PostDataHandle<FoodCategoryModel>> updateCategory(
