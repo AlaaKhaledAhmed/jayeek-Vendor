@@ -14,7 +14,6 @@ import 'package:jayeek_vendor/core/widgets/app_text_fields.dart';
 import 'package:jayeek_vendor/core/widgets/custom_load.dart';
 import 'package:jayeek_vendor/core/widgets/shared_image_picker.dart';
 import 'package:jayeek_vendor/core/widgets/app_decoration.dart';
-import '../../domain/models/menu_item_model.dart';
 import '../../providers/menu/menu_provider.dart';
 import '../../providers/update_item/update_item_provider.dart';
 import '../../providers/update_item/update_item_notifier.dart';
@@ -24,13 +23,13 @@ import '../widgets/addon_groups_manager.dart';
 
 /// Modern Update Food Page with innovative design
 class UpdateFoodPage extends ConsumerWidget {
-  final MenuItemModel item;
+  final int itemId;
 
-  const UpdateFoodPage({super.key, required this.item});
+  const UpdateFoodPage({super.key, required this.itemId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final provider = updateItemProvider(item);
+    final provider = updateItemProvider(itemId);
     final notifier = ref.read(provider.notifier);
     final state = ref.watch(provider);
 

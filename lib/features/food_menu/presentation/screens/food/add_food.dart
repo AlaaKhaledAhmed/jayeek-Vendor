@@ -14,9 +14,9 @@ import 'package:jayeek_vendor/core/widgets/app_snack_bar.dart';
 import 'package:jayeek_vendor/core/widgets/app_switcher.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
 import 'package:jayeek_vendor/core/widgets/app_text_fields.dart';
-import 'package:jayeek_vendor/core/widgets/custom_load.dart';
 import 'package:jayeek_vendor/core/widgets/shared_image_picker.dart';
 import 'package:jayeek_vendor/core/widgets/app_decoration.dart';
+import 'package:jayeek_vendor/core/widgets/custom_load.dart';
 import '../../../providers/add_item_provider.dart';
 import '../../../providers/add_item_notifier.dart';
 import '../../../providers/add_item_state.dart';
@@ -131,15 +131,19 @@ class AddFoodPage extends ConsumerWidget {
                                                 builder: (context) {
                                                   try {
                                                     // Validate image is not empty or invalid
-                                                    if (category.image == null ||
-                                                        category.image!.isEmpty ||
-                                                        category.image == 'string' ||
-                                                        category.image!.length < 3) {
+                                                    if (category.image ==
+                                                            null ||
+                                                        category
+                                                            .image!.isEmpty ||
+                                                        category.image ==
+                                                            'string' ||
+                                                        category.image!.length <
+                                                            3) {
                                                       return SizedBox(
                                                           width: 24.w,
                                                           height: 24.h);
                                                     }
-                                                    
+
                                                     final imageProvider = category
                                                             .image!
                                                             .startsWith('http')
@@ -407,6 +411,8 @@ class AddFoodPage extends ConsumerWidget {
         if (newItem != null && context.mounted) {
           // Add to menu list
           ref.read(menuProvider.notifier).addItem(newItem);
+          // Reset form for next addition
+          notifier.resetForm();
           Navigator.pop(context);
         }
       },

@@ -12,7 +12,7 @@ import 'update_item_state.dart';
 
 class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
   final FoodRepository repository;
-  final MenuItemModel item;
+  final int itemId; // Use itemId instead of full item
 
   final formKey = GlobalKey<FormState>();
 
@@ -22,8 +22,9 @@ class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
   late final TextEditingController descriptionController;
 
   FoodCategoryModel? selectedCategory;
+  MenuItemModel? loadedItem; // Store the loaded item
 
-  UpdateItemNotifier(this.repository, this.item)
+  UpdateItemNotifier(this.repository, this.itemId)
       : super(const UpdateItemState()) {
     _init();
   }
@@ -31,46 +32,89 @@ class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
   Future<void> _init() async {
     state = state.copyWith(isLoading: true);
 
-    // Initialize controllers with item data
-    nameController = TextEditingController(text: item.name);
-    priceController = TextEditingController(text: item.price.toString());
-    descriptionController = TextEditingController(text: item.description);
+    // Initialize controllers with empty values
+    nameController = TextEditingController();
+    priceController = TextEditingController();
+    descriptionController = TextEditingController();
 
-    // Load categories from API
-    final response = await repository.getFoodCategories();
-    if (!response.hasError && response.data != null) {
-      final categories = response.data!.data ?? [];
-      // Filter out deleted categories
-      final activeCategories = categories.where((cat) => cat.deleteFlag != true).toList();
-      
-      // Find and set the selected category by matching name
-      if (item.category.isNotEmpty && activeCategories.isNotEmpty) {
-        try {
-          selectedCategory = activeCategories.firstWhere(
-            (cat) => cat.name == item.category || cat.nameAr == item.category,
-          );
-        } catch (e) {
-          // If category not found, select first category or null
-          selectedCategory = activeCategories.isNotEmpty ? activeCategories.first : null;
-        }
-      }
+    // Fetch item data from API
+    final itemResponse = await repository.getMenuItemById(itemId);
 
-      state = state.copyWith(
-        isLoading: false,
-        categories: activeCategories,
-        mealImagePath: item.imageUrl,
-        isAvailable: item.isAvailable,
-        isCustomizable: item.isCustomizable,
-      );
-    } else {
+    if (itemResponse.hasError || itemResponse.data == null) {
       state = state.copyWith(
         isLoading: false,
         categories: [],
-        mealImagePath: item.imageUrl,
-        isAvailable: item.isAvailable,
-        isCustomizable: item.isCustomizable,
       );
+      AppSnackBar.show(
+        message: itemResponse.message ?? 'فشل في جلب بيانات الصنف',
+        type: ToastType.error,
+      );
+      return;
     }
+
+    loadedItem = itemResponse.data!;
+
+    // Set controller values from loaded item
+    nameController.text = loadedItem!.name;
+    priceController.text = loadedItem!.price.toString();
+    descriptionController.text = loadedItem!.description;
+
+    // Fetch categories to populate dropdown
+    final categoriesResponse = await repository.getFoodCategories();
+    List<FoodCategoryModel> activeCategories = [];
+
+    if (!categoriesResponse.hasError && categoriesResponse.data != null) {
+      final categories = categoriesResponse.data!.data ?? [];
+      activeCategories =
+          categories.where((cat) => cat.deleteFlag != true).toList();
+
+      // Find and set the selected category by ID
+      if (loadedItem!.category.isNotEmpty && activeCategories.isNotEmpty) {
+        try {
+          final categoryId = int.tryParse(loadedItem!.category);
+          if (categoryId != null) {
+            selectedCategory = activeCategories.firstWhere(
+              (cat) => cat.id == categoryId,
+              orElse: () => activeCategories.first,
+            );
+          }
+        } catch (e) {
+          selectedCategory =
+              activeCategories.isNotEmpty ? activeCategories.first : null;
+        }
+      }
+    }
+
+    // Convert addons to addon groups if available
+    List<AddonGroup> addonGroups = [];
+    if (loadedItem!.availableAddons != null &&
+        loadedItem!.availableAddons!.isNotEmpty) {
+      // Group addons by name (simple approach)
+      // In a real scenario, you might need more sophisticated grouping
+      for (var addon in loadedItem!.availableAddons!) {
+        final addonItem = AddonItem(
+          name: addon.name,
+          price: addon.price.toString(),
+          image: addon.image,
+        );
+
+        // Create a group for each addon (you can modify this logic)
+        final group = AddonGroup(
+          title: addon.name,
+          items: [addonItem],
+        );
+        addonGroups.add(group);
+      }
+    }
+
+    state = state.copyWith(
+      isLoading: false,
+      categories: activeCategories,
+      mealImagePath: loadedItem!.imageUrl,
+      isAvailable: loadedItem!.isAvailable,
+      isCustomizable: loadedItem!.isCustomizable,
+      addonGroups: addonGroups,
+    );
   }
 
   void setMealImagePath(String path) {
@@ -92,7 +136,8 @@ class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
     final response = await repository.getFoodCategories();
     if (!response.hasError && response.data != null) {
       final categories = response.data!.data ?? [];
-      final activeCategories = categories.where((cat) => cat.deleteFlag != true).toList();
+      final activeCategories =
+          categories.where((cat) => cat.deleteFlag != true).toList();
       state = state.copyWith(categories: activeCategories);
     }
   }
@@ -194,51 +239,68 @@ class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
   Future<MenuItemModel?> update() async {
     if (!formKey.currentState!.validate()) return null;
 
-    state = state.copyWith(isLoading: true, );
+    // Check if item was loaded successfully
+    if (loadedItem == null) {
+      AppSnackBar.show(
+        message: 'لم يتم تحميل بيانات الصنف',
+        type: ToastType.error,
+      );
+      return null;
+    }
+
+    // Check if category is selected (required)
+    if (selectedCategory == null) {
+      AppSnackBar.show(
+        message: 'يرجى اختيار الفئة',
+        type: ToastType.error,
+      );
+      return null;
+    }
 
     try {
+      state = state.copyWith(isLoading: true);
+
       // Create updated MenuItemModel
-      final updatedItem = item.copyWith(
-        name: nameController.text,
-        description: descriptionController.text,
-        price: double.tryParse(priceController.text) ?? item.price,
-        imageUrl: state.mealImagePath ?? item.imageUrl,
-        category: selectedCategory?.name ?? item.category,
+      final updatedItem = loadedItem!.copyWith(
+        name: nameController.text.trim(),
+        description: descriptionController.text.trim(),
+        price: double.tryParse(priceController.text) ?? loadedItem!.price,
+        imageUrl: state.mealImagePath ?? loadedItem!.imageUrl,
+        category: selectedCategory!.id?.toString() ?? loadedItem!.category,
         isAvailable: state.isAvailable,
         isCustomizable: state.isCustomizable,
+        availableAddons: null,
       );
 
-      final payload = updatedItem.toJson();
-      payload['addons'] = state.addonGroups
-          .map(
-            (g) => {
-              "name": g.title,
-              "isSingleSelection": g.isSingleSelection,
-              "required": g.isRequired,
-              "maxSelectable": g.maxSelectable,
-              "allowQuantity": g.allowQuantity,
-              "items": g.items
-                  .map(
-                    (i) => {
-                      "name": i.name,
-                      "price": i.price,
-                      "description": i.description,
-                      "image": i.image,
-                      "quantity": i.quantity,
-                    },
-                  )
-                  .toList(),
-            },
-          )
-          .toList();
+      // Call repository to update item with addon groups
+      final response = await repository.updateMenuItem(
+        updatedItem,
+        state.addonGroups,
+      );
 
-      await repository.updateFoodItem(payload);
       state = state.copyWith(isLoading: false);
-      return updatedItem;
+
+      if (response.hasError) {
+        AppSnackBar.show(
+          message: response.message ?? AppMessage.errorOccurred,
+          type: ToastType.error,
+        );
+        return null;
+      }
+
+      // Show success message
+      AppSnackBar.show(
+        message: 'تم تحديث الصنف بنجاح',
+        type: ToastType.success,
+      );
+
+      // Return the item from response or updatedItem
+      return response.data ?? updatedItem;
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-       
+      state = state.copyWith(isLoading: false);
+      AppSnackBar.show(
+        message: 'فشل في تحديث الصنف: ${e.toString()}',
+        type: ToastType.error,
       );
       return null;
     }

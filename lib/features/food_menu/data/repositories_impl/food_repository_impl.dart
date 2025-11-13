@@ -6,11 +6,269 @@ import '../../domain/models/food_category_model.dart';
 import '../../domain/models/menu_item_model.dart';
 import '../../domain/models/menu_items_response.dart';
 import '../../domain/repositories/food_repository.dart';
+import '../../providers/add_item_state.dart';
+import 'dart:io';
+import 'dart:convert';
 
 class FoodRepositoryImpl implements FoodRepository {
   final INetworkServices networkService;
 
   FoodRepositoryImpl({required this.networkService});
+
+  @override
+  Future<PostDataHandle<MenuItemModel>> getMenuItemById(int itemId) async {
+    try {
+      return networkService.get<MenuItemModel>(
+        url: ApiEndPoints.getMenuItemByIdUrl(itemId),
+        fromJson: (json) {
+          // The API returns {success: true, data: {...}, message: null}
+          // response.data is the full response object
+          // Check if response has 'data' key
+          if (json.containsKey('data') && json['data'] != null) {
+            return MenuItemModel.fromJson(json['data'] as Map<String, dynamic>);
+          }
+          // If no 'data' key, maybe the response is the data itself
+          return MenuItemModel.fromJson(json);
+        },
+      );
+    } catch (e) {
+      return PostDataHandle<MenuItemModel>(
+        hasError: true,
+        message: 'فشل في جلب بيانات الصنف: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<PostDataHandle<MenuItemModel>> createMenuItem(
+    MenuItemModel menuItem,
+    List<AddonGroup> addonGroups,
+  ) async {
+    try {
+      // Convert image to base64 if it's a local file
+      String? imageBase64;
+      if (menuItem.imageUrl.isNotEmpty) {
+        if (menuItem.imageUrl.startsWith('/') &&
+            !menuItem.imageUrl.startsWith('http')) {
+          // It's a local file path, convert to base64
+          try {
+            final file = File(menuItem.imageUrl);
+            final bytes = await file.readAsBytes();
+            imageBase64 = base64Encode(bytes);
+          } catch (e) {
+            // If file read fails, use the existing string (might already be base64)
+            imageBase64 = menuItem.imageUrl;
+          }
+        } else if (menuItem.imageUrl.startsWith('http')) {
+          // It's a URL, send as is (backend should handle it)
+          imageBase64 = menuItem.imageUrl;
+        } else {
+          // Already base64, use as is
+          imageBase64 = menuItem.imageUrl;
+        }
+      }
+
+      // Process addon groups - each group becomes an addon with its items as addonOptions
+      final List<Map<String, dynamic>> processedAddons = [];
+      if (menuItem.isCustomizable && addonGroups.isNotEmpty) {
+        for (var group in addonGroups) {
+          if (group.items.isEmpty) continue;
+
+          // Process addon options from group items
+          final List<Map<String, dynamic>> addonOptions = [];
+          for (var item in group.items) {
+            addonOptions.add({
+              'id': 0, // Backend will generate
+              'name': item.name,
+              'price': double.tryParse(item.price) ?? 0.0,
+            });
+          }
+
+          // Use first item's data for the addon main info
+          final firstItem = group.items.first;
+
+          // Convert addon image to base64 if it's a local file
+          String? addonImageBase64;
+          if (firstItem.image != null && firstItem.image!.isNotEmpty) {
+            if (firstItem.image!.startsWith('/') &&
+                !firstItem.image!.startsWith('http')) {
+              try {
+                final file = File(firstItem.image!);
+                final bytes = await file.readAsBytes();
+                addonImageBase64 = base64Encode(bytes);
+              } catch (e) {
+                addonImageBase64 = firstItem.image;
+              }
+            } else {
+              addonImageBase64 = firstItem.image;
+            }
+          }
+
+          final addonMap = <String, dynamic>{
+            'name': group.title,
+            'price': double.tryParse(firstItem.price) ?? 0.0,
+            'addonType': 'none', // Fixed as per API spec
+            'addonOptions': addonOptions,
+          };
+
+          // Add contentBase64 only if there's an image
+          if (addonImageBase64 != null && addonImageBase64.isNotEmpty) {
+            addonMap['contentBase64'] = addonImageBase64;
+          }
+
+          processedAddons.add(addonMap);
+        }
+      }
+
+      // Prepare request body with fixed values
+      final body = <String, dynamic>{
+        'unitId': 0, // Fixed as per requirement
+        'itemCategoryId': int.tryParse(menuItem.category) ?? 0,
+        'name': menuItem.name,
+        'details': menuItem.description,
+        'price': menuItem.price,
+        'size': 0, // Fixed as per requirement
+        'allBranches': true, // Fixed as per requirement
+        'isActive': menuItem.isAvailable,
+        'isCustomizable': menuItem.isCustomizable,
+        'addons': processedAddons,
+      };
+
+      // Add contentBase64 only if there's an image
+      if (imageBase64 != null && imageBase64.isNotEmpty) {
+        body['contentBase64'] = imageBase64;
+      }
+
+      return networkService.post<MenuItemModel>(
+        url: ApiEndPoints.createMenuItemUrl,
+        body: body,
+        fromJson: MenuItemModel.fromJson,
+      );
+    } catch (e) {
+      return PostDataHandle<MenuItemModel>(
+        hasError: true,
+        message: 'فشل في إضافة الصنف: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<PostDataHandle<MenuItemModel>> updateMenuItem(
+    MenuItemModel menuItem,
+    List<AddonGroup> addonGroups,
+  ) async {
+    try {
+      // Convert image to base64 if it's a local file
+      String? imageBase64;
+      if (menuItem.imageUrl.isNotEmpty) {
+        if (menuItem.imageUrl.startsWith('/') &&
+            !menuItem.imageUrl.startsWith('http')) {
+          // It's a local file path, convert to base64
+          try {
+            final file = File(menuItem.imageUrl);
+            final bytes = await file.readAsBytes();
+            imageBase64 = base64Encode(bytes);
+          } catch (e) {
+            // If file read fails, use the existing string (might already be base64)
+            imageBase64 = menuItem.imageUrl;
+          }
+        } else if (menuItem.imageUrl.startsWith('http')) {
+          // It's a URL, don't send it (image already exists on server)
+          imageBase64 = null;
+        } else {
+          // Already base64, use as is
+          imageBase64 = menuItem.imageUrl;
+        }
+      }
+
+      // Process addon groups - each group becomes an addon with its items as addonOptions
+      final List<Map<String, dynamic>> processedAddons = [];
+      if (menuItem.isCustomizable && addonGroups.isNotEmpty) {
+        for (var group in addonGroups) {
+          if (group.items.isEmpty) continue;
+
+          // Process addon options from group items
+          final List<Map<String, dynamic>> addonOptions = [];
+          for (var item in group.items) {
+            addonOptions.add({
+              'id': 0, // Backend will generate
+              'name': item.name,
+              'price': double.tryParse(item.price) ?? 0.0,
+            });
+          }
+
+          // Use first item's data for the addon main info
+          final firstItem = group.items.first;
+
+          // Convert addon image to base64 if it's a local file
+          String? addonImageBase64;
+          if (firstItem.image != null && firstItem.image!.isNotEmpty) {
+            if (firstItem.image!.startsWith('/') &&
+                !firstItem.image!.startsWith('http')) {
+              try {
+                final file = File(firstItem.image!);
+                final bytes = await file.readAsBytes();
+                addonImageBase64 = base64Encode(bytes);
+              } catch (e) {
+                addonImageBase64 = firstItem.image;
+              }
+            } else if (firstItem.image!.startsWith('http')) {
+              // It's a URL, don't send it
+              addonImageBase64 = null;
+            } else {
+              addonImageBase64 = firstItem.image;
+            }
+          }
+
+          final addonMap = <String, dynamic>{
+            'name': group.title,
+            'price': double.tryParse(firstItem.price) ?? 0.0,
+            'addonType': 'none', // Fixed as per API spec
+            'addonOptions': addonOptions,
+          };
+
+          // Add contentBase64 only if there's an image
+          if (addonImageBase64 != null && addonImageBase64.isNotEmpty) {
+            addonMap['contentBase64'] = addonImageBase64;
+          }
+
+          processedAddons.add(addonMap);
+        }
+      }
+
+      // Prepare request body with fixed values
+      final body = <String, dynamic>{
+        'itemId': int.tryParse(menuItem.id) ?? 0, // Required for update
+        'unitId': 0, // Fixed as per requirement
+        'itemCategoryId': int.tryParse(menuItem.category) ?? 0,
+        'name': menuItem.name,
+        'details': menuItem.description,
+        'price': menuItem.price,
+        'size': 0, // Fixed as per requirement
+        'allBranches': true, // Fixed as per requirement
+        'isActive': menuItem.isAvailable,
+        'isCustomizable': menuItem.isCustomizable,
+        'addons': processedAddons,
+        'removeImage': false, // Don't remove existing image
+      };
+
+      // Add contentBase64 only if there's a new image
+      if (imageBase64 != null && imageBase64.isNotEmpty) {
+        body['contentBase64'] = imageBase64;
+      }
+
+      return networkService.put<MenuItemModel>(
+        url: ApiEndPoints.updateMenuItemUrl,
+        body: body,
+        fromJson: MenuItemModel.fromJson,
+      );
+    } catch (e) {
+      return PostDataHandle<MenuItemModel>(
+        hasError: true,
+        message: 'فشل في تحديث الصنف: ${e.toString()}',
+      );
+    }
+  }
 
   @override
   Future<void> addFoodItem(Map<String, dynamic> data) async {

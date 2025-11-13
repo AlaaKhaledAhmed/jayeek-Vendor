@@ -31,6 +31,10 @@ class ApiEndPoints {
 
   // Menu Items endpoints
   static const String getMenuItemsUrl = '$_baseUrl/Item/get-all';
+  static String getMenuItemByIdUrl(int itemId) =>
+      '$_baseUrl/Item/get-item/$itemId';
+  static const String createMenuItemUrl = '$_baseUrl/Item/create-item';
+  static const String updateMenuItemUrl = '$_baseUrl/Item/update-item';
 
   // Branch endpoints
   static String getBranchByIdUrl(int branchId) =>

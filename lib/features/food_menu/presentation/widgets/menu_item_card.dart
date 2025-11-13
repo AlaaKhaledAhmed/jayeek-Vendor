@@ -33,8 +33,11 @@ class MenuItemCard extends ConsumerWidget {
 
     return InkWell(
       onTap: () {
-        // Navigate to update page
-        AppRoutes.pushTo(context, UpdateFoodPage(item: item));
+        // Navigate to update page with itemId
+        final itemId = int.tryParse(item.id);
+        if (itemId != null) {
+          AppRoutes.pushTo(context, UpdateFoodPage(itemId: itemId));
+        }
       },
       borderRadius: BorderRadius.circular(15),
       child: Ink(

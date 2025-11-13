@@ -31,7 +31,8 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     if (!response.hasError && response.data != null) {
       final categories = response.data!.data ?? [];
       // Filter out deleted categories
-      final activeCategories = categories.where((cat) => cat.deleteFlag != true).toList();
+      final activeCategories =
+          categories.where((cat) => cat.deleteFlag != true).toList();
       state = state.copyWith(isLoading: false, categories: activeCategories);
     } else {
       state = state.copyWith(isLoading: false, categories: []);
@@ -58,9 +59,9 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     final response = await repository.getFoodCategories();
     if (!response.hasError && response.data != null) {
       final categories = response.data!.data ?? [];
-      final activeCategories = categories.where((cat) => cat.deleteFlag != true).toList();
+      final activeCategories =
+          categories.where((cat) => cat.deleteFlag != true).toList();
       state = state.copyWith(categories: activeCategories);
-
     }
   }
 
@@ -166,48 +167,78 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
       return null;
     }
 
-    // Create MenuItemModel
-    final newItem = MenuItemModel(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: nameController.text,
-      description: descriptionController.text,
-      imageUrl: state.mealImagePath ?? '',
-      price: double.tryParse(priceController.text) ?? 0.0,
-      isAvailable: state.isAvailable,
-      isFeatured: false,
-      category: selectedCategory?.name ?? '',
-      isCustomizable: state.isCustomizable,
+    // Check if category is selected (required)
+    if (selectedCategory == null) {
+      AppSnackBar.show(
+        message: 'يرجى اختيار الفئة',
+        type: ToastType.error,
+      );
+      return null;
+    }
+
+    try {
+      state = state.copyWith(isLoading: true);
+
+      // Create MenuItemModel
+      final newItem = MenuItemModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        name: nameController.text.trim(),
+        description: descriptionController.text.trim(),
+        imageUrl: state.mealImagePath ?? '',
+        price: double.tryParse(priceController.text) ?? 0.0,
+        isAvailable: state.isAvailable,
+        isFeatured: false,
+        category: selectedCategory!.id?.toString() ?? '0',
+        isCustomizable: state.isCustomizable,
+        availableAddons: null,
+      );
+
+      // Call repository to create item with addon groups
+      final response = await repository.createMenuItem(
+        newItem,
+        state.addonGroups,
+      );
+
+      state = state.copyWith(isLoading: false);
+
+      if (response.hasError) {
+        AppSnackBar.show(
+          message: response.message ?? AppMessage.errorOccurred,
+          type: ToastType.error,
+        );
+        return null;
+      }
+
+      // Show success message
+      AppSnackBar.show(
+        message: AppMessage.addedSuccessfully,
+        type: ToastType.success,
+      );
+
+      // Return the item from response or newItem
+      return response.data ?? newItem;
+    } catch (e) {
+      state = state.copyWith(isLoading: false);
+      AppSnackBar.show(
+        message: 'فشل في إضافة الصنف: ${e.toString()}',
+        type: ToastType.error,
+      );
+      return null;
+    }
+  }
+
+  /// Reset form to initial state
+  void resetForm() {
+    nameController.clear();
+    descriptionController.clear();
+    priceController.clear();
+    selectedCategory = null;
+    state = state.copyWith(
+      mealImagePath: null,
+      addonGroups: const [],
+      isCustomizable: false,
+      isAvailable: true,
     );
-
-    final payload = newItem.toJson();
-    payload['addons'] = state.addonGroups
-        .map(
-          (g) => {
-            "name": g.title,
-            "isSingleSelection": g.isSingleSelection,
-            "required": g.isRequired,
-            "maxSelectable": g.maxSelectable,
-            "allowQuantity": g.allowQuantity,
-            "items": g.items
-                .map(
-                  (i) => {
-                    "name": i.name,
-                    "price": i.price,
-                    "description": i.description,
-                    "image": i.image,
-                    "quantity": i.quantity,
-                  },
-                )
-                .toList(),
-          },
-        )
-        .toList();
-
-    state = state.copyWith(isLoading: true);
-    await repository.addFoodItem(payload);
-    state = state.copyWith(isLoading: false);
-
-    return newItem;
   }
 
   @override

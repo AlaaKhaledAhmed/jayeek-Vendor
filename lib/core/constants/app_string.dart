@@ -206,6 +206,8 @@ class AppMessage {
   static const String enterAddonPrice = 'يرجى إدخال سعر الإضافة';
   static const String chooseAddonUnitType = 'يرجى اختيار نوع الوحدة';
   static const String done = 'تمت  العمليه بنجاح';
+  static const String addedSuccessfully = 'تمت الإضافة بنجاح';
+  static const String errorOccurred = 'حدث خطأ ما';
 
   // Categories Strings
   static const String categories = 'الفئات';
