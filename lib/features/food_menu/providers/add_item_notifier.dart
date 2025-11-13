@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/services/image_picker_service.dart';
@@ -159,6 +160,102 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     }
   }
 
+  /// Process addon groups and convert them to the format expected by backend
+  Future<List<Map<String, dynamic>>> _processAddonGroups(
+      List<AddonGroup> addonGroups) async {
+    final List<Map<String, dynamic>> processedAddons = [];
+
+    if (addonGroups.isEmpty) {
+      return processedAddons;
+    }
+
+    for (final group in addonGroups) {
+      // Process addon options from group items (can be empty)
+      final List<Map<String, dynamic>> addonOptions = [];
+      for (final item in group.items) {
+        addonOptions.add({
+          'id': 0, // Backend will generate
+          'name': item.name,
+          'price': double.tryParse(item.price) ?? 0.0,
+        });
+      }
+
+      // Get addon image from first item if available
+      String? addonImageBase64;
+      if (group.items.isNotEmpty) {
+        final firstItem = group.items.first;
+        if (firstItem.image != null && firstItem.image!.isNotEmpty) {
+          if (firstItem.image!.startsWith('/') &&
+              !firstItem.image!.startsWith('http')) {
+            // It's a local file path, convert to base64
+            try {
+              final file = File(firstItem.image!);
+              final bytes = await file.readAsBytes();
+              addonImageBase64 = base64Encode(bytes);
+            } catch (e) {
+              // If file read fails, use the existing string (might already be base64)
+              addonImageBase64 = firstItem.image;
+            }
+          } else if (firstItem.image!.startsWith('http')) {
+            // It's a URL - send it as is (backend should handle it)
+            addonImageBase64 = firstItem.image;
+          } else {
+            // Already base64, use as is
+            addonImageBase64 = firstItem.image;
+          }
+        }
+      }
+
+      final addonMap = <String, dynamic>{
+        'name': group.title,
+        'addonType': 'none', // Fixed as per API spec
+        'addonOptions': addonOptions, // Can be empty list
+      };
+
+      // Add price only if there are items (use first item's price)
+      if (group.items.isNotEmpty) {
+        final firstItem = group.items.first;
+        addonMap['price'] = double.tryParse(firstItem.price) ?? 0.0;
+      } else {
+        addonMap['price'] = 0.0; // Default price for addons without options
+      }
+
+      // Add contentBase64 only if there's an image
+      if (addonImageBase64 != null && addonImageBase64.isNotEmpty) {
+        addonMap['contentBase64'] = addonImageBase64;
+      }
+
+      processedAddons.add(addonMap);
+    }
+
+    return processedAddons;
+  }
+
+  /// Convert image to base64 if it's a local file
+  Future<String?> _processImage(String? imagePath) async {
+    if (imagePath == null || imagePath.isEmpty) {
+      return null;
+    }
+
+    if (imagePath.startsWith('/') && !imagePath.startsWith('http')) {
+      // It's a local file path, convert to base64
+      try {
+        final file = File(imagePath);
+        final bytes = await file.readAsBytes();
+        return base64Encode(bytes);
+      } catch (e) {
+        // If file read fails, use the existing string (might already be base64)
+        return imagePath;
+      }
+    } else if (imagePath.startsWith('http')) {
+      // It's a URL, send as is (backend should handle it)
+      return imagePath;
+    } else {
+      // Already base64, use as is
+      return imagePath;
+    }
+  }
+
   Future<MenuItemModel?> submit() async {
     if (!formKey.currentState!.validate()) return null;
 
@@ -179,25 +276,34 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     try {
       state = state.copyWith(isLoading: true);
 
-      // Create MenuItemModel
-      final newItem = MenuItemModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        name: nameController.text.trim(),
-        description: descriptionController.text.trim(),
-        imageUrl: state.mealImagePath ?? '',
-        price: double.tryParse(priceController.text) ?? 0.0,
-        isAvailable: state.isAvailable,
-        isFeatured: false,
-        category: selectedCategory!.id?.toString() ?? '0',
-        isCustomizable: state.isCustomizable,
-        availableAddons: null,
-      );
+      // Process image
+      final imageBase64 = await _processImage(state.mealImagePath);
 
-      // Call repository to create item with addon groups
-      final response = await repository.createMenuItem(
-        newItem,
-        state.addonGroups,
-      );
+      // Process addon groups
+      final processedAddons = await _processAddonGroups(state.addonGroups);
+
+      // Prepare request body
+      final body = <String, dynamic>{
+        'unitId': 0, // Fixed as per requirement
+        'itemCategoryId':
+            int.tryParse(selectedCategory!.id?.toString() ?? '0') ?? 0,
+        'name': nameController.text.trim(),
+        'details': descriptionController.text.trim(),
+        'price': double.tryParse(priceController.text) ?? 0.0,
+        'size': 0, // Fixed as per requirement
+        'allBranches': false, // Fixed as per requirement
+        'isActive': state.isAvailable,
+        'isCustomizable': state.isCustomizable,
+        'addons': processedAddons,
+      };
+
+      // Add contentBase64 only if there's an image
+      if (imageBase64 != null && imageBase64.isNotEmpty) {
+        body['contentBase64'] = imageBase64;
+      }
+
+      // Call repository with prepared body
+      final response = await repository.createMenuItem(body);
 
       state = state.copyWith(isLoading: false);
 
@@ -215,8 +321,8 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
         type: ToastType.success,
       );
 
-      // Return the item from response or newItem
-      return response.data ?? newItem;
+      // Return the item from response
+      return response.data;
     } catch (e) {
       state = state.copyWith(isLoading: false);
       AppSnackBar.show(

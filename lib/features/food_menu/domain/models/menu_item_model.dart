@@ -1,5 +1,37 @@
 import 'package:equatable/equatable.dart';
 
+/// Addon Option Model للخيارات داخل كل Addon
+class AddonOption extends Equatable {
+  final int id;
+  final String name;
+  final double price;
+
+  const AddonOption({
+    required this.id,
+    required this.name,
+    required this.price,
+  });
+
+  factory AddonOption.fromJson(Map<String, dynamic> json) {
+    return AddonOption(
+      id: json['id'] as int? ?? 0,
+      name: json['name']?.toString() ?? '',
+      price: (json['price'] ?? 0).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'price': price,
+    };
+  }
+
+  @override
+  List<Object?> get props => [id, name, price];
+}
+
 /// Addon Model للإضافات على الوجبات
 class AddonModel extends Equatable {
   final String id;
@@ -8,6 +40,7 @@ class AddonModel extends Equatable {
   final double price;
   final String addonType;
   final String? image;
+  final List<AddonOption> addonOptions;
 
   const AddonModel({
     required this.id,
@@ -16,16 +49,26 @@ class AddonModel extends Equatable {
     required this.price,
     this.addonType = 'none',
     this.image,
+    this.addonOptions = const [],
   });
 
   factory AddonModel.fromJson(Map<String, dynamic> json) {
+    // Parse addonOptions
+    List<AddonOption> options = [];
+    if (json['addonOptions'] != null && json['addonOptions'] is List) {
+      options = (json['addonOptions'] as List)
+          .map((option) => AddonOption.fromJson(option as Map<String, dynamic>))
+          .toList();
+    }
+
     return AddonModel(
       id: json['id']?.toString() ?? '',
       itemId: json['itemId']?.toString() ?? '',
       name: json['name']?.toString() ?? '',
       price: (json['price'] ?? 0).toDouble(),
       addonType: json['addonType']?.toString() ?? 'none',
-      image: json['image']?.toString(),
+      image: json['image']?.toString() ?? json['contentBase64']?.toString(),
+      addonOptions: options,
     );
   }
 
@@ -37,6 +80,7 @@ class AddonModel extends Equatable {
       'price': price,
       'addonType': addonType,
       'image': image,
+      'addonOptions': addonOptions.map((option) => option.toJson()).toList(),
     };
   }
 
@@ -47,6 +91,7 @@ class AddonModel extends Equatable {
     double? price,
     String? addonType,
     String? image,
+    List<AddonOption>? addonOptions,
   }) {
     return AddonModel(
       id: id ?? this.id,
@@ -55,11 +100,13 @@ class AddonModel extends Equatable {
       price: price ?? this.price,
       addonType: addonType ?? this.addonType,
       image: image ?? this.image,
+      addonOptions: addonOptions ?? this.addonOptions,
     );
   }
 
   @override
-  List<Object?> get props => [id, itemId, name, price, addonType, image];
+  List<Object?> get props =>
+      [id, itemId, name, price, addonType, image, addonOptions];
 }
 
 /// Menu Item Model مع دعم الإضافات (Addons)

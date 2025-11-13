@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/image_picker_service.dart';
@@ -91,19 +92,28 @@ class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
     List<AddonGroup> addonGroups = [];
     if (loadedItem!.availableAddons != null &&
         loadedItem!.availableAddons!.isNotEmpty) {
-      // Group addons by name (simple approach)
-      // In a real scenario, you might need more sophisticated grouping
+      // Convert each addon to a group
+      // If addon has addonOptions, convert them to AddonItem
+      // If addon has no options, create an empty group
       for (var addon in loadedItem!.availableAddons!) {
-        final addonItem = AddonItem(
-          name: addon.name,
-          price: addon.price.toString(),
-          image: addon.image,
-        );
+        List<AddonItem> items = [];
 
-        // Create a group for each addon (you can modify this logic)
+        // Convert addonOptions to AddonItem if they exist
+        if (addon.addonOptions.isNotEmpty) {
+          for (var option in addon.addonOptions) {
+            items.add(AddonItem(
+              name: option.name,
+              price: option.price.toString(),
+              image: addon.image, // Use addon image for all options
+            ));
+          }
+        }
+
+        // Create a group for each addon
+        // Group can have items (if addonOptions exist) or be empty
         final group = AddonGroup(
           title: addon.name,
-          items: [addonItem],
+          items: items,
         );
         addonGroups.add(group);
       }
@@ -238,6 +248,112 @@ class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
     }
   }
 
+  /// Process addon groups and convert them to the format expected by backend
+  Future<List<Map<String, dynamic>>> _processAddonGroups(
+      List<AddonGroup> addonGroups) async {
+    final List<Map<String, dynamic>> processedAddons = [];
+
+    if (addonGroups.isEmpty) {
+      return processedAddons;
+    }
+
+    for (final group in addonGroups) {
+      // Process addon options from group items (can be empty)
+      final List<Map<String, dynamic>> addonOptions = [];
+      for (final item in group.items) {
+        addonOptions.add({
+          'id': 0, // Backend will generate
+          'name': item.name,
+          'price': double.tryParse(item.price) ?? 0.0,
+        });
+      }
+
+      // Get addon image from first item if available
+      String? addonImageBase64;
+      if (group.items.isNotEmpty) {
+        final firstItem = group.items.first;
+        if (firstItem.image != null && firstItem.image!.isNotEmpty) {
+          if (firstItem.image!.startsWith('/') &&
+              !firstItem.image!.startsWith('http')) {
+            // It's a local file path, convert to base64
+            try {
+              final file = File(firstItem.image!);
+              final bytes = await file.readAsBytes();
+              addonImageBase64 = base64Encode(bytes);
+            } catch (e) {
+              // If file read fails, use the existing string (might already be base64)
+              addonImageBase64 = firstItem.image;
+            }
+          } else if (firstItem.image!.startsWith('http')) {
+            // It's a URL - send it as is (backend should handle it)
+            addonImageBase64 = firstItem.image;
+          } else {
+            // Already base64, use as is
+            addonImageBase64 = firstItem.image;
+          }
+        }
+      }
+
+      final addonMap = <String, dynamic>{
+        'name': group.title,
+        'addonType': 'none', // Fixed as per API spec
+        'addonOptions': addonOptions, // Can be empty list
+      };
+
+      // Add price only if there are items (use first item's price)
+      if (group.items.isNotEmpty) {
+        final firstItem = group.items.first;
+        addonMap['price'] = double.tryParse(firstItem.price) ?? 0.0;
+      } else {
+        addonMap['price'] = 0.0; // Default price for addons without options
+      }
+
+      // Add contentBase64 only if there's an image
+      if (addonImageBase64 != null && addonImageBase64.isNotEmpty) {
+        addonMap['contentBase64'] = addonImageBase64;
+      }
+
+      processedAddons.add(addonMap);
+    }
+
+    return processedAddons;
+  }
+
+  /// Convert image to base64 if it's a local file
+  Future<String?> _processImage(
+      String? imagePath, String? originalImageUrl) async {
+    if (imagePath == null || imagePath.isEmpty) {
+      return null;
+    }
+
+    final imageChanged =
+        originalImageUrl != null && imagePath != originalImageUrl;
+
+    if (imagePath.startsWith('/') && !imagePath.startsWith('http')) {
+      // It's a local file path (new image selected), convert to base64
+      try {
+        final file = File(imagePath);
+        final bytes = await file.readAsBytes();
+        return base64Encode(bytes);
+      } catch (e) {
+        // If file read fails, use the existing string (might already be base64)
+        return imagePath;
+      }
+    } else if (imagePath.startsWith('http')) {
+      // It's a URL - check if it's different from original
+      if (imageChanged) {
+        // Image was changed, send the new URL
+        return imagePath;
+      } else {
+        // Image is the same, don't send it (image already exists on server)
+        return null;
+      }
+    } else {
+      // Already base64 (new image), use as is
+      return imagePath;
+    }
+  }
+
   Future<MenuItemModel?> update() async {
     if (!formKey.currentState!.validate()) return null;
 
@@ -265,25 +381,38 @@ class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
       // Get current image path
       final currentImagePath = state.mealImagePath ?? loadedItem!.imageUrl;
 
-      // Create updated MenuItemModel
-      final updatedItem = loadedItem!.copyWith(
-        name: nameController.text.trim(),
-        description: descriptionController.text.trim(),
-        price: double.tryParse(priceController.text) ?? loadedItem!.price,
-        imageUrl: currentImagePath,
-        category: selectedCategory!.id?.toString() ?? loadedItem!.category,
-        isAvailable: state.isAvailable,
-        isCustomizable: state.isCustomizable,
-        availableAddons: null,
-      );
+      // Process image
+      final imageBase64 =
+          await _processImage(currentImagePath, originalImageUrl);
 
-      // Call repository to update item with addon groups
-      // Pass original image URL to detect if image was changed
-      final response = await repository.updateMenuItem(
-        updatedItem,
-        state.addonGroups,
-        originalImageUrl: originalImageUrl,
-      );
+      // Process addon groups
+      final processedAddons = await _processAddonGroups(state.addonGroups);
+
+      // Prepare request body
+      final body = <String, dynamic>{
+        'itemId': int.tryParse(loadedItem!.id) ?? 0, // Required for update
+        'unitId': 0, // Fixed as per requirement
+        'itemCategoryId': int.tryParse(
+                selectedCategory!.id?.toString() ?? loadedItem!.category) ??
+            0,
+        'name': nameController.text.trim(),
+        'details': descriptionController.text.trim(),
+        'price': double.tryParse(priceController.text) ?? loadedItem!.price,
+        'size': 0, // Fixed as per requirement
+        'allBranches': true, // Fixed as per requirement
+        'isActive': state.isAvailable,
+        'isCustomizable': state.isCustomizable,
+        'addons': processedAddons,
+        'removeImage': false, // Don't remove existing image
+      };
+
+      // Add contentBase64 only if there's a new image
+      if (imageBase64 != null && imageBase64.isNotEmpty) {
+        body['contentBase64'] = imageBase64;
+      }
+
+      // Call repository with prepared body
+      final response = await repository.updateMenuItem(body);
 
       state = state.copyWith(isLoading: false);
 
@@ -301,8 +430,8 @@ class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
         type: ToastType.success,
       );
 
-      // Return the item from response or updatedItem
-      return response.data ?? updatedItem;
+      // Return the item from response
+      return response.data;
     } catch (e) {
       state = state.copyWith(isLoading: false);
       AppSnackBar.show(
