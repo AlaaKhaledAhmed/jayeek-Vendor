@@ -7,10 +7,11 @@ import 'package:jayeek_vendor/core/constants/app_size.dart';
 import 'package:jayeek_vendor/core/constants/app_string.dart';
 import 'package:jayeek_vendor/core/extensions/color_extensions.dart';
 import 'package:jayeek_vendor/core/routing/app_routes_methods.dart';
-import 'package:jayeek_vendor/core/widgets/app_buttons.dart';
 import 'package:jayeek_vendor/core/widgets/app_decoration.dart';
 import 'package:jayeek_vendor/core/widgets/app_image_placeholder.dart';
+import 'package:jayeek_vendor/core/widgets/app_snack_bar.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
+import 'package:jayeek_vendor/core/widgets/unified_bottom_sheet.dart';
 import '../../domain/models/menu_item_model.dart';
 import '../../providers/menu/menu_provider.dart';
 import '../screens/update_food.dart';
@@ -185,9 +186,34 @@ class MenuItemCard extends ConsumerWidget {
 
                   IconButton(
                     tooltip: AppMessage.delete,
-                    onPressed: () => _confirmDelete(context, () async {
-                      await notifier.deleteItem(item.id);
-                    }),
+                    onPressed: () {
+                      UnifiedBottomSheet.showConfirmation(
+                        context: context,
+                        title: AppMessage.deleteMeal,
+                        message: AppMessage.deleteMealConfirm,
+                        confirmText: AppMessage.delete,
+                        cancelText: AppMessage.cancel,
+                        confirmColor: AppColor.red,
+                        onConfirm: () async {
+                          try {
+                            await notifier.deleteItem(item.id);
+                            if (context.mounted) {
+                              AppSnackBar.show(
+                                message: 'تم حذف الصنف بنجاح',
+                                type: ToastType.success,
+                              );
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              AppSnackBar.show(
+                                message: 'فشل في حذف الصنف: ${e.toString()}',
+                                type: ToastType.error,
+                              );
+                            }
+                          }
+                        },
+                      );
+                    },
                     icon: Icon(AppIcons.delete, color: AppColor.mediumGray),
                   ),
                 ],
@@ -195,32 +221,6 @@ class MenuItemCard extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  void _confirmDelete(BuildContext context, VoidCallback onConfirm) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const AppText(
-          text: AppMessage.deleteMeal,
-          fontWeight: FontWeight.bold,
-        ),
-        content: const AppText(text: AppMessage.deleteMealConfirm),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const AppText(text: AppMessage.cancel),
-          ),
-          AppButtons(
-            text: AppMessage.delete,
-            onPressed: () {
-              Navigator.pop(context);
-              onConfirm();
-            },
-          ),
-        ],
       ),
     );
   }

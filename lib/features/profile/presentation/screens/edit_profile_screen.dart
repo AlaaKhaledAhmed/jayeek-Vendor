@@ -593,29 +593,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildInfoItem({required String label, required String value}) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 16.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AppText(
-            text: label,
-            fontSize: AppSize.captionText,
-            color: AppColor.textColor.withOpacity(0.6),
-          ),
-          SizedBox(height: 6.h),
-          AppText(
-            text: value,
-            fontSize: AppSize.normalText,
-            fontWeight: FontWeight.w600,
-            color: AppColor.textColor,
-          ),
-        ],
-      ),
-    );
-  }
-
   Future<void> _pickLogo() async {
     final granted = await AppPermissions.photoPermission(context: context);
     if (!granted) {

@@ -10,7 +10,6 @@ import 'package:jayeek_vendor/core/routing/app_routes_methods.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
 import 'package:jayeek_vendor/core/widgets/app_buttons.dart';
 
-import '../../providers/custom_addon/custom_addon_provider.dart';
 import '../screens/addons/update_addon.dart';
 
 class AddonEmptyState extends ConsumerWidget {
@@ -47,7 +46,6 @@ class AddonEmptyState extends ConsumerWidget {
               text: AppMessage.addAddon,
               onPressed: () async {
                 AppRoutes.pushTo(context, const UpdateAddon(fromUpdate: false));
-
               },
               backgroundColor: AppColor.mainColor,
             ),

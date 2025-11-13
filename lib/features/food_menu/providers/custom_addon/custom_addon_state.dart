@@ -2,7 +2,6 @@ import 'package:equatable/equatable.dart';
 
 import '../../domain/models/custom_addon_model.dart';
 import '../../../../core/model/data_handel.dart';
-import '../../../../core/constants/app_flow_sate.dart';
 
 class CustomAddonState extends Equatable {
   final DataHandle<CustomAddonsModels> addonsData;

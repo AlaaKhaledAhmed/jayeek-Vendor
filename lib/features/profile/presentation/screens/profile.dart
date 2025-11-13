@@ -12,7 +12,6 @@ import '../../data/mock/mock_vendor_data.dart';
 import '../../data/models/vendor_model.dart';
 import '../widgets/modern_profile_header.dart';
 import '../widgets/profile_action_tile.dart';
-import '../widgets/profile_info_tile.dart';
 import '../widgets/profile_section_title.dart';
 import 'edit_profile_screen.dart';
 import 'notifications_settings_screen.dart';

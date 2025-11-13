@@ -8,7 +8,6 @@ import 'package:jayeek_vendor/core/util/print_info.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:async';
 import '../constants/app_color.dart';
-import '../constants/app_constants.dart';
 import '../constants/app_string.dart';
 import '../widgets/app_dialog.dart';
 import '../widgets/app_snack_bar.dart';

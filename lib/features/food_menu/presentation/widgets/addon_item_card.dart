@@ -5,10 +5,8 @@ import 'package:jayeek_vendor/core/constants/app_color.dart';
 import 'package:jayeek_vendor/core/constants/app_icons.dart';
 import 'package:jayeek_vendor/core/constants/app_size.dart';
 import 'package:jayeek_vendor/core/constants/app_string.dart';
-import 'package:jayeek_vendor/core/extensions/color_extensions.dart';
 import 'package:jayeek_vendor/core/widgets/app_decoration.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
-import 'package:jayeek_vendor/core/widgets/image_placeholder_widget.dart';
 import 'package:jayeek_vendor/generated/assets.dart';
 
 import '../../domain/models/custom_addon_model.dart';
@@ -105,18 +103,5 @@ class AddonItemCard extends StatelessWidget {
                 ) as ImageProvider<Object>,
           cover: hasValidImage ? true : false),
     );
-  }
-
-  String _getUnitTypeText(String unitType) {
-    switch (unitType.toLowerCase()) {
-      case 'piece':
-        return AppMessage.piece;
-      case 'kilogram':
-        return AppMessage.kilogram;
-      case 'gram':
-        return AppMessage.gram;
-      default:
-        return unitType;
-    }
   }
 }

@@ -63,9 +63,15 @@ class FoodRepositoryImpl implements FoodRepository {
 
   @override
   Future<void> deleteMenuItem(String id) async {
-    await Future.delayed(const Duration(milliseconds: 500)); // mock API
-    // In real implementation, this would make a DELETE request to the server
-    // await networkService.delete(url: '/menu-items/$id');
+    final itemId = int.tryParse(id);
+    if (itemId == null) {
+      throw Exception('Invalid item ID: $id');
+    }
+
+    await networkService.delete(
+      url: ApiEndPoints.deleteMenuItemUrl(itemId),
+      fromJson: (json) => json,
+    );
   }
 
   @override

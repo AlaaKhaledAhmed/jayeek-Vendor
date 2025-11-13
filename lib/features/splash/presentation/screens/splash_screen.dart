@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:jayeek_vendor/core/extensions/context_extensions.dart';
 import 'package:jayeek_vendor/core/widgets/app_decoration.dart';
-import '../../../../core/constants/app_color.dart';
 import '../../../../core/constants/app_size.dart';
 import '../../../../core/routing/app_routes_methods.dart';
 import '../../../../core/services/shared_preferences_service.dart';

@@ -2,7 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jayeek_vendor/core/extensions/context_extensions.dart';
-import 'package:jayeek_vendor/features/splash/presentation/screens/splash_screen.dart';
 import '../core/error/error_hander_type.dart';
 import '../core/routing/routes_names.dart';
 import '../core/theme/app_them.dart';
@@ -34,7 +33,7 @@ class _MyAppState extends State<MyApp> {
       splitScreenMode: true,
       builder: (_, __) => MaterialApp(
         navigatorKey: myNavigatorKey,
-      home: const HomePage(),
+        home: const HomePage(),
         onGenerateRoute: onGenerateRoute,
         debugShowCheckedModeBanner: false,
         locale: context.locale,

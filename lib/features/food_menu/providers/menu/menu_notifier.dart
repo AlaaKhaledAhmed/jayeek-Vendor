@@ -189,6 +189,7 @@ class MenuNotifier extends StateNotifier<MenuState> {
     } catch (e) {
       // Handle error - refresh the menu to get the latest state
       await refreshMenu();
+      rethrow; // Re-throw to allow UI to handle error display
     }
   }
 
