@@ -92,14 +92,20 @@ class FoodRepositoryImpl implements FoodRepository {
           if (firstItem.image != null && firstItem.image!.isNotEmpty) {
             if (firstItem.image!.startsWith('/') &&
                 !firstItem.image!.startsWith('http')) {
+              // It's a local file path, convert to base64
               try {
                 final file = File(firstItem.image!);
                 final bytes = await file.readAsBytes();
                 addonImageBase64 = base64Encode(bytes);
               } catch (e) {
+                // If file read fails, use the existing string (might already be base64)
                 addonImageBase64 = firstItem.image;
               }
+            } else if (firstItem.image!.startsWith('http')) {
+              // It's a URL - send it as is (backend should handle it)
+              addonImageBase64 = firstItem.image;
             } else {
+              // Already base64, use as is
               addonImageBase64 = firstItem.image;
             }
           }
@@ -155,15 +161,19 @@ class FoodRepositoryImpl implements FoodRepository {
   @override
   Future<PostDataHandle<MenuItemModel>> updateMenuItem(
     MenuItemModel menuItem,
-    List<AddonGroup> addonGroups,
-  ) async {
+    List<AddonGroup> addonGroups, {
+    String? originalImageUrl,
+  }) async {
     try {
-      // Convert image to base64 if it's a local file
+      // Convert image to base64 if it's a local file or if it's different from original
       String? imageBase64;
+      final imageChanged =
+          originalImageUrl != null && menuItem.imageUrl != originalImageUrl;
+
       if (menuItem.imageUrl.isNotEmpty) {
         if (menuItem.imageUrl.startsWith('/') &&
             !menuItem.imageUrl.startsWith('http')) {
-          // It's a local file path, convert to base64
+          // It's a local file path (new image selected), convert to base64
           try {
             final file = File(menuItem.imageUrl);
             final bytes = await file.readAsBytes();
@@ -173,10 +183,16 @@ class FoodRepositoryImpl implements FoodRepository {
             imageBase64 = menuItem.imageUrl;
           }
         } else if (menuItem.imageUrl.startsWith('http')) {
-          // It's a URL, don't send it (image already exists on server)
-          imageBase64 = null;
+          // It's a URL - check if it's different from original
+          if (imageChanged) {
+            // Image was changed, send the new URL
+            imageBase64 = menuItem.imageUrl;
+          } else {
+            // Image is the same, don't send it (image already exists on server)
+            imageBase64 = null;
+          }
         } else {
-          // Already base64, use as is
+          // Already base64 (new image), use as is
           imageBase64 = menuItem.imageUrl;
         }
       }
@@ -190,11 +206,12 @@ class FoodRepositoryImpl implements FoodRepository {
           // Process addon options from group items
           final List<Map<String, dynamic>> addonOptions = [];
           for (var item in group.items) {
-            addonOptions.add({
+            final optionMap = <String, dynamic>{
               'id': 0, // Backend will generate
               'name': item.name,
               'price': double.tryParse(item.price) ?? 0.0,
-            });
+            };
+            addonOptions.add(optionMap);
           }
 
           // Use first item's data for the addon main info
@@ -205,17 +222,20 @@ class FoodRepositoryImpl implements FoodRepository {
           if (firstItem.image != null && firstItem.image!.isNotEmpty) {
             if (firstItem.image!.startsWith('/') &&
                 !firstItem.image!.startsWith('http')) {
+              // It's a local file path, convert to base64
               try {
                 final file = File(firstItem.image!);
                 final bytes = await file.readAsBytes();
                 addonImageBase64 = base64Encode(bytes);
               } catch (e) {
+                // If file read fails, use the existing string (might already be base64)
                 addonImageBase64 = firstItem.image;
               }
             } else if (firstItem.image!.startsWith('http')) {
-              // It's a URL, don't send it
-              addonImageBase64 = null;
+              // It's a URL - send it as is (backend should handle it)
+              addonImageBase64 = firstItem.image;
             } else {
+              // Already base64, use as is
               addonImageBase64 = firstItem.image;
             }
           }

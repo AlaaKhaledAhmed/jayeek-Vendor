@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -364,18 +365,48 @@ class AddonGroupsManager extends StatelessWidget {
         return Icon(Icons.broken_image, color: AppColor.mediumGray);
       }
 
-      if (imagePath.startsWith('http')) {
+      // Check if it's a network URL
+      if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
         return Image.network(
           imagePath,
           fit: BoxFit.cover,
           errorBuilder: (_, __, ___) =>
               Icon(Icons.broken_image, color: AppColor.mediumGray),
         );
-      } else {
-        final bytes = base64Decode(
-          imagePath.contains(',') ? imagePath.split(',').last : imagePath,
+      }
+
+      // Check if it's a local file path
+      if (imagePath.startsWith('/') && !imagePath.startsWith('http')) {
+        try {
+          final file = File(imagePath);
+          if (file.existsSync()) {
+            return Image.file(
+              file,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) =>
+                  Icon(Icons.broken_image, color: AppColor.mediumGray),
+            );
+          }
+        } catch (e) {
+          // If file access fails, try as base64
+        }
+      }
+
+      // Try as base64
+      try {
+        String base64String = imagePath;
+        if (base64String.contains(',')) {
+          base64String = base64String.split(',').last;
+        }
+        final bytes = base64Decode(base64String);
+        return Image.memory(
+          bytes,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) =>
+              Icon(Icons.broken_image, color: AppColor.mediumGray),
         );
-        return Image.memory(bytes, fit: BoxFit.cover);
+      } catch (e) {
+        return Icon(Icons.broken_image, color: AppColor.mediumGray);
       }
     } catch (e) {
       return Icon(Icons.broken_image, color: AppColor.mediumGray);

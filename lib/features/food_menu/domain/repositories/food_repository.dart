@@ -13,8 +13,9 @@ abstract class FoodRepository {
   );
   Future<PostDataHandle<MenuItemModel>> updateMenuItem(
     MenuItemModel menuItem,
-    List<AddonGroup> addonGroups,
-  );
+    List<AddonGroup> addonGroups, {
+    String? originalImageUrl,
+  });
   Future<void> addFoodItem(Map<String, dynamic> data);
   Future<void> updateFoodItem(Map<String, dynamic> data);
   Future<void> deleteMenuItem(String id);

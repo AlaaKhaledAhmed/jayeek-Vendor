@@ -23,6 +23,7 @@ class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
 
   FoodCategoryModel? selectedCategory;
   MenuItemModel? loadedItem; // Store the loaded item
+  String? originalImageUrl; // Store original image URL to detect changes
 
   UpdateItemNotifier(this.repository, this.itemId)
       : super(const UpdateItemState()) {
@@ -53,6 +54,7 @@ class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
     }
 
     loadedItem = itemResponse.data!;
+    originalImageUrl = loadedItem!.imageUrl; // Store original image URL
 
     // Set controller values from loaded item
     nameController.text = loadedItem!.name;
@@ -260,12 +262,15 @@ class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
     try {
       state = state.copyWith(isLoading: true);
 
+      // Get current image path
+      final currentImagePath = state.mealImagePath ?? loadedItem!.imageUrl;
+
       // Create updated MenuItemModel
       final updatedItem = loadedItem!.copyWith(
         name: nameController.text.trim(),
         description: descriptionController.text.trim(),
         price: double.tryParse(priceController.text) ?? loadedItem!.price,
-        imageUrl: state.mealImagePath ?? loadedItem!.imageUrl,
+        imageUrl: currentImagePath,
         category: selectedCategory!.id?.toString() ?? loadedItem!.category,
         isAvailable: state.isAvailable,
         isCustomizable: state.isCustomizable,
@@ -273,9 +278,11 @@ class UpdateItemNotifier extends StateNotifier<UpdateItemState> {
       );
 
       // Call repository to update item with addon groups
+      // Pass original image URL to detect if image was changed
       final response = await repository.updateMenuItem(
         updatedItem,
         state.addonGroups,
+        originalImageUrl: originalImageUrl,
       );
 
       state = state.copyWith(isLoading: false);
