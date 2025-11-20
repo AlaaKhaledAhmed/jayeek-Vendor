@@ -2,13 +2,21 @@ import 'package:equatable/equatable.dart';
 
 /// نموذج بيانات المطعم/البائع
 class VendorModel extends Equatable {
-  final String id;
-  final String restaurantName;
-  final String supervisorName;
+  final int? id;
+  final int? code;
+  final String name;
   final String email;
-  final String phone;
+  final String phoneNumber;
+  final double? latitude;
+  final double? longtitude;
+  final String? profileImage;
+  final String? coverImage;
+  final UserDetails? userDetails;
+  
+  // Legacy fields for backward compatibility
+  final String? restaurantName;
+  final String? supervisorName;
   final String? logo;
-  final String? coverImage; // خلفية المطعم
   final String? licenseNumber;
   final String? address;
   final String? city;
@@ -20,13 +28,20 @@ class VendorModel extends Equatable {
   final WorkingHours? workingHours;
 
   const VendorModel({
-    required this.id,
-    required this.restaurantName,
-    required this.supervisorName,
-    required this.email,
-    required this.phone,
-    this.logo,
+    this.id,
+    this.code,
+    this.name = '',
+    this.email = '',
+    this.phoneNumber = '',
+    this.latitude,
+    this.longtitude,
+    this.profileImage,
     this.coverImage,
+    this.userDetails,
+    // Legacy fields
+    this.restaurantName,
+    this.supervisorName,
+    this.logo,
     this.licenseNumber,
     this.address,
     this.city,
@@ -40,22 +55,31 @@ class VendorModel extends Equatable {
 
   factory VendorModel.fromJson(Map<String, dynamic> json) {
     return VendorModel(
-      id: json['id']?.toString() ?? '',
-      restaurantName: json['restaurant_name'] ?? '',
-      supervisorName: json['supervisor_name'] ?? '',
-      email: json['email'] ?? '',
-      phone: json['phone'] ?? '',
-      logo: json['logo'],
-      coverImage: json['cover_image'],
-      licenseNumber: json['license_number'],
-      address: json['address'],
-      city: json['city'],
-      rating: json['rating']?.toDouble(),
-      totalOrders: json['total_orders'],
-      totalSales: json['total_sales']?.toDouble(),
+      id: json['id'] as int?,
+      code: json['code'] as int?,
+      name: json['name']?.toString() ?? '',
+      email: json['email']?.toString() ?? '',
+      phoneNumber: json['phoneNumber']?.toString() ?? '',
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longtitude: (json['longtitude'] as num?)?.toDouble(),
+      profileImage: json['profileImage']?.toString(),
+      coverImage: json['coverImage']?.toString(),
+      userDetails: json['userDetails'] != null
+          ? UserDetails.fromJson(json['userDetails'])
+          : null,
+      // Legacy fields - use new fields as fallback
+      restaurantName: json['restaurant_name']?.toString() ?? json['name']?.toString() ?? '',
+      supervisorName: json['supervisor_name']?.toString(),
+      logo: json['logo']?.toString() ?? json['profileImage']?.toString(),
+      licenseNumber: json['license_number']?.toString(),
+      address: json['address']?.toString(),
+      city: json['city']?.toString(),
+      rating: (json['rating'] as num?)?.toDouble(),
+      totalOrders: json['total_orders'] as int?,
+      totalSales: (json['total_sales'] as num?)?.toDouble(),
       isActive: json['is_active'] ?? true,
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'])
+          ? DateTime.tryParse(json['created_at'])
           : null,
       workingHours: json['working_hours'] != null
           ? WorkingHours.fromJson(json['working_hours'])
@@ -66,11 +90,20 @@ class VendorModel extends Equatable {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'restaurant_name': restaurantName,
-      'supervisor_name': supervisorName,
+      'code': code,
+      'name': name,
       'email': email,
-      'phone': phone,
-      'logo': logo,
+      'phoneNumber': phoneNumber,
+      'latitude': latitude,
+      'longtitude': longtitude,
+      'profileImage': profileImage,
+      'coverImage': coverImage,
+      'userDetails': userDetails?.toJson(),
+      // Legacy fields
+      'restaurant_name': restaurantName ?? name,
+      'supervisor_name': supervisorName,
+      'phone': phoneNumber,
+      'logo': logo ?? profileImage,
       'cover_image': coverImage,
       'license_number': licenseNumber,
       'address': address,
@@ -85,13 +118,19 @@ class VendorModel extends Equatable {
   }
 
   VendorModel copyWith({
-    String? id,
+    int? id,
+    int? code,
+    String? name,
+    String? email,
+    String? phoneNumber,
+    double? latitude,
+    double? longtitude,
+    String? profileImage,
+    String? coverImage,
+    UserDetails? userDetails,
     String? restaurantName,
     String? supervisorName,
-    String? email,
-    String? phone,
     String? logo,
-    String? coverImage,
     String? licenseNumber,
     String? address,
     String? city,
@@ -104,12 +143,18 @@ class VendorModel extends Equatable {
   }) {
     return VendorModel(
       id: id ?? this.id,
+      code: code ?? this.code,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      latitude: latitude ?? this.latitude,
+      longtitude: longtitude ?? this.longtitude,
+      profileImage: profileImage ?? this.profileImage,
+      coverImage: coverImage ?? this.coverImage,
+      userDetails: userDetails ?? this.userDetails,
       restaurantName: restaurantName ?? this.restaurantName,
       supervisorName: supervisorName ?? this.supervisorName,
-      email: email ?? this.email,
-      phone: phone ?? this.phone,
       logo: logo ?? this.logo,
-      coverImage: coverImage ?? this.coverImage,
       licenseNumber: licenseNumber ?? this.licenseNumber,
       address: address ?? this.address,
       city: city ?? this.city,
@@ -125,12 +170,18 @@ class VendorModel extends Equatable {
   @override
   List<Object?> get props => [
         id,
+        code,
+        name,
+        email,
+        phoneNumber,
+        latitude,
+        longtitude,
+        profileImage,
+        coverImage,
+        userDetails,
         restaurantName,
         supervisorName,
-        email,
-        phone,
         logo,
-        coverImage,
         licenseNumber,
         address,
         city,
@@ -140,6 +191,62 @@ class VendorModel extends Equatable {
         isActive,
         createdAt,
         workingHours,
+      ];
+}
+
+/// User Details Model
+class UserDetails extends Equatable {
+  final int? id;
+  final int? code;
+  final String? username;
+  final int? generalWalletId;
+  final String? userType;
+  final String? deviceToken;
+  final String? countryCode;
+
+  const UserDetails({
+    this.id,
+    this.code,
+    this.username,
+    this.generalWalletId,
+    this.userType,
+    this.deviceToken,
+    this.countryCode,
+  });
+
+  factory UserDetails.fromJson(Map<String, dynamic> json) {
+    return UserDetails(
+      id: json['id'] as int?,
+      code: json['code'] as int?,
+      username: json['username']?.toString(),
+      generalWalletId: json['generalWalletId'] as int?,
+      userType: json['userType']?.toString(),
+      deviceToken: json['deviceToken']?.toString(),
+      countryCode: json['countryCode']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'code': code,
+      'username': username,
+      'generalWalletId': generalWalletId,
+      'userType': userType,
+      'deviceToken': deviceToken,
+      'countryCode': countryCode,
+    };
+  }
+
+  @override
+  List<Object?> get props => [
+        id,
+        code,
+        username,
+        generalWalletId,
+        userType,
+        deviceToken,
+        countryCode,
       ];
 }
 

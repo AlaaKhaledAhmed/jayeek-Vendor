@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jayeek_vendor/features/auth/presentation/screens/login_page.dart';
 import '../../../../core/constants/app_color.dart';
@@ -8,8 +9,8 @@ import '../../../../core/routing/app_routes_methods.dart';
 import '../../../../core/services/shared_preferences_service.dart';
 import '../../../../core/widgets/app_snack_bar.dart';
 import '../../../../core/widgets/app_text.dart';
-import '../../data/mock/mock_vendor_data.dart';
 import '../../data/models/vendor_model.dart';
+import '../../providers/profile_provider.dart';
 import '../widgets/modern_profile_header.dart';
 import '../widgets/profile_action_tile.dart';
 import '../widgets/profile_section_title.dart';
@@ -18,49 +19,48 @@ import 'notifications_settings_screen.dart';
 import 'wallet_screen.dart';
 import 'working_hours_screen.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  late VendorModel vendor;
-
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // استخدام البيانات التجريبية
-    vendor = MockVendorData.mockVendor;
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // تحديث البيانات عند العودة للشاشة
-    _refreshData();
+    // Load profile data when screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(profileProvider.notifier).loadProfile();
+    });
   }
 
   void _refreshData() {
-    setState(() {
-      vendor = MockVendorData.mockVendor;
-    });
+    ref.read(profileProvider.notifier).refreshProfile();
   }
 
   @override
   Widget build(BuildContext context) {
+    final profileState = ref.watch(profileProvider);
+    final vendor = profileState.vendor ?? const VendorModel();
+
     return Scaffold(
       backgroundColor: AppColor.backgroundColor,
-      body: CustomScrollView(
-        slivers: [
-          // Header عصري مع معلومات المطعم الأساسية
-          SliverToBoxAdapter(
-            child: ModernProfileHeader(
-              vendor: vendor,
-              onRefresh: _refreshData,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(profileProvider.notifier).refreshProfile();
+        },
+        child: CustomScrollView(
+          slivers: [
+            // Header عصري مع معلومات المطعم الأساسية
+            SliverToBoxAdapter(
+              child: ModernProfileHeader(
+                vendor: vendor,
+                isLoading: profileState.isLoading,
+                onRefresh: _refreshData,
+              ),
             ),
-          ),
 
           // المحتوى
           SliverToBoxAdapter(
@@ -82,7 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     title: 'الحساب',
                     icon: Icons.account_circle_rounded,
                   ),
-                  _buildAccountSection(context, vendor),
+                  _buildAccountSection(context),
 
                   SizedBox(height: 32.h),
 
@@ -91,7 +91,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     title: 'الإعدادات',
                     icon: Icons.settings_rounded,
                   ),
-                  _buildSettings(context, vendor),
+                  _buildSettings(context),
 
                   SizedBox(height: 32.h),
 
@@ -117,12 +117,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
         ],
+        ),
       ),
     );
   }
 
   // 1️⃣ قسم الحساب
-  Widget _buildAccountSection(BuildContext context, VendorModel vendor) {
+  Widget _buildAccountSection(BuildContext context) {
+    final vendor = ref.watch(profileProvider).vendor ?? const VendorModel();
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: AppSize.horizontalPadding),
       child: Column(
@@ -173,7 +175,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   // 2️⃣ قسم الإعدادات
-  Widget _buildSettings(BuildContext context, VendorModel vendor) {
+  Widget _buildSettings(BuildContext context) {
+    final vendor = ref.watch(profileProvider).vendor ?? const VendorModel();
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: AppSize.horizontalPadding),
       child: Column(
@@ -498,10 +501,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _updateRestaurantStatus(bool isActive) {
-    // تحديث الحالة في MockVendorData
-    MockVendorData.updateVendorInfo(isActive: isActive);
-
-    // عرض رسالة نجاح
+    // TODO: Call API to update restaurant status
+    // For now, just show a message
     AppSnackBar.show(
       message: isActive
           ? 'تم تفعيل المطعم بنجاح. يمكنك الآن قبول الطلبات الجديدة.'

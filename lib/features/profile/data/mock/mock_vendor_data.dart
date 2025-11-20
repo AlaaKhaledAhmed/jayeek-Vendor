@@ -4,11 +4,12 @@ import '../models/vendor_model.dart';
 class MockVendorData {
   // جعل البيانات قابلة للتحديث
   static VendorModel _mockVendor = VendorModel(
-    id: '1',
+    id: 1,
+    name: 'مطعم جايك',
     restaurantName: 'مطعم جايك',
     supervisorName: 'أحمد محمد السعيد',
     email: 'info@jayeek-restaurant.com',
-    phone: '+966501234567',
+    phoneNumber: '+966501234567',
     logo:
         'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=400&fit=crop',
     coverImage:
@@ -51,7 +52,7 @@ class MockVendorData {
     String? restaurantName,
     String? supervisorName,
     String? email,
-    String? phone,
+    String? phoneNumber,
     String? licenseNumber,
     String? address,
     String? city,
@@ -63,7 +64,7 @@ class MockVendorData {
       restaurantName: restaurantName,
       supervisorName: supervisorName,
       email: email,
-      phone: phone,
+      phoneNumber: phoneNumber,
       licenseNumber: licenseNumber,
       address: address,
       city: city,
@@ -76,11 +77,12 @@ class MockVendorData {
   // إعادة تعيين البيانات للقيم الافتراضية (للاختبار)
   static void reset() {
     _mockVendor = VendorModel(
-      id: '1',
+      id: 1,
+      name: 'مطعم جايك',
       restaurantName: 'مطعم جايك',
       supervisorName: 'أحمد محمد السعيد',
       email: 'info@jayeek-restaurant.com',
-      phone: '+966501234567',
+      phoneNumber: '+966501234567',
       logo:
           'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=400&fit=crop',
       coverImage:

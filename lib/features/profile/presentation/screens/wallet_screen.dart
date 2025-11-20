@@ -6,31 +6,27 @@ import '../../../../core/constants/app_string.dart';
 import '../../../../core/widgets/app_bar.dart';
 import '../../../../core/widgets/app_buttons.dart';
 import '../../../../core/widgets/app_snack_bar.dart';
-import '../../data/mock/mock_wallet_data.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/wallet_model.dart';
 import '../widgets/wallet/transaction_card.dart';
 import '../widgets/wallet/wallet_balance_card.dart';
 
-class WalletScreen extends StatefulWidget {
+class WalletScreen extends ConsumerStatefulWidget {
   const WalletScreen({super.key});
 
   @override
-  State<WalletScreen> createState() => _WalletScreenState();
+  ConsumerState<WalletScreen> createState() => _WalletScreenState();
 }
 
-class _WalletScreenState extends State<WalletScreen>
+class _WalletScreenState extends ConsumerState<WalletScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
-  // استخدام البيانات التجريبية
-  final WalletModel wallet = MockWalletData.mockWallet;
-  final List<TransactionModel> allTransactions =
-      MockWalletData.mockTransactions;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    // TODO: Load wallet data from API
   }
 
   @override
@@ -41,6 +37,18 @@ class _WalletScreenState extends State<WalletScreen>
 
   @override
   Widget build(BuildContext context) {
+    // TODO: Load wallet data from API
+    final wallet = WalletModel(
+      id: '',
+      vendorId: '',
+      balance: 0.0,
+      currency: 'SAR',
+      totalEarnings: 0.0,
+      totalWithdrawals: 0.0,
+      pendingAmount: 0.0,
+    );
+    final allTransactions = <TransactionModel>[];
+
     return Scaffold(
       backgroundColor: AppColor.backgroundColor,
       appBar: const AppBarWidget(
@@ -63,7 +71,7 @@ class _WalletScreenState extends State<WalletScreen>
                 EdgeInsets.symmetric(horizontal: AppSize.horizontalPadding),
             child: AppButtons(
               text: AppMessage.requestWithdrawal,
-              onPressed: _showWithdrawalDialog,
+              onPressed: () => _showWithdrawalDialog(wallet),
               width: double.infinity,
               backgroundColor: AppColor.mainColor,
             ),
@@ -82,9 +90,9 @@ class _WalletScreenState extends State<WalletScreen>
               controller: _tabController,
               children: [
                 _buildTransactionsList(allTransactions),
-                _buildTransactionsList(_getEarnings()),
-                _buildTransactionsList(_getWithdrawals()),
-                _buildTransactionsList(_getCommissions()),
+                _buildTransactionsList(_getEarnings(allTransactions)),
+                _buildTransactionsList(_getWithdrawals(allTransactions)),
+                _buildTransactionsList(_getCommissions(allTransactions)),
               ],
             ),
           ),
@@ -167,27 +175,37 @@ class _WalletScreenState extends State<WalletScreen>
       separatorBuilder: (_, __) => SizedBox(height: 12.h),
       itemBuilder: (context, index) {
         final transaction = transactions[index];
+        // Get wallet from build context
+        final wallet = WalletModel(
+          id: '',
+          vendorId: '',
+          balance: 0.0,
+          currency: 'SAR',
+          totalEarnings: 0.0,
+          totalWithdrawals: 0.0,
+          pendingAmount: 0.0,
+        );
         return TransactionCard(
           transaction: transaction,
-          onTap: () => _showTransactionDetails(transaction),
+          onTap: () => _showTransactionDetails(transaction, wallet),
         );
       },
     );
   }
 
-  List<TransactionModel> _getEarnings() {
+  List<TransactionModel> _getEarnings(List<TransactionModel> allTransactions) {
     return allTransactions
         .where((txn) => txn.type == TransactionType.earning)
         .toList();
   }
 
-  List<TransactionModel> _getWithdrawals() {
+  List<TransactionModel> _getWithdrawals(List<TransactionModel> allTransactions) {
     return allTransactions
         .where((txn) => txn.type == TransactionType.withdrawal)
         .toList();
   }
 
-  List<TransactionModel> _getCommissions() {
+  List<TransactionModel> _getCommissions(List<TransactionModel> allTransactions) {
     return allTransactions
         .where((txn) =>
             txn.type == TransactionType.commission ||
@@ -195,7 +213,7 @@ class _WalletScreenState extends State<WalletScreen>
         .toList();
   }
 
-  void _showWithdrawalDialog() {
+  void _showWithdrawalDialog(WalletModel wallet) {
     final amountController = TextEditingController();
 
     showDialog(
@@ -280,7 +298,7 @@ class _WalletScreenState extends State<WalletScreen>
     );
   }
 
-  void _showTransactionDetails(TransactionModel transaction) {
+  void _showTransactionDetails(TransactionModel transaction, WalletModel wallet) {
     showModalBottomSheet(
       context: context,
       shape: RoundedRectangleBorder(

@@ -41,4 +41,9 @@ class ApiEndPoints {
   // Branch endpoints
   static String getBranchByIdUrl(int branchId) =>
       '$_baseUrl/Branch/get-branch-id/$branchId';
+
+  // Profile endpoints
+  static const String getProfileUrl = '$_baseUrl/UserDetails/branch-profile';
+  static const String updateProfileUrl =
+      '$_baseUrl/UserDetails/update-branch-profile';
 }

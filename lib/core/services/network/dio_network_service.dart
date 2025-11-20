@@ -150,12 +150,12 @@ class DioNetworkService implements INetworkServices {
             options: Options(method: method, headers: headers),
           )
           .timeout(AppConstants.timeOut);
-      printInfo(
-        status: response.statusCode,
-        url: url,
-        title: 'Response Body',
-        response.data,
-      );
+      // printInfo(
+      //   status: response.statusCode,
+      //   url: url,
+      //   title: 'Response Body',
+      //   response.data,
+      // );
 
       /// ✅ Only allow statusCode == 200 as success
       if (response.statusCode == 200) {

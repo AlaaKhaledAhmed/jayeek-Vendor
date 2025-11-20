@@ -56,6 +56,28 @@ class MockProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
+  Future<PostDataHandle<VendorModel>> updateLogoImage({
+    required String imageBase64,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 800));
+    return const PostDataHandle<VendorModel>(
+      hasError: true,
+      message: 'Mock implementation - not available',
+    );
+  }
+
+  @override
+  Future<PostDataHandle<VendorModel>> updateCoverImage({
+    required String coverBase64,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 800));
+    return const PostDataHandle<VendorModel>(
+      hasError: true,
+      message: 'Mock implementation - not available',
+    );
+  }
+
+  @override
   Future<PostDataHandle<String>> updateLogo({
     required String imagePath,
   }) async {

@@ -9,16 +9,18 @@ import 'package:jayeek_vendor/features/orders/data/repositories_impl/orders_repo
 import 'package:jayeek_vendor/features/orders/domain/repositories/orders_repository.dart';
 import '../../features/auth/data/repositories_impl/auth_repository_implement.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/profile/data/repositories_impl/profile_repository_impl.dart';
+import '../../features/profile/domain/repositories/profile_repository.dart';
 import '../constants/app_config.dart';
 import '../services/network/dio_network_service.dart';
 import '../services/network/inetwork_services.dart';
+import 'package:awesome_dio_interceptor/awesome_dio_interceptor.dart';
 
 // NearPay
 
 /// Dio instance
-final dioProvider = Provider<Dio>((ref) {
-  return Dio();
-});
+final dioProvider =
+Provider<Dio>((ref) => Dio()..interceptors.add(AwesomeDioInterceptor()));
 
 /// Network services (Dio)
 final networkServicesDi = Provider<INetworkServices>(
@@ -55,4 +57,9 @@ final ordersDi = Provider<OrdersRepository>(
       return OrdersRepositoryImpl(networkService: ref.read(networkServicesDi));
     }
   },
+);
+
+/// Profile Repository
+final profileDi = Provider<ProfileRepository>(
+  (ref) => ProfileRepositoryImpl(ref.read(networkServicesDi)),
 );

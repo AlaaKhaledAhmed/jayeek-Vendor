@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/constants/app_color.dart';
@@ -74,17 +75,7 @@ class ProfileHeader extends StatelessWidget {
             ],
           ),
           child: ClipOval(
-            child: (vendor.logo != null &&
-                    vendor.logo!.isNotEmpty &&
-                    vendor.logo != 'string' &&
-                    vendor.logo!.length >= 3)
-                ? Image.network(
-                    vendor.logo!,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        _buildDefaultLogo(),
-                  )
-                : _buildDefaultLogo(),
+            child: _buildImageWidget(vendor.logo ?? vendor.profileImage),
           ),
         ),
 
@@ -92,7 +83,7 @@ class ProfileHeader extends StatelessWidget {
 
         // Restaurant Name
         AppText(
-          text: vendor.restaurantName,
+          text: vendor.restaurantName ?? vendor.name,
           fontSize: AppSize.heading2,
           fontWeight: AppThem().bold,
           color: AppColor.white,
@@ -134,6 +125,71 @@ class ProfileHeader extends StatelessWidget {
           ),
       ],
     );
+  }
+
+  Widget _buildImageWidget(String? imageData) {
+    if (imageData == null ||
+        imageData.isEmpty ||
+        imageData == 'string' ||
+        imageData.length < 3) {
+      return _buildDefaultLogo();
+    }
+
+    try {
+      // Check if it's base64
+      bool isBase64 = _isBase64Image(imageData);
+      
+      if (isBase64) {
+        String base64String = imageData;
+        
+        // Remove data URL prefix if present
+        if (base64String.contains(',')) {
+          base64String = base64String.split(',').last;
+        }
+        
+        // Decode base64
+        final bytes = base64Decode(base64String);
+        return Image.memory(
+          bytes,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => _buildDefaultLogo(),
+        );
+      }
+      
+      // Check if it's a network URL
+      if (imageData.startsWith('http://') || imageData.startsWith('https://')) {
+        return Image.network(
+          imageData,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => _buildDefaultLogo(),
+        );
+      }
+      
+      // Default logo if can't determine type
+      return _buildDefaultLogo();
+    } catch (e) {
+      return _buildDefaultLogo();
+    }
+  }
+
+  bool _isBase64Image(String data) {
+    // Check if it's base64 encoded image
+    if (data.startsWith('data:image')) {
+      return true;
+    }
+    
+    // Check for base64 patterns
+    if (data.startsWith('/9j/') || 
+        data.startsWith('iVBORw0KGgo') || 
+        data.startsWith('R0lGODlh') ||
+        data.startsWith('UklGR')) {
+      // Check if it's long enough to be base64 (at least 100 chars)
+      if (data.length > 100) {
+        return true;
+      }
+    }
+    
+    return false;
   }
 
   Widget _buildDefaultLogo() {

@@ -7,20 +7,14 @@ abstract interface class ProfileRepository {
   /// الحصول على معلومات المطعم/البائع
   Future<PostDataHandle<VendorModel>> getVendorProfile();
 
-  /// تحديث معلومات المطعم
-  Future<PostDataHandle<bool>> updateVendorProfile({
-    required String restaurantName,
-    required String supervisorName,
-    required String email,
-    required String phone,
-    String? licenseNumber,
-    String? address,
-    String? city,
+  /// تحديث صورة الشعار (Logo/Profile Image)
+  Future<PostDataHandle<VendorModel>> updateLogoImage({
+    required String imageBase64,
   });
 
-  /// تحديث شعار المطعم
-  Future<PostDataHandle<String>> updateLogo({
-    required String imagePath,
+  /// تحديث صورة الخلفية (Cover Image)
+  Future<PostDataHandle<VendorModel>> updateCoverImage({
+    required String coverBase64,
   });
 
   /// الحصول على معلومات المحفظة

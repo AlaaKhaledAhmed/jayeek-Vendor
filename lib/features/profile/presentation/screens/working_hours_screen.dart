@@ -9,7 +9,6 @@ import '../../../../core/widgets/app_buttons.dart';
 import '../../../../core/widgets/app_decoration.dart';
 import '../../../../core/widgets/app_snack_bar.dart';
 import '../../../../core/widgets/app_text.dart';
-import '../../data/mock/mock_vendor_data.dart';
 import '../../data/models/vendor_model.dart';
 
 class WorkingHoursScreen extends StatefulWidget {
@@ -465,12 +464,12 @@ class _WorkingHoursScreenState extends State<WorkingHoursScreen> {
       if (_selectedDays[i]) selectedDayIndices.add(i + 1); // 1 = الأحد
     }
 
-    // تحديث MockVendorData
-    MockVendorData.updateWorkingHours(
-      openTime: _formatTime(_openTime),
-      closeTime: _formatTime(_closeTime),
-      workingDays: selectedDayIndices,
-    );
+    // TODO: Call API to update working hours
+    // final response = await profileRepository.updateWorkingHours(
+    //   openTime: _formatTime(_openTime),
+    //   closeTime: _formatTime(_closeTime),
+    //   workingDays: selectedDayIndices,
+    // );
 
     // TODO: في التطبيق الحقيقي، سيتم إرسال البيانات للـ API:
     // await repository.updateWorkingHours(
