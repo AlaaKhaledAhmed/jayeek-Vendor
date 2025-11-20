@@ -29,16 +29,8 @@ class HandelPostRequest {
         handleUnauthorized();
       }
 
-      // If status code is 400 and onFailure is provided, let onFailure handle it
-      bool shouldShowDefaultMessage = true;
-      if (result.statusCode == 400 && onFailure != null) {
-        onFailure(result);
-        shouldShowDefaultMessage = false;
-      } else if (onFailure != null) {
-        onFailure(result);
-      }
-      
-      if (context.mounted && shouldShowDefaultMessage) {
+      if (onFailure != null) onFailure(result);
+      if (context.mounted) {
         AppSnackBar.show(
           message: AppErrorMessage.getMessage(
               result.message ?? AppMessage.errorOccurred),

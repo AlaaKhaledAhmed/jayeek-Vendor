@@ -156,12 +156,12 @@ class CustomAddonNotifier extends StateNotifier<CustomAddonState>
   }
 
   ///assign custom addon to branch
-  Future<PostDataHandle> assignAddonToBranch({
+  Future<PostDataHandle<AssignAddonResponse>> assignAddonToBranch({
     required int branchId,
     required int customAddonId,
   }) async {
     state = state.copyWith(isLoading: true);
-    final PostDataHandle apiResponse =
+    final PostDataHandle<AssignAddonResponse> apiResponse =
         await _repository.assignCustomAddonToBranch(
       branchId: branchId,
       customAddonId: customAddonId,

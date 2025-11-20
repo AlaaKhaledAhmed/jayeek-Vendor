@@ -271,3 +271,29 @@ class BranchCustomAddonsResponse extends Equatable {
   @override
   List<Object?> get props => [success, data, message];
 }
+
+/// Assign Addon Response Model
+class AssignAddonResponse extends Equatable {
+  const AssignAddonResponse({
+    this.success,
+    this.message,
+  });
+
+  final bool? success;
+  final String? message;
+
+  factory AssignAddonResponse.fromJson(Map<String, dynamic> json) {
+    return AssignAddonResponse(
+      success: json['success'] as bool?,
+      message: json['message']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'success': success,
+        'message': message,
+      };
+
+  @override
+  List<Object?> get props => [success, message];
+}

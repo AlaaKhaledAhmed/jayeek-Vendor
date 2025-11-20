@@ -16,7 +16,7 @@ abstract interface class CustomAddonRepository {
   Future<PostDataHandle<SingleAddon>> createCustomAddon(AddonsData addonDto);
 
   /// Assign custom addon to branch
-  Future<PostDataHandle> assignCustomAddonToBranch({
+  Future<PostDataHandle<AssignAddonResponse>> assignCustomAddonToBranch({
     required int branchId,
     required int customAddonId,
   });

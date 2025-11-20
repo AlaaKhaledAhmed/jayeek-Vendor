@@ -67,17 +67,17 @@ class CustomAddonRepositoryImpl implements CustomAddonRepository {
   }
 
   @override
-  Future<PostDataHandle> assignCustomAddonToBranch({
+  Future<PostDataHandle<AssignAddonResponse>> assignCustomAddonToBranch({
     required int branchId,
     required int customAddonId,
   }) {
-    return networkService.post(
+    return networkService.post<AssignAddonResponse>(
       url: ApiEndPoints.createBranchCustomAddonUrl,
       body: {
         'branchId': branchId,
         'customAddonId': customAddonId,
       },
-      fromJson: (json) => json,
+      fromJson: AssignAddonResponse.fromJson,
     );
   }
 
