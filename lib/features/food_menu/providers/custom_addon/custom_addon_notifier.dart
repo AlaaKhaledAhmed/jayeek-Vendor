@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:jayeek_vendor/core/util/print_info.dart';
 import 'package:jayeek_vendor/core/services/image_picker_service.dart';
+import 'package:jayeek_vendor/core/services/shared_preferences_service.dart';
 import 'package:jayeek_vendor/core/widgets/app_snack_bar.dart';
 import 'package:jayeek_vendor/core/constants/app_string.dart';
 
@@ -57,23 +58,73 @@ class CustomAddonNotifier extends StateNotifier<CustomAddonState>
     if (refresh == true) {
       ///must add reset state here
       ///if not added, when user refresh data it will return the last data url
-      getCustomAddons();
+      await getBranchCustomAddons();
+      await loadAvailableAddons();
     } else {
       ///check if user upload date before or not
       ///if not upload data, we call api to get data
       ///if upload data, we don't call api again
 
-      if (state.addonsData.data == null) {
-        getCustomAddons();
+      if (state.branchAddonsData.data == null) {
+        await getBranchCustomAddons();
+      }
+      if (state.availableAddonsData.data == null) {
+        await loadAvailableAddons();
       }
     }
   }
 
-  /// get custom addons data=============================================================================================================================
-  void getCustomAddons() async {
+  /// get branch custom addons data
+  Future<void> getBranchCustomAddons() async {
+    final branchId = await SharedPreferencesService.getBranchId();
+    if (branchId == null) {
+      state = state.copyWith(
+        branchAddonsData: state.branchAddonsData.copyWith(
+          result: 'Branch ID not found',
+          data: const BranchCustomAddonsResponse(),
+        ),
+      );
+      return;
+    }
+
     ///loading state
     state = state.copyWith(
-      addonsData: state.addonsData.copyWith(
+      branchAddonsData: state.branchAddonsData.copyWith(
+        result: AppFlowState.loading,
+      ),
+    );
+
+    ///api call
+    final PostDataHandle<BranchCustomAddonsResponse> apiResponse =
+        await _repository.getBranchCustomAddons(branchId);
+
+    ///if success
+    if (!apiResponse.hasError) {
+      ///save changed data
+      state = state.copyWith(
+        branchAddonsData: state.branchAddonsData.copyWith(
+          result: AppFlowState.loaded,
+          data: apiResponse.data,
+        ),
+      );
+    }
+
+    ///error response
+    else {
+      state = state.copyWith(
+        branchAddonsData: state.branchAddonsData.copyWith(
+          result: apiResponse.message ?? AppFlowState.error,
+          data: const BranchCustomAddonsResponse(),
+        ),
+      );
+    }
+  }
+
+  /// Load available custom addons for dropdown
+  Future<void> loadAvailableAddons() async {
+    ///loading state
+    state = state.copyWith(
+      availableAddonsData: state.availableAddonsData.copyWith(
         result: AppFlowState.loading,
       ),
     );
@@ -86,7 +137,7 @@ class CustomAddonNotifier extends StateNotifier<CustomAddonState>
     if (!apiResponse.hasError) {
       ///save changed data
       state = state.copyWith(
-        addonsData: state.addonsData.copyWith(
+        availableAddonsData: state.availableAddonsData.copyWith(
           result: AppFlowState.loaded,
           data: apiResponse.data,
         ),
@@ -96,12 +147,58 @@ class CustomAddonNotifier extends StateNotifier<CustomAddonState>
     ///error response
     else {
       state = state.copyWith(
-        addonsData: state.addonsData.copyWith(
+        availableAddonsData: state.availableAddonsData.copyWith(
           result: apiResponse.message ?? AppFlowState.error,
           data: const CustomAddonsModels(),
         ),
       );
     }
+  }
+
+  ///assign custom addon to branch
+  Future<PostDataHandle> assignAddonToBranch({
+    required int branchId,
+    required int customAddonId,
+  }) async {
+    state = state.copyWith(isLoading: true);
+    final PostDataHandle apiResponse =
+        await _repository.assignCustomAddonToBranch(
+      branchId: branchId,
+      customAddonId: customAddonId,
+    );
+    state = state.copyWith(isLoading: false);
+
+    // Refresh the list after successful assignment
+    if (!apiResponse.hasError) {
+      await getBranchCustomAddons();
+    }
+
+    return apiResponse;
+  }
+
+  ///update branch custom addon
+  Future<PostDataHandle<BranchCustomAddonModel>> updateBranchCustomAddon({
+    required int oldCustomAddonId,
+    required int oldBranchId,
+    required int newCustomAddonId,
+    required int newBranchId,
+  }) async {
+    state = state.copyWith(isLoading: true);
+    final PostDataHandle<BranchCustomAddonModel> apiResponse =
+        await _repository.updateBranchCustomAddon(
+      oldCustomAddonId: oldCustomAddonId,
+      oldBranchId: oldBranchId,
+      newCustomAddonId: newCustomAddonId,
+      newBranchId: newBranchId,
+    );
+    state = state.copyWith(isLoading: false);
+
+    // Refresh the list after successful update
+    if (!apiResponse.hasError) {
+      await getBranchCustomAddons();
+    }
+
+    return apiResponse;
   }
 
   ///create addons=====================================================================================================================
@@ -145,7 +242,7 @@ class CustomAddonNotifier extends StateNotifier<CustomAddonState>
 
     // Refresh the list after successful deletion
     if (!apiResponse.hasError) {
-      getCustomAddons();
+      await getBranchCustomAddons();
     }
 
     return apiResponse;

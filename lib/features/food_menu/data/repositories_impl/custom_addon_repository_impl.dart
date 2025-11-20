@@ -18,6 +18,20 @@ class CustomAddonRepositoryImpl implements CustomAddonRepository {
   }
 
   @override
+  Future<PostDataHandle<BranchCustomAddonsResponse>> getBranchCustomAddons(
+      int branchId) {
+    return networkService.get<BranchCustomAddonsResponse>(
+      url: ApiEndPoints.getBranchCustomAddonsUrl(branchId),
+      fromJson: (json) {
+        if (json.containsKey('data') && json['data'] != null) {
+          return BranchCustomAddonsResponse.fromJson(json);
+        }
+        return BranchCustomAddonsResponse.fromJson(json);
+      },
+    );
+  }
+
+  @override
   Future<PostDataHandle<SingleAddon>> getCustomAddonById(int addonId) {
     return networkService.get<SingleAddon>(
         url: '${ApiEndPoints.getCustomAddonByIdUrl}/$addonId',
@@ -50,6 +64,46 @@ class CustomAddonRepositoryImpl implements CustomAddonRepository {
           'image_url': addon.imageUrl,
         },
         fromJson: SingleAddon.fromJson);
+  }
+
+  @override
+  Future<PostDataHandle> assignCustomAddonToBranch({
+    required int branchId,
+    required int customAddonId,
+  }) {
+    return networkService.post(
+      url: ApiEndPoints.createBranchCustomAddonUrl,
+      body: {
+        'branchId': branchId,
+        'customAddonId': customAddonId,
+      },
+      fromJson: (json) => json,
+    );
+  }
+
+  @override
+  Future<PostDataHandle<BranchCustomAddonModel>> updateBranchCustomAddon({
+    required int oldCustomAddonId,
+    required int oldBranchId,
+    required int newCustomAddonId,
+    required int newBranchId,
+  }) {
+    return networkService.put<BranchCustomAddonModel>(
+      url: ApiEndPoints.updateBranchCustomAddonUrl,
+      body: {
+        'oldCustomAddonId': oldCustomAddonId,
+        'oldBranchId': oldBranchId,
+        'newCustomAddonId': newCustomAddonId,
+        'newBranchId': newBranchId,
+      },
+      fromJson: (json) {
+        // Handle response structure: { "success": true, "data": {...} }
+        if (json.containsKey('data') && json['data'] != null) {
+          return BranchCustomAddonModel.fromJson(json['data']);
+        }
+        return BranchCustomAddonModel.fromJson(json);
+      },
+    );
   }
 
   @override

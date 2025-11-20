@@ -12,12 +12,18 @@ import 'package:jayeek_vendor/core/widgets/app_bar.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
 import 'package:jayeek_vendor/core/widgets/custom_load.dart';
 import 'package:jayeek_vendor/core/widgets/data_view_builder.dart';
+import 'package:jayeek_vendor/core/widgets/app_buttons.dart';
+import 'package:jayeek_vendor/core/widgets/app_snack_bar.dart';
+import 'package:jayeek_vendor/core/widgets/unified_bottom_sheet.dart';
+import 'package:jayeek_vendor/core/services/shared_preferences_service.dart';
+import 'package:jayeek_vendor/core/error/handel_post_response.dart';
 import 'package:jayeek_vendor/features/food_menu/presentation/screens/food/add_food.dart';
 
 import '../../../domain/models/menu_item_model.dart';
 import '../../../providers/menu/menu_notifier.dart';
 import '../../../providers/menu/menu_provider.dart';
 import '../../../providers/menu/menu_state.dart';
+import '../../../providers/custom_addon/custom_addon_provider.dart';
 import '../../widgets/empty_data.dart';
 import '../../widgets/grid_list.dart';
 import '../../widgets/menu_item_card.dart';
@@ -25,7 +31,6 @@ import '../../widgets/search_and_chips.dart';
 import '../categories/categories_screen.dart';
 import '../categories/update_category.dart';
 import '../addons/addons_screen.dart';
-import '../addons/update_addon.dart';
 
 /// FoodMenuScreen with tabs for meals and add-ons
 class FoodMenuScreenWithTabs extends ConsumerStatefulWidget {
@@ -85,11 +90,126 @@ class _FoodMenuScreenWithTabsState extends ConsumerState<FoodMenuScreenWithTabs>
         };
       case 2:
         return () async {
-          AppRoutes.pushTo(context, const UpdateAddon(fromUpdate: false));
+          _showAddAddonDialog();
         };
       default:
         return () {};
     }
+  }
+
+  void _showAddAddonDialog() async {
+    final notifier = ref.read(customAddonProvider.notifier);
+    final state = ref.watch(customAddonProvider);
+    
+    final availableAddons = state.availableAddons;
+    if (availableAddons.isEmpty) {
+      // Load available addons first
+      await notifier.loadAvailableAddons();
+    }
+
+    int? selectedAddonId;
+    final formKey = GlobalKey<FormState>();
+
+    await UnifiedBottomSheet.showCustom(
+      context: context,
+      title: 'إضافة إضافة مخصصة',
+      child: StatefulBuilder(
+        builder: (context, setState) => Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24.w),
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppText(
+                  text: 'اختر الإضافة المخصصة',
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+                SizedBox(height: 16.h),
+                DropdownButtonFormField<int>(
+                  value: selectedAddonId,
+                  decoration: InputDecoration(
+                    labelText: 'الإضافة المخصصة',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 12.h,
+                    ),
+                  ),
+                  items: state.availableAddons.map((addon) {
+                    return DropdownMenuItem<int>(
+                      value: addon.id,
+                      child: Text('${addon.name} - ${addon.price} SAR'),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedAddonId = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'يرجى اختيار إضافة مخصصة';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 24.h),
+                Row(
+                  children: [
+                    Expanded(
+                      child: AppButtons(
+                        text: AppMessage.cancel,
+                        onPressed: () => Navigator.pop(context),
+                        backgroundColor: AppColor.lightGray,
+                        textStyleColor: AppColor.textColor,
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: AppButtons(
+                        text: 'إضافة',
+                        onPressed: () async {
+                          if (formKey.currentState!.validate() &&
+                              selectedAddonId != null) {
+                            Navigator.pop(context);
+                            final branchId =
+                                await SharedPreferencesService.getBranchId();
+                            if (branchId != null) {
+                              HandelPostRequest.handlePostRequest(
+                                context: context,
+                                formKey: null,
+                                request: () => notifier.assignAddonToBranch(
+                                  branchId: branchId,
+                                  customAddonId: selectedAddonId!,
+                                ),
+                                onSuccess: (data) {
+                                  AppSnackBar.show(
+                                    message: 'تم إضافة الإضافة المخصصة بنجاح',
+                                    type: ToastType.success,
+                                  );
+                                },
+                              );
+                            }
+                          }
+                        },
+                        backgroundColor: AppColor.mainColor,
+                        showLoader: state.isLoading,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 24.h),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   IconData _getAddButtonIcon() {

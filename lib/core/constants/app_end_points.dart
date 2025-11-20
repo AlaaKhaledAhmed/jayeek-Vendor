@@ -21,6 +21,14 @@ class ApiEndPoints {
   static const String deleteCustomAddonUrl =
       '$_baseUrl/CustomAddon/delete-custom-addon';
 
+  // Branch Custom Addon endpoints
+  static String getBranchCustomAddonsUrl(int branchId) =>
+      '$_baseUrl/BranchCustomAddon/get/$branchId';
+  static const String createBranchCustomAddonUrl =
+      '$_baseUrl/BranchCustomAddon/create';
+  static const String updateBranchCustomAddonUrl =
+      '$_baseUrl/BranchCustomAddon/update';
+
   // Food Category endpoints
   static const String getFoodCategoriesUrl = '$_baseUrl/ItemCategory/get-all';
   static String getCategoriesWithItemsByBranchUrl(int branchId) =>

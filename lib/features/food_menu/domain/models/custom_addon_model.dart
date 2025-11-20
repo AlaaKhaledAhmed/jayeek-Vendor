@@ -169,3 +169,105 @@ class SingleAddon extends Equatable {
         message,
       ];
 }
+
+/// Branch Custom Addon Model
+class BranchCustomAddonModel extends Equatable {
+  const BranchCustomAddonModel({
+    this.id,
+    this.branchId,
+    this.customAddonId,
+    this.customAddonName,
+    this.branchName,
+    this.image,
+    this.description,
+    this.price,
+    this.deleteFlag,
+    this.allowQuantitySelection,
+  });
+
+  final int? id;
+  final int? branchId;
+  final int? customAddonId;
+  final String? customAddonName;
+  final String? branchName;
+  final String? image;
+  final String? description;
+  final double? price;
+  final bool? deleteFlag;
+  final bool? allowQuantitySelection;
+
+  factory BranchCustomAddonModel.fromJson(Map<String, dynamic> json) {
+    return BranchCustomAddonModel(
+      id: json['id'] as int?,
+      branchId: json['branchId'] as int?,
+      customAddonId: json['customAddonId'] as int?,
+      customAddonName: json['customAddonName']?.toString(),
+      branchName: json['branchName']?.toString(),
+      image: json['image']?.toString(),
+      description: json['description']?.toString(),
+      price: (json['price'] as num?)?.toDouble(),
+      deleteFlag: json['deleteFlag'] as bool?,
+      allowQuantitySelection: json['allowQuantitySelection'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'branchId': branchId,
+        'customAddonId': customAddonId,
+        'customAddonName': customAddonName,
+        'branchName': branchName,
+        'image': image,
+        'description': description,
+        'price': price,
+        'deleteFlag': deleteFlag,
+        'allowQuantitySelection': allowQuantitySelection,
+      };
+
+  @override
+  List<Object?> get props => [
+        id,
+        branchId,
+        customAddonId,
+        customAddonName,
+        branchName,
+        image,
+        description,
+        price,
+        deleteFlag,
+        allowQuantitySelection,
+      ];
+}
+
+/// Branch Custom Addons Response Model
+class BranchCustomAddonsResponse extends Equatable {
+  const BranchCustomAddonsResponse({
+    this.success,
+    this.data,
+    this.message,
+  });
+
+  final bool? success;
+  final List<BranchCustomAddonModel>? data;
+  final String? message;
+
+  factory BranchCustomAddonsResponse.fromJson(Map<String, dynamic> json) {
+    return BranchCustomAddonsResponse(
+      success: json['success'] as bool?,
+      data: json['data'] == null
+          ? []
+          : List<BranchCustomAddonModel>.from(
+              json['data']!.map((x) => BranchCustomAddonModel.fromJson(x))),
+      message: json['message']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'success': success,
+        'data': data?.map((x) => x.toJson()).toList(),
+        'message': message,
+      };
+
+  @override
+  List<Object?> get props => [success, data, message];
+}
