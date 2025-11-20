@@ -11,7 +11,6 @@ import 'package:jayeek_vendor/core/widgets/app_snack_bar.dart';
 import 'package:jayeek_vendor/core/widgets/app_text.dart';
 import 'package:jayeek_vendor/core/widgets/app_text_fields.dart';
 import 'package:jayeek_vendor/core/widgets/scroll_list.dart';
-import 'package:jayeek_vendor/core/widgets/shared_image_picker.dart';
 import 'package:jayeek_vendor/core/widgets/food_emoji_picker.dart';
 
 import '../../../../../core/error/handel_post_response.dart';
@@ -45,15 +44,33 @@ class _AddEditCategoryScreenState extends ConsumerState<UpdateCategory> {
         ref
             .read(categoriesProvider.notifier)
             .loadCategoryForEdit(widget.category!);
-        // Check if current image is an emoji (short string of 1-4 characters)
-        if (widget.category?.image != null &&
-            widget.category!.image!.length <= 4 &&
-            widget.category!.image!.isNotEmpty &&
-            widget.category!.image != 'string') {
-          selectedEmoji = widget.category!.image;
+        // Load iconCode and convert to emoji
+        if (widget.category?.iconCode != null &&
+            widget.category!.iconCode!.isNotEmpty) {
+          try {
+            String code = widget.category!.iconCode!.trim();
+            if (code.startsWith('U+')) {
+              code = code.substring(2);
+            }
+            final codePoint = int.parse(code, radix: 16);
+            
+            // Handle emoji that require surrogate pairs (code points > 0xFFFF)
+            if (codePoint > 0xFFFF) {
+              final high = 0xD800 + ((codePoint - 0x10000) >> 10);
+              final low = 0xDC00 + ((codePoint - 0x10000) & 0x3FF);
+              selectedEmoji = String.fromCharCodes([high, low]);
+            } else {
+              selectedEmoji = String.fromCharCode(codePoint);
+            }
+          } catch (e) {
+            selectedEmoji = '🍔'; // Default emoji if conversion fails
+          }
+        } else {
+          selectedEmoji = '🍔'; // Default emoji for new category
         }
       } else {
         ref.read(categoriesProvider.notifier).resetAddForm();
+        selectedEmoji = '🍔'; // Default emoji for new category
       }
     });
   }
@@ -114,8 +131,8 @@ class _AddEditCategoryScreenState extends ConsumerState<UpdateCategory> {
                   ),
                   SizedBox(height: 20.h),
 
-                  // Category Image or Emoji
-                  _buildImageOrEmojiSection(notifier),
+                  // Category Icon
+                  _buildEmojiSection(notifier),
                   SizedBox(height: 20.h),
 
                   // Save Button
@@ -161,141 +178,17 @@ class _AddEditCategoryScreenState extends ConsumerState<UpdateCategory> {
     );
   }
 
-  Widget _buildImageOrEmojiSection(notifier) {
-    final currentImagePath = widget.fromUpdate
-        ? notifier.editSelectedImagePath
-        : notifier.addSelectedImagePath;
-
+  Widget _buildEmojiSection(notifier) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const AppText(
-          text: 'صورة الفئة أو أيقونة',
+          text: 'أيقونة الفئة',
           fontWeight: FontWeight.bold,
         ),
         SizedBox(height: 15.h),
-
-        // Modern Segmented Control
-        Container(
-          padding: EdgeInsets.all(4.w),
-          decoration: BoxDecoration(
-            color: AppColor.lightGray.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(14.r),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: _buildSegmentButton(
-                  label: 'صورة',
-                  icon: Icons.image_rounded,
-                  isSelected: selectedEmoji == null,
-                  onTap: () {
-                    setState(() {
-                      selectedEmoji = null;
-                    });
-                  },
-                ),
-              ),
-              SizedBox(width: 6.w),
-              Expanded(
-                child: _buildSegmentButton(
-                  label: 'أيقونة',
-                  emoji: '😊',
-                  isSelected: selectedEmoji != null,
-                  onTap: () {
-                    setState(() {
-                      selectedEmoji = selectedEmoji ?? '🍔';
-                    });
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: 20.h),
-
-        // Animated Content Area
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          transitionBuilder: (Widget child, Animation<double> animation) {
-            return FadeTransition(
-              opacity: animation,
-              child: ScaleTransition(
-                scale: Tween<double>(begin: 0.95, end: 1.0).animate(animation),
-                child: child,
-              ),
-            );
-          },
-          child: selectedEmoji == null
-              ? SharedImagePicker(
-                  key: const ValueKey('image_picker'),
-                  imagePath: currentImagePath,
-                  onPickImage: () async {
-                    await notifier.pickCategoryImage(context,
-                        isEdit: widget.fromUpdate);
-                  },
-                  height: 220.h,
-                  placeholderText: AppMessage.selectImage,
-                )
-              : _buildModernEmojiSelector(notifier),
-        ),
+        _buildModernEmojiSelector(notifier),
       ],
-    );
-  }
-
-  Widget _buildSegmentButton({
-    required String label,
-    IconData? icon,
-    String? emoji,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-        padding: EdgeInsets.symmetric(vertical: 12.h),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColor.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(10.r),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppColor.mainColor.withOpacity(0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (icon != null)
-              Icon(
-                icon,
-                color: isSelected ? AppColor.mainColor : AppColor.mediumGray,
-                size: 20.sp,
-              )
-            else if (emoji != null)
-              Text(
-                emoji,
-                style: TextStyle(
-                  fontSize: 20.sp,
-                  color: isSelected ? null : AppColor.mediumGray,
-                ),
-              ),
-            SizedBox(width: 6.w),
-            AppText(
-              text: label,
-              color: isSelected ? AppColor.mainColor : AppColor.mediumGray,
-              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              fontSize: AppSize.normalText,
-            ),
-          ],
-        ),
-      ),
     );
   }
 
