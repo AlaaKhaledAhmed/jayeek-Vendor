@@ -29,6 +29,9 @@ abstract interface class CustomAddonRepository {
     required int newBranchId,
   });
 
+  /// Delete branch custom addon
+  Future<PostDataHandle> deleteBranchCustomAddon(int id);
+
   /// Update an existing custom add-on
   Future<PostDataHandle<SingleAddon>> updateCustomAddon(AddonsData addonDto);
 

@@ -29,11 +29,19 @@ class HandelPostRequest {
         handleUnauthorized();
       }
 
-      if (onFailure != null) onFailure(result);
-      if (context.mounted) {
+      // If status code is 400 and onFailure is provided, let onFailure handle it
+      bool shouldShowDefaultMessage = true;
+      if (result.statusCode == 400 && onFailure != null) {
+        onFailure(result);
+        shouldShowDefaultMessage = false;
+      } else if (onFailure != null) {
+        onFailure(result);
+      }
+      
+      if (context.mounted && shouldShowDefaultMessage) {
         AppSnackBar.show(
-          message:
-              AppErrorMessage.getMessage(result.message ?? AppMessage.done),
+          message: AppErrorMessage.getMessage(
+              result.message ?? AppMessage.errorOccurred),
           type: ToastType.error,
         );
       }

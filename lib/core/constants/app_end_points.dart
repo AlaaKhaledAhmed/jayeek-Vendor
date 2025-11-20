@@ -28,6 +28,8 @@ class ApiEndPoints {
       '$_baseUrl/BranchCustomAddon/create';
   static const String updateBranchCustomAddonUrl =
       '$_baseUrl/BranchCustomAddon/update';
+  static String deleteBranchCustomAddonUrl(int id) =>
+      '$_baseUrl/BranchCustomAddon/delete/$id';
 
   // Food Category endpoints
   static const String getFoodCategoriesUrl = '$_baseUrl/ItemCategory/get-all';

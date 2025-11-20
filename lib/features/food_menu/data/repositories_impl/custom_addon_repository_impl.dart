@@ -107,6 +107,14 @@ class CustomAddonRepositoryImpl implements CustomAddonRepository {
   }
 
   @override
+  Future<PostDataHandle> deleteBranchCustomAddon(int id) {
+    return networkService.delete(
+      url: ApiEndPoints.deleteBranchCustomAddonUrl(id),
+      fromJson: (json) => json,
+    );
+  }
+
+  @override
   Future<PostDataHandle> deleteCustomAddon(int addonId) {
     return networkService.delete(
         url: '${ApiEndPoints.deleteCustomAddonUrl}/$addonId',

@@ -40,8 +40,7 @@ class CustomAddonState extends Equatable {
       branchAddonsData.data?.data ?? [];
 
   /// Helper getter for easy access to available addons list (for dropdown)
-  List<AddonsData> get availableAddons =>
-      availableAddonsData.data?.data ?? [];
+  List<AddonsData> get availableAddons => availableAddonsData.data?.data ?? [];
 
   @override
   List<Object?> get props => [

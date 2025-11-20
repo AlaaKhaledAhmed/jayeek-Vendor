@@ -11,9 +11,11 @@ import 'package:jayeek_vendor/core/widgets/app_text.dart';
 import 'package:jayeek_vendor/core/widgets/app_buttons.dart';
 import 'package:jayeek_vendor/core/widgets/app_snack_bar.dart';
 import 'package:jayeek_vendor/core/widgets/unified_bottom_sheet.dart';
+import 'package:jayeek_vendor/core/widgets/app_drop_list.dart';
 import 'package:jayeek_vendor/core/error/handel_post_response.dart';
 
 import '../../providers/custom_addon/custom_addon_provider.dart';
+import '../../domain/models/custom_addon_model.dart';
 
 class AddonEmptyState extends ConsumerWidget {
   const AddonEmptyState({super.key});
@@ -66,7 +68,7 @@ class AddonEmptyState extends ConsumerWidget {
       await notifier.loadAvailableAddons();
     }
 
-    int? selectedAddonId;
+    AddonsData? selectedAddon;
     final formKey = GlobalKey<FormState>();
 
     await UnifiedBottomSheet.showCustom(
@@ -87,27 +89,13 @@ class AddonEmptyState extends ConsumerWidget {
                   fontWeight: FontWeight.bold,
                 ),
                 SizedBox(height: 16.h),
-                DropdownButtonFormField<int>(
-                  value: selectedAddonId,
-                  decoration: InputDecoration(
-                    labelText: 'الإضافة المخصصة',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 12.h,
-                    ),
-                  ),
-                  items: state.availableAddons.map((addon) {
-                    return DropdownMenuItem<int>(
-                      value: addon.id,
-                      child: Text('${addon.name} - ${addon.price} SAR'),
-                    );
-                  }).toList(),
+                AppDropList<AddonsData>(
+                  hintText: 'الإضافة المخصصة',
+                  items: state.availableAddons,
+                  value: selectedAddon,
                   onChanged: (value) {
                     setState(() {
-                      selectedAddonId = value;
+                      selectedAddon = value;
                     });
                   },
                   validator: (value) {
@@ -116,6 +104,17 @@ class AddonEmptyState extends ConsumerWidget {
                     }
                     return null;
                   },
+                  customItem: state.availableAddons
+                      .map<DropdownMenuItem<AddonsData>>((addon) {
+                    return DropdownMenuItem<AddonsData>(
+                      value: addon,
+                      child: AppText(
+                        text: '${addon.name} - ${addon.price} SAR',
+                        fontSize: 14.sp,
+                        color: AppColor.textColor,
+                      ),
+                    );
+                  }).toList(),
                 ),
                 SizedBox(height: 24.h),
                 Row(
@@ -134,7 +133,7 @@ class AddonEmptyState extends ConsumerWidget {
                         text: 'إضافة',
                         onPressed: () async {
                           if (formKey.currentState!.validate() &&
-                              selectedAddonId != null) {
+                              selectedAddon != null) {
                             Navigator.pop(context);
                             final branchId =
                                 await SharedPreferencesService.getBranchId();
@@ -144,7 +143,7 @@ class AddonEmptyState extends ConsumerWidget {
                                 formKey: null,
                                 request: () => notifier.assignAddonToBranch(
                                   branchId: branchId,
-                                  customAddonId: selectedAddonId!,
+                                  customAddonId: selectedAddon!.id!,
                                 ),
                                 onSuccess: (data) {
                                   AppSnackBar.show(

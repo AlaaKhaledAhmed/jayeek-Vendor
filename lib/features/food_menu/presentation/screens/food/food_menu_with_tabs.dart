@@ -15,11 +15,13 @@ import 'package:jayeek_vendor/core/widgets/data_view_builder.dart';
 import 'package:jayeek_vendor/core/widgets/app_buttons.dart';
 import 'package:jayeek_vendor/core/widgets/app_snack_bar.dart';
 import 'package:jayeek_vendor/core/widgets/unified_bottom_sheet.dart';
+import 'package:jayeek_vendor/core/widgets/app_drop_list.dart';
 import 'package:jayeek_vendor/core/services/shared_preferences_service.dart';
 import 'package:jayeek_vendor/core/error/handel_post_response.dart';
 import 'package:jayeek_vendor/features/food_menu/presentation/screens/food/add_food.dart';
 
 import '../../../domain/models/menu_item_model.dart';
+import '../../../domain/models/custom_addon_model.dart';
 import '../../../providers/menu/menu_notifier.dart';
 import '../../../providers/menu/menu_provider.dart';
 import '../../../providers/menu/menu_state.dart';
@@ -100,14 +102,14 @@ class _FoodMenuScreenWithTabsState extends ConsumerState<FoodMenuScreenWithTabs>
   void _showAddAddonDialog() async {
     final notifier = ref.read(customAddonProvider.notifier);
     final state = ref.watch(customAddonProvider);
-    
+
     final availableAddons = state.availableAddons;
     if (availableAddons.isEmpty) {
       // Load available addons first
       await notifier.loadAvailableAddons();
     }
 
-    int? selectedAddonId;
+    AddonsData? selectedAddon;
     final formKey = GlobalKey<FormState>();
 
     await UnifiedBottomSheet.showCustom(
@@ -128,27 +130,13 @@ class _FoodMenuScreenWithTabsState extends ConsumerState<FoodMenuScreenWithTabs>
                   fontWeight: FontWeight.bold,
                 ),
                 SizedBox(height: 16.h),
-                DropdownButtonFormField<int>(
-                  value: selectedAddonId,
-                  decoration: InputDecoration(
-                    labelText: 'الإضافة المخصصة',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 12.h,
-                    ),
-                  ),
-                  items: state.availableAddons.map((addon) {
-                    return DropdownMenuItem<int>(
-                      value: addon.id,
-                      child: Text('${addon.name} - ${addon.price} SAR'),
-                    );
-                  }).toList(),
+                AppDropList<AddonsData>(
+                  hintText: 'الإضافة المخصصة',
+                  items: state.availableAddons,
+                  value: selectedAddon,
                   onChanged: (value) {
                     setState(() {
-                      selectedAddonId = value;
+                      selectedAddon = value;
                     });
                   },
                   validator: (value) {
@@ -157,6 +145,17 @@ class _FoodMenuScreenWithTabsState extends ConsumerState<FoodMenuScreenWithTabs>
                     }
                     return null;
                   },
+                  customItem: state.availableAddons
+                      .map<DropdownMenuItem<AddonsData>>((addon) {
+                    return DropdownMenuItem<AddonsData>(
+                      value: addon,
+                      child: AppText(
+                        text: '${addon.name} - ${addon.price} SAR',
+                        fontSize: 14.sp,
+                        color: AppColor.textColor,
+                      ),
+                    );
+                  }).toList(),
                 ),
                 SizedBox(height: 24.h),
                 Row(
@@ -175,7 +174,7 @@ class _FoodMenuScreenWithTabsState extends ConsumerState<FoodMenuScreenWithTabs>
                         text: 'إضافة',
                         onPressed: () async {
                           if (formKey.currentState!.validate() &&
-                              selectedAddonId != null) {
+                              selectedAddon != null) {
                             Navigator.pop(context);
                             final branchId =
                                 await SharedPreferencesService.getBranchId();
@@ -185,7 +184,7 @@ class _FoodMenuScreenWithTabsState extends ConsumerState<FoodMenuScreenWithTabs>
                                 formKey: null,
                                 request: () => notifier.assignAddonToBranch(
                                   branchId: branchId,
-                                  customAddonId: selectedAddonId!,
+                                  customAddonId: selectedAddon!.id!,
                                 ),
                                 onSuccess: (data) {
                                   AppSnackBar.show(
