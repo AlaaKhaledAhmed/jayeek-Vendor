@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:jayeek_vendor/core/constants/app_color.dart';
 import 'package:jayeek_vendor/core/constants/app_string.dart';
+import 'package:jayeek_vendor/core/util/print_info.dart';
 import 'package:jayeek_vendor/core/widgets/custom_load.dart';
 import 'package:jayeek_vendor/core/widgets/data_view_builder.dart';
 import 'package:jayeek_vendor/core/widgets/app_snack_bar.dart';
@@ -41,14 +42,13 @@ class _AddonsListScreenState extends ConsumerState<AddonsScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(customAddonProvider);
     final notifier = ref.read(customAddonProvider.notifier);
-
     return Scaffold(
       body: DataViewBuilder(
         dataHandle: state.branchAddonsData,
         emptyBuilder: () => const AddonEmptyState(),
         onReload: () async => notifier.loadData(refresh: true),
         loadingBuilder: () => CustomLoad().loadVerticalList(context: context),
-        isDataEmpty: () => state.branchAddons.isEmpty,
+        isDataEmpty: () => state.branchAddonsData.data?.data?.isEmpty ?? true,
         successBuilder: (branchAddons) => Padding(
           padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
           child: ListView.separated(

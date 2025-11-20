@@ -320,7 +320,6 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
         message: AppMessage.addedSuccessfully,
         type: ToastType.success,
       );
-
       // Return the item from response
       return response.data;
     } catch (e) {

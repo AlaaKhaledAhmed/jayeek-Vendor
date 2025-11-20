@@ -34,7 +34,7 @@ class UpdateFoodPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColor.backgroundColor,
-      appBar: AppBarWidget(
+      appBar: const AppBarWidget(
         text: AppMessage.editMeal,
         hideBackButton: false,
       ),
@@ -394,6 +394,8 @@ class UpdateFoodPage extends ConsumerWidget {
         if (updatedItem != null && context.mounted) {
           // Update in menu list
           ref.read(menuProvider.notifier).updateItem(updatedItem);
+          //call get item categoy
+          ref.read(menuProvider.notifier).refreshMenu();
           Navigator.pop(context);
         }
       },

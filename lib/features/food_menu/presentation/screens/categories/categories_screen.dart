@@ -12,6 +12,7 @@ import 'package:jayeek_vendor/core/widgets/unified_bottom_sheet.dart';
 import 'package:jayeek_vendor/core/error/handel_post_response.dart';
 
 import '../../../providers/categories/categories_provider.dart';
+import '../../../providers/menu/menu_provider.dart';
 import '../../widgets/category_item_card.dart';
 import '../../widgets/category_empty_state.dart';
 import 'update_category.dart';
@@ -72,6 +73,7 @@ class _CategoriesListScreenState extends ConsumerState<CategoriesScreen> {
                 notifier: notifier,
                 state: state,
                 id: category.id!,
+                ref: ref,
               ),
             );
           },
@@ -86,6 +88,7 @@ void _showDeleteDialog({
   required notifier,
   required state,
   required int id,
+    ref
 }) async {
   final confirmed = await UnifiedBottomSheet.showConfirmation(
     context: context,
@@ -106,6 +109,8 @@ void _showDeleteDialog({
           message: AppMessage.categoryDeleted,
           type: ToastType.success,
         );
+        //call get item category
+        ref.read(menuProvider.notifier).refreshMenu();
       },
     );
   }

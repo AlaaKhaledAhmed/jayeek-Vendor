@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:jayeek_vendor/core/extensions/context_extensions.dart';
 import 'package:jayeek_vendor/core/widgets/app_decoration.dart';
+import 'package:jayeek_vendor/core/widgets/app_text.dart';
+import '../../../../core/constants/app_color.dart';
 import '../../../../core/constants/app_size.dart';
 import '../../../../core/routing/app_routes_methods.dart';
 import '../../../../core/services/shared_preferences_service.dart';
@@ -16,56 +19,63 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  late final Image _backgroundImage;
-  late final Image _logo;
+  late final Image _splash;
   @override
   void initState() {
     super.initState();
-    _backgroundImage = Image.asset(Assets.imagesSplashTr);
-    _logo = Image.asset(Assets.imagesSplashTr);
+    _splash = Image.asset(Assets.imagesSplashTr);
     _initializeApp();
   }
 
   Future<void> _initializeApp() async {
     await Future.delayed(const Duration(seconds: 2));
-    final String? isLogin = await SharedPreferencesService.getLogin();
+    final String? isLogin = await SharedPreferencesService.getToken();
 
     if (isLogin == null) {
-      AppRoutes.pushReplacementTo(context, const LoginScreen());
+      AppRoutes.pushReplacementTo(context, const LoginScreen(),noAnimation: true);
     } else {
-      AppRoutes.pushReplacementTo(context, const HomePage());
+      AppRoutes.pushReplacementTo(context, const HomePage(),noAnimation: true);
     }
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    precacheImage(_backgroundImage.image, context);
-    precacheImage(_logo.image, context);
+    precacheImage(_splash.image, context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: AppDecoration.decoration(
-          //color: AppColor.mainColor,
-          // image: _backgroundImage.image,
-          alignment: AlignmentDirectional.bottomCenter,
-
-          // cover: true
-        ),
-        alignment: Alignment.bottomCenter,
-        height: AppSize.screenHeight,
-        width: AppSize.screenWidth,
-        child: Padding(
-          padding: EdgeInsets.only(left: 30.w, right: 30.w),
-          child: Image(
-            image: _logo.image,
-            //width: context.width * 0.5.spMin,
-            // color: AppColor.white,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          AppText(
+            text: 'كل طلب جاييّك...',
+            fontWeight: FontWeight.bold,
+            fontSize: AppSize.heading1 + 10,
+            align: TextAlign.center,
+            color: AppColor.subtextColor,
           ),
-        ),
+          AppText(
+            text: 'بإدارة أسهل وتجربة أذكى.',
+            fontWeight: FontWeight.bold,
+            fontSize: AppSize.bodyText + 2,
+            align: TextAlign.center,
+            color: AppColor.mainColor,
+          ),
+          SizedBox(
+            height: 50.h,
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 30.w, right: 30.w),
+            child: Image(
+              image: _splash.image,
+              //width: context.width * 0.5.spMin,
+              // color: AppColor.white,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -32,7 +32,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    _backgroundImage = Image.asset(Assets.imagesBackground);
+    _backgroundImage = Image.asset(Assets.imagesSplash);
   }
 
   @override
@@ -44,15 +44,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Container(
         height: context.height,
         width: context.width,
-        decoration: AppDecoration.decoration(
-          color: AppColor.mainColor,
-          radius: 0,
-          image: _backgroundImage.image,
-          alignment: AlignmentDirectional.bottomCenter,
-        ),
+        color: AppColor.mainColor,
         child: _buildBody(context: context),
       ),
     );
@@ -62,84 +58,111 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget _buildBody({required BuildContext context}) {
     final notifier = ref.read(loginProvider.notifier);
     final state = ref.watch(loginProvider);
-    return Padding(
-      padding: EdgeInsets.only(
-        left: AppSize.horizontalPadding,
-        right: AppSize.horizontalPadding,
-        top: 25.h,
-      ),
-      child: Form(
-        key: notifier.formKey,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ///login text
-            AppText(
-              text: AppMessage.loginText,
-              fontWeight: AppThem().bold,
-              fontSize: AppSize.heading2,
-              color: AppColor.white,
-            ),
-            SizedBox(height: 15.h),
+    return Column(
+      children: [
+        Expanded(child: Container()),
+        Expanded(
+            flex: 4,
+            child: DecoratedBox(
+                decoration: AppDecoration.decoration(
+                  color: AppColor.white,
+                  radius: 35,
+                  radiusOnlyTop: true,
+                ),
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left: 15.w,
+                    right: 15.w,
+                    top: context.height * 0.10,
+                  ),
+                  child: Form(
+                    key: notifier.formKey,
+                    child: Column(
+                      children: [
+                        ///login text
+                        AppText(
+                          text: AppMessage.loginText,
+                          fontWeight: AppThem().bold,
+                          fontSize: AppSize.heading2,
+                          color: AppColor.mainColor,
+                        ),
+                        SizedBox(height: 15.h),
 
-            ///phone text-field
-            AppTextFields(
-              hintText: AppMessage.phone,
-              validator: AppValidator.validatorPhone,
-              controller: notifier.phoneController,
-              keyboardType: TextInputType.phone,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(9),
-              ],
-              suffix: const Text('962+'),
-              ltr: true,
-            ),
-            SizedBox(height: 10.h),
+                        ///phone text-field
+                        AppTextFields(
+                          hintText: AppMessage.phone,
+                          validator: AppValidator.validatorPhone,
+                          controller: notifier.phoneController,
+                          keyboardType: TextInputType.phone,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(9),
+                          ],
+                          suffix: const Text('962+'),
+                          ltr: true,
+                        ),
+                        SizedBox(height: 10.h),
 
-            ///password text-field
-            AppTextFields(
-              hintText: AppMessage.password,
-              validator: AppValidator.validatorEmpty,
-              controller: notifier.passwordController,
-              ltr: true,
-            ),
-            SizedBox(height: 10.h),
+                        ///password text-field
+                        AppTextFields(
+                          hintText: AppMessage.password,
+                          validator: AppValidator.validatorEmpty,
+                          controller: notifier.passwordController,
+                          ltr: true,
+                        ),
+                        SizedBox(height: 10.h),
 
-            ///login button
-            AppButtons(
-              width: AppSize.screenWidth,
-              text: AppMessage.loginText,
-              showLoader: state.isLoading,
-              radius: 10.r,
-              onPressed: () {
-                ///handel result
-                HandelPostRequest.handlePostRequest(
-                  context: context,
-                  formKey: notifier.formKey,
-                  request: notifier.login,
-                  onSuccess: (data) {
-                    // Check if branchId or organizationId is null
-                    final responseData = data.data?['data'];
-                    final branchId = responseData?['branchId'];
-                    final organizationId = responseData?['organizationId'];
+                        ///login button
+                        AppButtons(
+                          width: AppSize.screenWidth,
+                          text: AppMessage.loginText,
+                          showLoader: state.isLoading,
+                          radius: 10.r,
+                          onPressed: () {
+                            ///handel result
+                            HandelPostRequest.handlePostRequest(
+                              context: context,
+                              formKey: notifier.formKey,
+                              request: notifier.login,
+                              onSuccess: (data) {
+                                // Check if branchId or organizationId is null
+                                final responseData = data.data?['data'];
+                                final branchId = responseData?['branchId'];
+                                final organizationId =
+                                    responseData?['organizationId'];
 
-                    if (branchId == null || organizationId == null) {
-                      // Show error dialog
-                      _showNoBranchAssignedDialog(context);
-                      return;
-                    }
+                                if (branchId == null ||
+                                    organizationId == null) {
+                                  // Show error dialog
+                                  _showNoBranchAssignedDialog(context);
+                                  return;
+                                }
 
-                    // If both are present, proceed to home page
-                    AppRoutes.pushReplacementTo(context, const HomePage());
-                  },
-                );
-              },
-            ),
-            SizedBox(height: 15.h),
-          ],
-        ),
-      ),
+                                // If both are present, proceed to home page
+                                AppRoutes.pushReplacementTo(
+                                    context, const HomePage());
+                              },
+                            );
+                          },
+                        ),
+                        const Spacer(),
+                        Padding(
+                          padding: EdgeInsets.only(
+                              left: 40.w, right: 40.w, bottom: context.bottom),
+                          child: Transform.translate(
+                            offset: Offset(-100.w, 0),
+                            child: Image(
+                              image: _backgroundImage.image,
+                              //width: context.width * 0.5.spMin,
+                              // color: AppColor.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )))
+      ],
     );
   }
 

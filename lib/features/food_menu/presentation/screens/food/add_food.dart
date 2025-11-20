@@ -34,7 +34,7 @@ class AddFoodPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColor.backgroundColor,
-      appBar: AppBarWidget(
+      appBar: const AppBarWidget(
         text: AppMessage.addMeal,
         hideBackButton: false,
       ),
@@ -405,6 +405,8 @@ class AddFoodPage extends ConsumerWidget {
         if (newItem != null && context.mounted) {
           // Add to menu list
           ref.read(menuProvider.notifier).addItem(newItem);
+          //call get item category
+          ref.read(menuProvider.notifier).refreshMenu();
           // Reset form for next addition
           notifier.resetForm();
           Navigator.pop(context);
