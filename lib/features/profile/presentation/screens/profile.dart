@@ -62,61 +62,61 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
             ),
 
-          // المحتوى
-          SliverToBoxAdapter(
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColor.backgroundColor,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(24.r),
-                  topRight: Radius.circular(24.r),
+            // المحتوى
+            SliverToBoxAdapter(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColor.backgroundColor,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(24.r),
+                    topRight: Radius.circular(24.r),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 24.h),
+
+                    // 1️⃣ قسم الحساب
+                    const ProfileSectionTitle(
+                      title: 'الحساب',
+                      icon: Icons.account_circle_rounded,
+                    ),
+                    _buildAccountSection(context),
+
+                    SizedBox(height: 32.h),
+
+                    // 2️⃣ قسم الإعدادات
+                    const ProfileSectionTitle(
+                      title: 'الإعدادات',
+                      icon: Icons.settings_rounded,
+                    ),
+                    _buildSettings(context),
+
+                    SizedBox(height: 32.h),
+
+                    // 3️⃣ قسم المالية
+                    const ProfileSectionTitle(
+                      title: 'المالية',
+                      icon: Icons.account_balance_wallet_rounded,
+                    ),
+                    _buildFinanceSection(context),
+
+                    SizedBox(height: 32.h),
+
+                    // 4️⃣ قسم المساعدة
+                    const ProfileSectionTitle(
+                      title: 'المساعدة والدعم',
+                      icon: Icons.help_rounded,
+                    ),
+                    _buildHelpSection(context),
+
+                    SizedBox(height: 32.h),
+                  ],
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 24.h),
-
-                  // 1️⃣ قسم الحساب
-                  const ProfileSectionTitle(
-                    title: 'الحساب',
-                    icon: Icons.account_circle_rounded,
-                  ),
-                  _buildAccountSection(context),
-
-                  SizedBox(height: 32.h),
-
-                  // 2️⃣ قسم الإعدادات
-                  const ProfileSectionTitle(
-                    title: 'الإعدادات',
-                    icon: Icons.settings_rounded,
-                  ),
-                  _buildSettings(context),
-
-                  SizedBox(height: 32.h),
-
-                  // 3️⃣ قسم المالية
-                  const ProfileSectionTitle(
-                    title: 'المالية',
-                    icon: Icons.account_balance_wallet_rounded,
-                  ),
-                  _buildFinanceSection(context),
-
-                  SizedBox(height: 32.h),
-
-                  // 4️⃣ قسم المساعدة
-                  const ProfileSectionTitle(
-                    title: 'المساعدة والدعم',
-                    icon: Icons.help_rounded,
-                  ),
-                  _buildHelpSection(context),
-
-                  SizedBox(height: 32.h),
-                ],
-              ),
             ),
-          ),
-        ],
+          ],
         ),
       ),
     );
@@ -264,32 +264,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             },
             iconColor: AppColor.green,
           ),
-          SizedBox(height: 12.h),
-          ProfileActionTile(
-            icon: Icons.receipt_long_rounded,
-            title: 'التقارير المالية',
-            subtitle: 'عرض تقارير المبيعات والأرباح',
-            onTap: () {
-              AppSnackBar.show(
-                message: 'قريباً',
-                type: ToastType.info,
-              );
-            },
-            iconColor: AppColor.blue,
-          ),
-          SizedBox(height: 12.h),
-          ProfileActionTile(
-            icon: Icons.monetization_on_rounded,
-            title: 'طلبات السحب',
-            subtitle: 'إدارة طلبات سحب الأرباح',
-            onTap: () {
-              AppSnackBar.show(
-                message: 'قريباً',
-                type: ToastType.info,
-              );
-            },
-            iconColor: AppColor.amber,
-          ),
         ],
       ),
     );
@@ -312,32 +286,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               );
             },
             iconColor: AppColor.blue,
-          ),
-          SizedBox(height: 12.h),
-          ProfileActionTile(
-            icon: Icons.chat_bubble_outline_rounded,
-            title: 'تواصل معنا',
-            subtitle: 'الدردشة المباشرة مع الدعم الفني',
-            onTap: () {
-              AppSnackBar.show(
-                message: 'قريباً',
-                type: ToastType.info,
-              );
-            },
-            iconColor: AppColor.green,
-          ),
-          SizedBox(height: 12.h),
-          ProfileActionTile(
-            icon: Icons.bug_report_outlined,
-            title: 'الإبلاغ عن مشكلة',
-            subtitle: 'أخبرنا إذا واجهت أي مشكلة',
-            onTap: () {
-              AppSnackBar.show(
-                message: 'قريباً',
-                type: ToastType.info,
-              );
-            },
-            iconColor: AppColor.red,
           ),
           SizedBox(height: 12.h),
           ProfileActionTile(

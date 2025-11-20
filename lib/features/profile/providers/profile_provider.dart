@@ -10,4 +10,3 @@ final profileProvider =
     return ProfileNotifier(repo);
   },
 );
-

@@ -34,7 +34,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
     }
   }
 
-
   @override
   Future<PostDataHandle<VendorModel>> updateLogoImage({
     required String imageBase64,

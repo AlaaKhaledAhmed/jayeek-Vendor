@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_color.dart';
 import '../../../../core/constants/app_size.dart';
 import '../../../../core/constants/app_string.dart';
 import '../../../../core/widgets/app_bar.dart';
 import '../../../../core/widgets/app_buttons.dart';
 import '../../../../core/widgets/app_snack_bar.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/widgets/app_text.dart';
+import '../../../../core/widgets/app_text_fields.dart';
+import '../../../../core/widgets/unified_bottom_sheet.dart';
 import '../../data/models/wallet_model.dart';
-import '../widgets/wallet/transaction_card.dart';
-import '../widgets/wallet/wallet_balance_card.dart';
+import 'package:intl/intl.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
   const WalletScreen({super.key});
@@ -18,21 +20,11 @@ class WalletScreen extends ConsumerStatefulWidget {
   ConsumerState<WalletScreen> createState() => _WalletScreenState();
 }
 
-class _WalletScreenState extends ConsumerState<WalletScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
+class _WalletScreenState extends ConsumerState<WalletScreen> {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
     // TODO: Load wallet data from API
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 
   @override
@@ -57,326 +49,425 @@ class _WalletScreenState extends ConsumerState<WalletScreen>
       ),
       body: Column(
         children: [
-          // بطاقة الرصيد
-          Padding(
-            padding: EdgeInsets.all(AppSize.horizontalPadding),
-            child: WalletBalanceCard(wallet: wallet),
-          ),
-
-          SizedBox(height: 16.h),
-
-          // زر طلب سحب
-          Padding(
-            padding:
-                EdgeInsets.symmetric(horizontal: AppSize.horizontalPadding),
-            child: AppButtons(
-              text: AppMessage.requestWithdrawal,
-              onPressed: () => _showWithdrawalDialog(wallet),
-              width: double.infinity,
-              backgroundColor: AppColor.mainColor,
-            ),
-          ),
+          // بطاقة الرصيد العصري
+          _buildModernBalanceCard(wallet),
 
           SizedBox(height: 24.h),
 
-          // التبويبات
-          _buildTabs(),
-
-          SizedBox(height: 16.h),
-
           // قائمة المعاملات
           Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildTransactionsList(allTransactions),
-                _buildTransactionsList(_getEarnings(allTransactions)),
-                _buildTransactionsList(_getWithdrawals(allTransactions)),
-                _buildTransactionsList(_getCommissions(allTransactions)),
-              ],
-            ),
+            child: allTransactions.isEmpty
+                ? _buildEmptyState()
+                : _buildTransactionsList(allTransactions, wallet),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTabs() {
+  Widget _buildModernBalanceCard(WalletModel wallet) {
     return Container(
-      height: 45.h,
-      margin: EdgeInsets.symmetric(horizontal: AppSize.horizontalPadding),
+      margin: EdgeInsets.all(AppSize.horizontalPadding),
       decoration: BoxDecoration(
-        color: AppColor.lightGray.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(12.r),
-      ),
-      child: TabBar(
-        controller: _tabController,
-        indicator: BoxDecoration(
-          color: AppColor.mainColor,
-          borderRadius: BorderRadius.circular(10.r),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColor.mainColor,
+            AppColor.mainColor.withOpacity(0.8),
+          ],
         ),
-        indicatorSize: TabBarIndicatorSize.tab,
-        dividerColor: Colors.transparent,
-        labelColor: AppColor.white,
-        unselectedLabelColor: AppColor.subGrayText,
-        labelStyle: TextStyle(
-          fontSize: AppSize.captionText,
-          fontWeight: FontWeight.bold,
-        ),
-        unselectedLabelStyle: TextStyle(
-          fontSize: AppSize.captionText,
-        ),
-        tabs: const [
-          Tab(text: AppMessage.allTransactions),
-          Tab(text: AppMessage.earnings),
-          Tab(text: AppMessage.withdrawals),
-          Tab(text: AppMessage.commissions),
+        borderRadius: BorderRadius.circular(24.r),
+        boxShadow: [
+          BoxShadow(
+            color: AppColor.mainColor.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
         ],
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(24.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // العنوان
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                AppText(
+                  text: 'المحفظة',
+                  fontSize: AppSize.heading3,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.circle,
+                        size: 8.sp,
+                        color: Colors.white,
+                      ),
+                      SizedBox(width: 6.w),
+                      AppText(
+                        text: 'مباشر',
+                        fontSize: AppSize.captionText,
+                        color: Colors.white,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 32.h),
+            // الرصيد المتاح
+            AppText(
+              text: 'الرصيد المتاح',
+              fontSize: AppSize.normalText,
+              color: Colors.white.withOpacity(0.9),
+            ),
+            SizedBox(height: 8.h),
+            // المبلغ
+            AppText(
+              text: '${wallet.balance.toStringAsFixed(2)} ${wallet.currency}',
+              fontSize: 36.sp,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+            SizedBox(height: 32.h),
+            // زر سحب الرصيد
+            AppButtons(
+              text: 'طلب سحب الرصيد',
+              onPressed: () => _showWithdrawalBottomSheet(wallet),
+              width: double.infinity,
+              backgroundColor: Colors.white,
+              textStyleColor: AppColor.mainColor,
+              height: 50.h,
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildTransactionsList(List<TransactionModel> transactions) {
-    if (transactions.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.receipt_long_rounded,
-              size: 80.sp,
-              color: AppColor.subGrayText.withOpacity(0.3),
-            ),
-            SizedBox(height: 16.h),
-            Text(
-              AppMessage.noTransactions,
-              style: TextStyle(
-                fontSize: AppSize.normalText,
-                fontWeight: FontWeight.bold,
-                color: AppColor.textColor,
-              ),
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              AppMessage.noTransactionsMessage,
-              style: TextStyle(
-                fontSize: AppSize.smallText,
-                color: AppColor.subGrayText,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
+  Widget _buildTransactionsList(
+      List<TransactionModel> transactions, WalletModel wallet) {
     return ListView.separated(
-      padding: EdgeInsets.all(AppSize.horizontalPadding),
+      padding: EdgeInsets.symmetric(horizontal: AppSize.horizontalPadding),
       itemCount: transactions.length,
       separatorBuilder: (_, __) => SizedBox(height: 12.h),
       itemBuilder: (context, index) {
         final transaction = transactions[index];
-        // Get wallet from build context
-        final wallet = WalletModel(
-          id: '',
-          vendorId: '',
-          balance: 0.0,
-          currency: 'SAR',
-          totalEarnings: 0.0,
-          totalWithdrawals: 0.0,
-          pendingAmount: 0.0,
-        );
-        return TransactionCard(
-          transaction: transaction,
-          onTap: () => _showTransactionDetails(transaction, wallet),
-        );
+        return _buildModernTransactionCard(transaction, wallet);
       },
     );
   }
 
-  List<TransactionModel> _getEarnings(List<TransactionModel> allTransactions) {
-    return allTransactions
-        .where((txn) => txn.type == TransactionType.earning)
-        .toList();
-  }
+  Widget _buildModernTransactionCard(
+      TransactionModel transaction, WalletModel wallet) {
+    // تحديد إذا كانت العملية سحب أو إيداع
+    final isWithdrawal = transaction.type == TransactionType.withdrawal;
+    final isEarning = transaction.type == TransactionType.earning;
 
-  List<TransactionModel> _getWithdrawals(List<TransactionModel> allTransactions) {
-    return allTransactions
-        .where((txn) => txn.type == TransactionType.withdrawal)
-        .toList();
-  }
+    // تحديد اللون والأيقونة
+    final iconColor = isWithdrawal ? AppColor.red : AppColor.green;
+    final icon = isWithdrawal
+        ? Icons.arrow_upward_rounded
+        : Icons.arrow_downward_rounded;
+    final title = isWithdrawal
+        ? 'عملية سحب'
+        : isEarning
+            ? 'عملية إيداع'
+            : transaction.type.arabicLabel;
 
-  List<TransactionModel> _getCommissions(List<TransactionModel> allTransactions) {
-    return allTransactions
-        .where((txn) =>
-            txn.type == TransactionType.commission ||
-            txn.type == TransactionType.refund)
-        .toList();
-  }
+    // تنسيق التاريخ
+    final dateFormat = DateFormat('yyyy-MM-dd HH:mm', 'ar');
+    final formattedDate = dateFormat.format(transaction.createdAt);
 
-  void _showWithdrawalDialog(WalletModel wallet) {
-    final amountController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.r),
-        ),
-        title: Row(
-          children: [
-            Icon(
-              Icons.upload_rounded,
-              color: AppColor.mainColor,
-              size: 24.sp,
-            ),
-            SizedBox(width: 12.w),
-            const Text(AppMessage.requestWithdrawal),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'الرصيد المتاح: ${wallet.balance.toStringAsFixed(2)} ${wallet.currency}',
-              style: TextStyle(
-                fontSize: AppSize.smallText,
-                color: AppColor.subGrayText,
-              ),
-            ),
-            SizedBox(height: 16.h),
-            TextField(
-              controller: amountController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: AppMessage.withdrawalAmount,
-                hintText: 'أدخل المبلغ',
-                suffixText: wallet.currency,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-              ),
-            ),
-            SizedBox(height: 16.h),
-            TextField(
-              decoration: InputDecoration(
-                labelText: AppMessage.bankAccount,
-                hintText: 'رقم الحساب البنكي',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(AppMessage.cancel),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              AppSnackBar.show(
-                message: 'تم إرسال طلب السحب بنجاح',
-                type: ToastType.success,
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColor.mainColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.r),
-              ),
-            ),
-            child: const Text(
-              'إرسال الطلب',
-              style: TextStyle(color: Colors.white),
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColor.white,
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
         ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _showTransactionDetails(transaction, wallet),
+          borderRadius: BorderRadius.circular(16.r),
+          child: Padding(
+            padding: EdgeInsets.all(16.w),
+            child: Row(
+              children: [
+                // الأيقونة
+                Container(
+                  width: 48.w,
+                  height: 48.w,
+                  decoration: BoxDecoration(
+                    color: iconColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    icon,
+                    color: iconColor,
+                    size: 24.sp,
+                  ),
+                ),
+                SizedBox(width: 16.w),
+                // التفاصيل
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppText(
+                        text: title,
+                        fontSize: AppSize.normalText,
+                        fontWeight: FontWeight.bold,
+                        color: AppColor.textColor,
+                      ),
+                      SizedBox(height: 4.h),
+                      AppText(
+                        text: formattedDate,
+                        fontSize: AppSize.captionText,
+                        color: AppColor.subGrayText,
+                      ),
+                    ],
+                  ),
+                ),
+                // المبلغ
+                AppText(
+                  text:
+                      '${isWithdrawal ? '-' : '+'}${transaction.amount.toStringAsFixed(2)} ${wallet.currency}',
+                  fontSize: AppSize.normalText,
+                  fontWeight: FontWeight.bold,
+                  color: iconColor,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.receipt_long_rounded,
+            size: 80.sp,
+            color: AppColor.subGrayText.withOpacity(0.3),
+          ),
+          SizedBox(height: 16.h),
+          AppText(
+            text: AppMessage.noTransactions,
+            fontSize: AppSize.normalText,
+            fontWeight: FontWeight.bold,
+            color: AppColor.textColor,
+          ),
+          SizedBox(height: 8.h),
+          AppText(
+            text: AppMessage.noTransactionsMessage,
+            fontSize: AppSize.smallText,
+            color: AppColor.subGrayText,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showWithdrawalBottomSheet(WalletModel wallet) {
+    final amountController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    UnifiedBottomSheet.showCustom(
+      context: context,
+      title: 'طلب سحب الرصيد',
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 24.w),
+        child: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // الرصيد المتاح
+              Container(
+                padding: EdgeInsets.all(16.w),
+                decoration: BoxDecoration(
+                  color: AppColor.mainColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.account_balance_wallet_rounded,
+                      color: AppColor.mainColor,
+                      size: 24.sp,
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AppText(
+                            text: 'الرصيد المتاح',
+                            fontSize: AppSize.captionText,
+                            color: AppColor.subGrayText,
+                          ),
+                          SizedBox(height: 4.h),
+                          AppText(
+                            text:
+                                '${wallet.balance.toStringAsFixed(2)} ${wallet.currency}',
+                            fontSize: AppSize.heading3,
+                            fontWeight: FontWeight.bold,
+                            color: AppColor.mainColor,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 24.h),
+              // حقل المبلغ
+              AppTextFields(
+                controller: amountController,
+                hintText: 'أدخل المبلغ',
+                labelText: 'مبلغ السحب',
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                suffix: AppText(
+                  text: wallet.currency,
+                  fontSize: AppSize.normalText,
+                  color: AppColor.subGrayText,
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'يرجى إدخال المبلغ';
+                  }
+                  final amount = double.tryParse(value);
+                  if (amount == null || amount <= 0) {
+                    return 'يرجى إدخال مبلغ صحيح';
+                  }
+                  if (amount > wallet.balance) {
+                    return 'المبلغ أكبر من الرصيد المتاح';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 24.h),
+              // الأزرار
+              Row(
+                children: [
+                  Expanded(
+                    child: AppButtons(
+                      text: AppMessage.cancel,
+                      onPressed: () => Navigator.pop(context),
+                      backgroundColor: AppColor.lightGray,
+                      textStyleColor: AppColor.textColor,
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: AppButtons(
+                      text: 'إرسال الطلب',
+                      onPressed: () {
+                        if (formKey.currentState!.validate()) {
+                          Navigator.pop(context);
+                          // TODO: Call API to request withdrawal
+                          AppSnackBar.show(
+                            message: 'تم إرسال طلب السحب بنجاح',
+                            type: ToastType.success,
+                          );
+                        }
+                      },
+                      backgroundColor: AppColor.mainColor,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 24.h),
+            ],
+          ),
+        ),
       ),
     );
   }
 
   void _showTransactionDetails(TransactionModel transaction, WalletModel wallet) {
-    showModalBottomSheet(
+    final isWithdrawal = transaction.type == TransactionType.withdrawal;
+    final dateFormat = DateFormat('yyyy-MM-dd HH:mm', 'ar');
+    final formattedDate = dateFormat.format(transaction.createdAt);
+
+    UnifiedBottomSheet.showCustom(
       context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
-      ),
-      builder: (context) => Container(
-        padding: EdgeInsets.all(24.w),
+      title: 'تفاصيل العملية',
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 24.w),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: Container(
-                width: 40.w,
-                height: 4.h,
-                decoration: BoxDecoration(
-                  color: AppColor.borderColor,
-                  borderRadius: BorderRadius.circular(2.r),
-                ),
-              ),
+            // نوع العملية
+            _buildDetailRow(
+              'نوع العملية',
+              isWithdrawal ? 'عملية سحب' : 'عملية إيداع',
             ),
-            SizedBox(height: 24.h),
-            Text(
-              AppMessage.transactionDetails,
-              style: TextStyle(
-                fontSize: AppSize.heading3,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 24.h),
+            SizedBox(height: 16.h),
+            // المبلغ
             _buildDetailRow(
               'المبلغ',
               '${transaction.amount.toStringAsFixed(2)} ${wallet.currency}',
             ),
+            SizedBox(height: 16.h),
+            // التاريخ
             _buildDetailRow(
-              AppMessage.transactionType,
-              transaction.type.arabicLabel,
+              'التاريخ',
+              formattedDate,
             ),
+            SizedBox(height: 16.h),
+            // الحالة
             _buildDetailRow(
-              AppMessage.transactionStatus,
+              'الحالة',
               transaction.status.arabicLabel,
             ),
-            if (transaction.orderNumber != null)
+            if (transaction.orderNumber != null) ...[
+              SizedBox(height: 16.h),
               _buildDetailRow(
                 'رقم الطلب',
                 transaction.orderNumber!,
               ),
-            if (transaction.reference != null)
+            ],
+            if (transaction.reference != null) ...[
+              SizedBox(height: 16.h),
               _buildDetailRow(
-                AppMessage.reference,
+                'المرجع',
                 transaction.reference!,
               ),
-            if (transaction.commissionAmount != null)
-              _buildDetailRow(
-                'العمولة',
-                '${transaction.commissionAmount!.toStringAsFixed(2)} ${wallet.currency}',
-              ),
-            _buildDetailRow(
-              AppMessage.transactionDate,
-              transaction.createdAt.toString().split('.')[0],
-            ),
-            if (transaction.description != null) ...[
-              SizedBox(height: 12.h),
-              Text(
-                'الوصف:',
-                style: TextStyle(
-                  fontSize: AppSize.smallText,
-                  color: AppColor.subGrayText,
-                ),
-              ),
-              SizedBox(height: 4.h),
-              Text(
-                transaction.description!,
-                style: TextStyle(
-                  fontSize: AppSize.normalText,
-                ),
-              ),
             ],
+            SizedBox(height: 24.h),
+            // زر الإغلاق
+            AppButtons(
+              text: AppMessage.ok,
+              onPressed: () => Navigator.pop(context),
+              backgroundColor: AppColor.mainColor,
+              width: double.infinity,
+            ),
             SizedBox(height: 24.h),
           ],
         ),
@@ -385,27 +476,21 @@ class _WalletScreenState extends ConsumerState<WalletScreen>
   }
 
   Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 12.h),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: AppSize.smallText,
-              color: AppColor.subGrayText,
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: AppSize.normalText,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        AppText(
+          text: label,
+          fontSize: AppSize.normalText,
+          color: AppColor.subGrayText,
+        ),
+        AppText(
+          text: value,
+          fontSize: AppSize.normalText,
+          fontWeight: FontWeight.bold,
+          color: AppColor.textColor,
+        ),
+      ],
     );
   }
 }
