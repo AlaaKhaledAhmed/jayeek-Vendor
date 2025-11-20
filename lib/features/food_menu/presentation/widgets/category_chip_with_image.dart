@@ -40,6 +40,36 @@ class CategoryChipWithImage extends StatelessWidget {
     return category.name ?? '';
   }
 
+  /// Convert iconCode (like "U+1F354") to emoji character
+  String? _getIconFromCode() {
+    if (category.iconCode == null || category.iconCode!.isEmpty) {
+      return null;
+    }
+
+    try {
+      String code = category.iconCode!.trim();
+      // Handle format like "U+1F354" or "1F354"
+      if (code.startsWith('U+')) {
+        code = code.substring(2);
+      }
+
+      // Parse hex value and convert to emoji
+      final codePoint = int.parse(code, radix: 16);
+
+      // Handle emoji that require surrogate pairs (code points > 0xFFFF)
+      if (codePoint > 0xFFFF) {
+        // Convert to UTF-16 surrogate pair
+        final high = 0xD800 + ((codePoint - 0x10000) >> 10);
+        final low = 0xDC00 + ((codePoint - 0x10000) & 0x3FF);
+        return String.fromCharCodes([high, low]);
+      } else {
+        return String.fromCharCode(codePoint);
+      }
+    } catch (e) {
+      return null;
+    }
+  }
+
   /// Get image provider from category image
   ImageProvider<Object>? _getImageProvider() {
     if (category.image != null && category.image!.isNotEmpty) {
@@ -84,16 +114,6 @@ class CategoryChipWithImage extends StatelessWidget {
     return null;
   }
 
-  bool _isEmoji() {
-    if (category.image != null &&
-        category.image!.isNotEmpty &&
-        category.image != 'string' &&
-        category.image!.length <= 4) {
-      return true;
-    }
-    return false;
-  }
-
   @override
   Widget build(BuildContext context) {
     final effectiveSelectedColor = selectedColor ?? AppColor.subtextColor;
@@ -101,6 +121,8 @@ class CategoryChipWithImage extends StatelessWidget {
     final effectiveBorderRadius = borderRadius ?? 25;
     final imageProvider = _getImageProvider();
     final categoryName = _getCategoryName();
+    final iconEmoji = _getIconFromCode();
+    final hasIcon = iconEmoji != null;
 
     return GestureDetector(
       onTap: onTap,
@@ -141,18 +163,18 @@ class CategoryChipWithImage extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Category Image or Emoji
+            // Category Icon or Image
             AnimatedScale(
               scale: isSelected ? 1.25 : 1.0,
               duration: const Duration(milliseconds: 700),
               curve: Curves.elasticOut,
-              child: _isEmoji()
+              child: hasIcon
                   ? Container(
                       width: 30.spMin,
                       height: 30.spMin,
                       alignment: Alignment.center,
                       child: Text(
-                        category.image!,
+                        iconEmoji,
                         style: TextStyle(fontSize: 24.sp),
                       ),
                     )

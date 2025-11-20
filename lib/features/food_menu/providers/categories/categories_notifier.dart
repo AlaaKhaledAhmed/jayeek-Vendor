@@ -158,6 +158,38 @@ class CategoriesNotifier extends StateNotifier<CategoriesState>
     state = state.copyWith(selectedImagePath: category.image);
   }
 
+  /// Convert emoji to Unicode code point (e.g., "🍔" -> "U+1F354")
+  String? _emojiToIconCode(String emoji) {
+    if (emoji.isEmpty) return null;
+    
+    try {
+      // Get the first character's code point (handles surrogate pairs)
+      final runes = emoji.runes.toList();
+      if (runes.isEmpty) return null;
+      
+      int codePoint;
+      if (runes.length == 1) {
+        // Single code unit
+        codePoint = runes[0];
+      } else if (runes.length == 2) {
+        // Surrogate pair - convert back to code point
+        final high = runes[0];
+        final low = runes[1];
+        if (high >= 0xD800 && high <= 0xDBFF && low >= 0xDC00 && low <= 0xDFFF) {
+          codePoint = 0x10000 + ((high - 0xD800) << 10) + (low - 0xDC00);
+        } else {
+          codePoint = runes[0];
+        }
+      } else {
+        codePoint = runes[0];
+      }
+      
+      return 'U+${codePoint.toRadixString(16).toUpperCase()}';
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<PostDataHandle<FoodCategoryModel>> createCategory() async {
     if (!_addFormKey.currentState!.validate()) {
       return PostDataHandle<FoodCategoryModel>(
@@ -173,6 +205,8 @@ class CategoriesNotifier extends StateNotifier<CategoriesState>
 
     // Convert image to base64 if it's a local file (not emoji)
     String? imageBase64;
+    String? iconCode;
+    
     if (_addSelectedImagePath != null && _addSelectedImagePath!.isNotEmpty) {
       // Check if it's an emoji (short string, typically 1-4 characters)
       bool isEmoji = _addSelectedImagePath!.length <= 10 &&
@@ -181,7 +215,8 @@ class CategoriesNotifier extends StateNotifier<CategoriesState>
           !_addSelectedImagePath!.contains('.');
 
       if (isEmoji) {
-        // Don't send image for emoji, just skip it
+        // Convert emoji to iconCode
+        iconCode = _emojiToIconCode(_addSelectedImagePath!);
         imageBase64 = null;
       } else if (_addSelectedImagePath!.startsWith('/') &&
           !_addSelectedImagePath!.startsWith('http')) {
@@ -206,6 +241,7 @@ class CategoriesNotifier extends StateNotifier<CategoriesState>
           ? null
           : _addNameArController.text.trim(),
       image: imageBase64,
+      iconCode: iconCode,
       organizationId: organizationId,
     );
 
@@ -237,7 +273,9 @@ class CategoriesNotifier extends StateNotifier<CategoriesState>
 
     // Convert image to base64 if it's a local file (not emoji)
     String? imageBase64;
+    String? iconCode;
     final imagePath = _editSelectedImagePath ?? _editingCategory!.image;
+    
     if (imagePath != null && imagePath.isNotEmpty) {
       // Check if it's an emoji (short string, typically 1-4 characters)
       bool isEmoji = imagePath.length <= 10 &&
@@ -246,7 +284,8 @@ class CategoriesNotifier extends StateNotifier<CategoriesState>
           !imagePath.contains('.');
 
       if (isEmoji) {
-        // Don't send image for emoji, just skip it
+        // Convert emoji to iconCode
+        iconCode = _emojiToIconCode(imagePath);
         imageBase64 = null;
       } else if (imagePath.startsWith('/') && !imagePath.startsWith('http')) {
         // It's a local file path, convert to base64
@@ -270,6 +309,7 @@ class CategoriesNotifier extends StateNotifier<CategoriesState>
           ? null
           : _editNameArController.text.trim(),
       image: imageBase64,
+      iconCode: iconCode,
       organizationId: organizationId,
     );
 

@@ -62,6 +62,36 @@ class _CategoryItemCardState extends State<CategoryItemCard>
     return widget.category.name ?? '';
   }
 
+  /// Convert iconCode (like "U+1F354") to emoji character
+  String? _getIconFromCode() {
+    if (widget.category.iconCode == null || widget.category.iconCode!.isEmpty) {
+      return null;
+    }
+
+    try {
+      String code = widget.category.iconCode!.trim();
+      // Handle format like "U+1F354" or "1F354"
+      if (code.startsWith('U+')) {
+        code = code.substring(2);
+      }
+
+      // Parse hex value and convert to emoji
+      final codePoint = int.parse(code, radix: 16);
+
+      // Handle emoji that require surrogate pairs (code points > 0xFFFF)
+      if (codePoint > 0xFFFF) {
+        // Convert to UTF-16 surrogate pair
+        final high = 0xD800 + ((codePoint - 0x10000) >> 10);
+        final low = 0xDC00 + ((codePoint - 0x10000) & 0x3FF);
+        return String.fromCharCodes([high, low]);
+      } else {
+        return String.fromCharCode(codePoint);
+      }
+    } catch (e) {
+      return null;
+    }
+  }
+
   /// Get image provider from category image
   ImageProvider<Object>? _getImageProvider() {
     if (widget.category.image != null && widget.category.image!.isNotEmpty) {
@@ -102,21 +132,12 @@ class _CategoryItemCardState extends State<CategoryItemCard>
     return null;
   }
 
-  bool _isEmoji() {
-    if (widget.category.image != null &&
-        widget.category.image!.isNotEmpty &&
-        widget.category.image != 'string' &&
-        widget.category.image!.length <= 4) {
-      return true;
-    }
-    return false;
-  }
-
   @override
   Widget build(BuildContext context) {
     final imageProvider = _getImageProvider();
     final categoryName = _getCategoryName();
-    final isEmoji = _isEmoji();
+    final iconEmoji = _getIconFromCode();
+    final hasIcon = iconEmoji != null;
 
     return ScaleTransition(
       scale: _scaleAnimation,
@@ -137,7 +158,7 @@ class _CategoryItemCardState extends State<CategoryItemCard>
             padding: EdgeInsets.all(16.w),
             child: Row(
               children: [
-                // Modern Image/Emoji Container
+                // Modern Image/Icon Container
                 Hero(
                   tag: 'category_${widget.category.id}',
                   child: Container(
@@ -146,19 +167,20 @@ class _CategoryItemCardState extends State<CategoryItemCard>
                     decoration: AppDecoration.decoration(
                       shadow: false,
                       showBorder: true,
-                      color: isEmoji
+                      color: hasIcon
                           ? null
                           : AppColor.lightGray.resolveOpacity(0.5),
                       borderRadius: BorderRadius.circular(18.r),
-                      image: isEmoji
+                      image: hasIcon
                           ? null
                           : (imageProvider ??
                               const AssetImage(Assets.imagesDefault)),
                     ),
-                    child: isEmoji
+                    child: hasIcon
                         ? Center(
                             child: AppText(
-                              text: widget.category.image!,
+                              text: iconEmoji,
+                              fontSize: 32.sp,
                             ),
                           )
                         : null,

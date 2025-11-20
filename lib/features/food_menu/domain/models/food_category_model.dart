@@ -57,6 +57,7 @@ class FoodCategoryModel extends Equatable {
     this.name,
     this.nameAr,
     this.image,
+    this.iconCode,
     this.deleteFlag,
     this.forSale,
     this.items,
@@ -68,6 +69,7 @@ class FoodCategoryModel extends Equatable {
   final String? name;
   final String? nameAr;
   final String? image; // Can be null or base64 string
+  final String? iconCode; // Unicode code point like "U+1F354"
   final bool? deleteFlag;
   final bool? forSale;
   final List<MenuItemModel>? items;
@@ -79,6 +81,7 @@ class FoodCategoryModel extends Equatable {
     String? name,
     String? nameAr,
     String? image,
+    String? iconCode,
     bool? deleteFlag,
     bool? forSale,
     List<MenuItemModel>? items,
@@ -90,6 +93,7 @@ class FoodCategoryModel extends Equatable {
       name: name ?? this.name,
       nameAr: nameAr ?? this.nameAr,
       image: image ?? this.image,
+      iconCode: iconCode ?? this.iconCode,
       deleteFlag: deleteFlag ?? this.deleteFlag,
       forSale: forSale ?? this.forSale,
       items: items ?? this.items,
@@ -104,6 +108,7 @@ class FoodCategoryModel extends Equatable {
       name: json["name"],
       nameAr: json["nameAr"],
       image: json["image"],
+      iconCode: json["iconCode"],
       deleteFlag: json["deleteFlag"],
       forSale: json["forSale"],
       items: json["items"] != null
@@ -121,6 +126,7 @@ class FoodCategoryModel extends Equatable {
         "name": name,
         "nameAr": nameAr,
         "image": image,
+        "iconCode": iconCode,
         "deleteFlag": deleteFlag,
         "forSale": forSale,
         "items": items?.map((x) => x.toJson()).toList(),
@@ -134,6 +140,7 @@ class FoodCategoryModel extends Equatable {
         name,
         nameAr,
         image,
+        iconCode,
         deleteFlag,
         forSale,
         items,

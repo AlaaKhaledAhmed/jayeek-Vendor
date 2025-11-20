@@ -124,10 +124,24 @@ class FoodRepositoryImpl implements FoodRepository {
       body['contentBase64'] = category.image;
     }
 
+    // Add iconCode if available
+    if (category.iconCode != null && category.iconCode!.isNotEmpty) {
+      body['iconCode'] = category.iconCode;
+    }
+
     return networkService.post<FoodCategoryModel>(
       url: ApiEndPoints.createFoodCategoryUrl,
       body: body,
-      fromJson: FoodCategoryModel.fromJson,
+      fromJson: (json) {
+        // Handle response that may not have data field
+        if (json.containsKey('data') && json['data'] != null) {
+          return FoodCategoryModel.fromJson(json['data']);
+        } else if (json.containsKey('success') && json['success'] == true) {
+          // Response only has success message, return empty model
+          return FoodCategoryModel();
+        }
+        return FoodCategoryModel.fromJson(json);
+      },
     );
   }
 
@@ -148,10 +162,24 @@ class FoodRepositoryImpl implements FoodRepository {
       body['contentBase64'] = category.image;
     }
 
+    // Add iconCode if available
+    if (category.iconCode != null && category.iconCode!.isNotEmpty) {
+      body['iconCode'] = category.iconCode;
+    }
+
     return networkService.put<FoodCategoryModel>(
       url: ApiEndPoints.updateFoodCategoryUrl,
       body: body,
-      fromJson: FoodCategoryModel.fromJson,
+      fromJson: (json) {
+        // Handle response that may not have data field
+        if (json.containsKey('data') && json['data'] != null) {
+          return FoodCategoryModel.fromJson(json['data']);
+        } else if (json.containsKey('success') && json['success'] == true) {
+          // Response only has success message, return empty model
+          return FoodCategoryModel();
+        }
+        return FoodCategoryModel.fromJson(json);
+      },
     );
   }
 

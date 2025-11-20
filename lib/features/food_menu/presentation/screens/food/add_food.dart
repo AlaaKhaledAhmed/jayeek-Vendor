@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -122,78 +121,73 @@ class AddFoodPage extends ConsumerWidget {
                                       (category) =>
                                           DropdownMenuItem<FoodCategoryModel>(
                                         value: category,
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            if (category.image != null &&
-                                                category.image!.isNotEmpty)
-                                              Builder(
-                                                builder: (context) {
-                                                  try {
-                                                    // Validate image is not empty or invalid
-                                                    if (category.image ==
-                                                            null ||
-                                                        category
-                                                            .image!.isEmpty ||
-                                                        category.image ==
-                                                            'string' ||
-                                                        category.image!.length <
-                                                            3) {
-                                                      return SizedBox(
-                                                          width: 24.w,
-                                                          height: 24.h);
-                                                    }
+                                        child: Builder(
+                                          builder: (context) {
+                                            // Convert iconCode to emoji
+                                            String? iconEmoji;
+                                            if (category.iconCode != null &&
+                                                category.iconCode!.isNotEmpty) {
+                                              try {
+                                                String code =
+                                                    category.iconCode!.trim();
+                                                if (code.startsWith('U+')) {
+                                                  code = code.substring(2);
+                                                }
+                                                final codePoint =
+                                                    int.parse(code, radix: 16);
 
-                                                    final imageProvider = category
-                                                            .image!
-                                                            .startsWith('http')
-                                                        ? NetworkImage(
-                                                                category.image!)
-                                                            as ImageProvider
-                                                        : MemoryImage(
-                                                            base64Decode(category
-                                                                    .image!
-                                                                    .contains(
-                                                                        ',')
-                                                                ? category
-                                                                    .image!
-                                                                    .split(',')
-                                                                    .last
-                                                                : category
-                                                                    .image!));
-                                                    return Container(
-                                                      width: 24.w,
-                                                      height: 24.h,
-                                                      margin: EdgeInsets.only(
-                                                          left: 8.w),
-                                                      decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(6.r),
-                                                        image: DecorationImage(
-                                                          image: imageProvider,
-                                                          fit: BoxFit.cover,
-                                                        ),
-                                                      ),
-                                                    );
-                                                  } catch (e) {
-                                                    return SizedBox(
-                                                        width: 24.w,
-                                                        height: 24.h);
-                                                  }
-                                                },
-                                              ),
-                                            Flexible(
-                                              child: AppText(
-                                                text: category.nameAr ??
-                                                    category.name ??
-                                                    '',
-                                                fontSize: AppSize.captionText,
-                                                color: AppColor.textColor,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ],
+                                                // Handle emoji that require surrogate pairs (code points > 0xFFFF)
+                                                if (codePoint > 0xFFFF) {
+                                                  final high = 0xD800 +
+                                                      ((codePoint - 0x10000) >>
+                                                          10);
+                                                  final low = 0xDC00 +
+                                                      ((codePoint - 0x10000) &
+                                                          0x3FF);
+                                                  iconEmoji =
+                                                      String.fromCharCodes(
+                                                          [high, low]);
+                                                } else {
+                                                  iconEmoji =
+                                                      String.fromCharCode(
+                                                          codePoint);
+                                                }
+                                              } catch (e) {
+                                                iconEmoji = null;
+                                              }
+                                            }
+
+                                            return Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                if (iconEmoji != null)
+                                                  Container(
+                                                    width: 24.w,
+                                                    height: 24.h,
+                                                    margin: EdgeInsets.only(
+                                                        left: 8.w),
+                                                    alignment: Alignment.center,
+                                                    child: Text(
+                                                      iconEmoji,
+                                                      style: TextStyle(
+                                                          fontSize: 18.sp),
+                                                    ),
+                                                  ),
+                                                Flexible(
+                                                  child: AppText(
+                                                    text: category.nameAr ??
+                                                        category.name ??
+                                                        '',
+                                                    fontSize:
+                                                        AppSize.captionText,
+                                                    color: AppColor.textColor,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          },
                                         ),
                                       ),
                                     )
